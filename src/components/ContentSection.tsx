@@ -272,7 +272,7 @@ export default function ContentSection() {
   return (
     <section
       ref={sectionRef}
-      className={`h-[300vh] w-full relative ${isStraight ? "z-[200]" : "z-20"}`}
+      className={`min-h-[300vh] w-full relative ${isStraight ? "z-[200]" : "z-20"}`}
     >
       <motion.div
         animate={{
@@ -375,8 +375,8 @@ export default function ContentSection() {
                       layout
                       transition={{ layout: { duration: 0.6, ease: [0.2, 0.8, 0.2, 1] } }}
                       className={`relative flex items-center justify-center font-mono border text-xs md:text-sm overflow-hidden ${isDots
-                          ? "w-2 h-2 p-0 rounded-full border-transparent"
-                          : "px-3 py-1.5 rounded-full"
+                        ? "w-2 h-2 p-0 rounded-full border-transparent"
+                        : "px-3 py-1.5 rounded-full"
                         } ${isDots
                           ? ""
                           : isActive
