@@ -4,7 +4,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence, useScroll, useMotionValueEvent, LayoutGroup, useTransform, MotionValue } from "framer-motion";
 import { items, type Item } from "@/data/items";
 import CircularNav from "./CircularNav";
-import { Lock, Unlock, X, ArrowUpRight } from "lucide-react";
+import { Lock, Unlock, X, ArrowUpRight, Globe, Monitor, Terminal } from "lucide-react";
 
 // --- NEW COMPONENT: SCROLL BLUR CARD ---
 // Blurs itself as it scrolls up towards the header
@@ -633,7 +633,9 @@ export default function ContentSection() {
                   </>
                 ) : (
                   <div className="w-24 h-24 md:w-32 md:h-32 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center">
-                    <span className="text-4xl">✨</span>
+                    {previewItem.category === "Websites" && <Globe className="w-12 h-12 text-white/50" />}
+                    {previewItem.category === "Softwares" && <Monitor className="w-12 h-12 text-white/50" />}
+                    {previewItem.category === "Scripts" && <Terminal className="w-12 h-12 text-white/50" />}
                   </div>
                 )}
               </div>
