@@ -1,10 +1,77 @@
 "use client";
 
 import React, { useEffect, useRef, useState } from "react";
-import { motion, AnimatePresence, useScroll, useMotionValueEvent, LayoutGroup } from "framer-motion";
+import { motion, AnimatePresence, useScroll, useMotionValueEvent, LayoutGroup, useTransform, MotionValue } from "framer-motion";
 import { items, type Item } from "@/data/items";
 import CircularNav from "./CircularNav";
 import { Lock, Unlock, X, ArrowUpRight } from "lucide-react";
+
+// --- NEW COMPONENT: SCROLL BLUR CARD ---
+// Blurs itself as it scrolls up towards the header
+const ScrollBlurCard = ({
+  item,
+  onClick,
+  variants
+}: {
+  item: Item;
+  onClick: (e: React.MouseEvent<HTMLAnchorElement>, item: Item) => void;
+  variants: any;
+}) => {
+  const ref = useRef(null);
+
+  // Track this specific card's position relative to the viewport
+  const { scrollYProgress } = useScroll({
+    target: ref,
+    // Start fading when top is 30vh from top (below header)
+    // Finish fading when top is 12vh from top (under header)
+    offset: ["start 30vh", "start 12vh"]
+  });
+
+  const opacity = useTransform(scrollYProgress, [0, 1], [1, 0]);
+  const blur = useTransform(scrollYProgress, [0, 1], ["0px", "8px"]);
+  const scale = useTransform(scrollYProgress, [0, 1], [1, 0.95]);
+
+  return (
+    <motion.a
+      ref={ref}
+      href={item.link}
+      target="_blank"
+      rel="noreferrer"
+      onClick={(event) => onClick(event, item)}
+      variants={variants}
+      style={{ opacity, filter: `blur(${blur})`, scale }}
+      className="group relative flex justify-between items-start gap-4 bg-white/5 border border-white/10 p-6 rounded-2xl hover:bg-white/10 transition-colors overflow-hidden backdrop-blur-sm cursor-pointer"
+    >
+      <div className="flex flex-col z-10">
+        <h3 className="text-xl font-bold text-white mb-2 group-hover:text-[#a3e635] transition-colors font-mono">
+          {item.title}
+        </h3>
+        <p className="text-gray-400 text-sm font-sans leading-relaxed">
+          {item.description}
+        </p>
+      </div>
+
+      {item.image && (
+        <div className="relative shrink-0 w-12 h-12 rounded-lg bg-black/50 border border-white/10 overflow-hidden flex items-center justify-center group-hover:border-[#a3e635]/50 transition-colors">
+          <img
+            src={item.image}
+            alt={item.title}
+            loading="lazy"
+            decoding="async"
+            onError={(event) => {
+              const target = event.currentTarget;
+              target.onerror = null;
+              target.src = "/icon.png";
+            }}
+            className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity"
+          />
+        </div>
+      )}
+
+      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 z-0" />
+    </motion.a>
+  );
+};
 
 const TABS = ["Softwares", "Websites", "Scripts"] as const;
 
@@ -36,15 +103,17 @@ export default function ContentSection() {
     return item.tags.includes(activeTag) || item.tags.includes("all");
   });
 
-  const { scrollYProgress } = useScroll({
-    target: sectionRef,
-    offset: ["start end", "end start"]
-  });
+  const { scrollY } = useScroll();
 
-  useMotionValueEvent(scrollYProgress, "change", (latest) => {
-    if (latest > 0.5 && !isStraight) {
+  useMotionValueEvent(scrollY, "change", (latest) => {
+    // Add hysteresis to prevent flickering
+    const viewportHeight = typeof window !== "undefined" ? window.innerHeight : 800;
+    const lockThreshold = viewportHeight * 2.2; // approx where hero ends
+    const unlockThreshold = viewportHeight * 1.8; // give some buffer before unlocking
+
+    if (latest > lockThreshold && !isStraight) {
       setIsStraight(true);
-    } else if (latest <= 0.5 && isStraight) {
+    } else if (latest < unlockThreshold && isStraight) {
       setIsStraight(false);
     }
   });
@@ -279,220 +348,211 @@ export default function ContentSection() {
           top: isStraight ? "2vh" : "20vh"
         }}
         transition={{ duration: 0.5, ease: "easeInOut" }}
-        className="sticky flex flex-col items-center w-full"
+        className="sticky flex flex-col items-center w-full z-40 top-0 pointer-events-none"
       >
-        {/* --- LOCK ICON --- */}
-        {/* Only appears when locked (isStraight) */}
-        <div className="absolute left-4 md:left-20 top-[30px] -translate-y-1/2 z-40">
-          <AnimatePresence>
-            {isStraight && (
-              <motion.div
-                key="locked"
-                initial={{ opacity: 0, scale: 0.5, x: -20 }}
-                animate={{ opacity: 1, scale: 1, x: 0 }}
-                exit={{ opacity: 0, scale: 0.5, x: -20 }}
-                transition={{ duration: 0.3 }}
-                className="relative"
-              >
-                <button
-                  type="button"
-                  onClick={() => {
-                    if (isLocked) {
-                      if (clampRafRef.current !== null) {
-                        window.cancelAnimationFrame(clampRafRef.current);
-                        clampRafRef.current = null;
-                      }
-                      lockedScrollYRef.current = null;
-                      setIsLocked(false);
-                      window.requestAnimationFrame(() => {
-                        window.scrollTo({ top: 0, behavior: "smooth" });
-                      });
-                    } else {
-                      setIsLocked(true);
-                    }
-                  }}
-                  className="p-2 bg-[#a3e635]/10 rounded-full border border-[#a3e635]/20 backdrop-blur-md hover:bg-[#a3e635]/20 transition-colors"
-                  aria-pressed={isLocked}
-                  aria-label={isLocked ? "Unlock section" : "Lock section"}
+        <div className="pointer-events-auto w-full flex flex-col items-center">
+          {/* --- LOCK ICON --- */}
+          {/* Only appears when locked (isStraight) */}
+          <div className="absolute left-4 md:left-20 top-[30px] -translate-y-1/2 z-40">
+            <AnimatePresence>
+              {isStraight && (
+                <motion.div
+                  key="locked"
+                  initial={{ opacity: 0, scale: 0.5, x: -20 }}
+                  animate={{ opacity: 1, scale: 1, x: 0 }}
+                  exit={{ opacity: 0, scale: 0.5, x: -20 }}
+                  transition={{ duration: 0.3 }}
+                  className="relative"
                 >
-                  {isLocked ? (
-                    <Lock className="w-5 h-5 text-[#a3e635]" />
-                  ) : (
-                    <Unlock className="w-5 h-5 text-white/90" />
-                  )}
-                </button>
-                <AnimatePresence>
-                  {showUnlockHint && (
-                    <motion.div
-                      key="unlock-hint"
-                      initial={{ opacity: 0, y: 6 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: 6 }}
-                      transition={{ duration: 0.2 }}
-                      className="absolute left-full ml-3 top-1/2 -translate-y-1/2 z-50"
-                    >
-                      <div className="px-4 py-3 rounded-xl bg-black/70 border border-[#a3e635]/30 text-sm text-[#d9f99d] shadow-lg backdrop-blur-md whitespace-nowrap">
-                        Unlock the site to scroll up.
-                      </div>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
-
-        <CircularNav
-          activeTab={activeTab}
-          setActiveTab={(tab) => {
-            setActiveTab(tab);
-            setActiveTag("all");
-          }}
-          tabs={[...TABS]}
-          isStraight={isStraight}
-        />
-
-        <motion.div
-          animate={{ height: isStraight ? "60px" : "80px" }}
-          transition={{ duration: 0.5 }}
-        />
-
-        <div className="w-full max-w-6xl px-5 min-h-screen">
-          <div className="mb-6 min-h-[24px]">
-            <LayoutGroup id="tags">
-              <div className="flex flex-wrap items-center gap-2">
-                {tagOptions.map((tag, index) => {
-                  const isActive = activeTag === tag.id;
-                  const isDots = tagMode === "dots";
-
-                  return (
-                    <motion.button
-                      key={tag.id}
-                      type="button"
-                      onClick={() => {
-                        if (!isDots) setActiveTag(tag.id);
-                      }}
-                      layout
-                      transition={{ layout: { duration: 0.6, ease: [0.2, 0.8, 0.2, 1] } }}
-                      className={`relative flex items-center justify-center font-mono border text-xs md:text-sm overflow-hidden ${isDots
-                        ? "w-2 h-2 p-0 rounded-full border-transparent"
-                        : "px-3 py-1.5 rounded-full"
-                        } ${isDots
-                          ? ""
-                          : isActive
-                            ? "bg-[#a3e635]/20 border-[#a3e635]/50 text-[#d9f99d]"
-                            : "bg-white/5 border-white/10 text-white/70 hover:text-white"
-                        }`}
-                      aria-hidden={isDots}
-                    >
-                      <motion.span
-                        animate={{ opacity: isDots ? 0 : 1 }}
-                        transition={{ duration: 0.2, ease: "easeInOut" }}
-                        className="relative"
-                      >
-                        {tag.label}
-                      </motion.span>
-                      <motion.span
-                        animate={
-                          isDots
-                            ? { opacity: 1, y: dotsAnimate ? [0, -2, 0] : 0 }
-                            : { opacity: 0, y: 0 }
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (isLocked) {
+                        if (clampRafRef.current !== null) {
+                          window.cancelAnimationFrame(clampRafRef.current);
+                          clampRafRef.current = null;
                         }
-                        transition={{
-                          duration: 2,
-                          repeat: isDots && dotsAnimate ? Infinity : 0,
-                          delay: index * 0.2,
-                          ease: "easeInOut",
-                        }}
-                        className="absolute flex items-center justify-center"
-                      >
-                        <span className="block w-1 h-1 rounded-full bg-[#a3e635]" />
-                      </motion.span>
-                    </motion.button>
-                  );
-                })}
-              </div>
-            </LayoutGroup>
-          </div>
-          <AnimatePresence mode="wait">
-            {isGridLoading ? (
-              <motion.div
-                key="grid-skeleton"
-                variants={gridVariants}
-                initial="hidden"
-                animate="show"
-                exit="hidden"
-                className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full"
-              >
-                {Array.from({ length: 6 }).map((_, index) => (
-                  <motion.div
-                    key={`skeleton-${index}`}
-                    variants={cardVariants}
-                    className="relative flex justify-between items-start gap-4 bg-white/5 border border-white/10 p-6 rounded-2xl overflow-hidden backdrop-blur-sm animate-pulse"
+                        lockedScrollYRef.current = null;
+                        setIsLocked(false);
+                        window.requestAnimationFrame(() => {
+                          window.scrollTo({ top: 0, behavior: "smooth" });
+                        });
+                      } else {
+                        setIsLocked(true);
+                      }
+                    }}
+                    className="p-2 bg-[#a3e635]/10 rounded-full border border-[#a3e635]/20 backdrop-blur-md hover:bg-[#a3e635]/20 transition-colors"
+                    aria-pressed={isLocked}
+                    aria-label={isLocked ? "Unlock section" : "Lock section"}
                   >
-                    <div className="flex flex-col gap-3 w-full">
-                      <div className="h-4 w-2/3 bg-white/10 rounded" />
-                      <div className="h-3 w-full bg-white/5 rounded" />
-                      <div className="h-3 w-5/6 bg-white/5 rounded" />
-                    </div>
-                    <div className="w-12 h-12 rounded-lg bg-white/10 border border-white/10" />
-                  </motion.div>
-                ))}
-              </motion.div>
-            ) : (
-              <motion.div
-                key={`${activeTab}-${activeTag}`}
-                variants={gridVariants}
-                initial="hidden"
-                animate="show"
-                exit="hidden"
-                className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full"
-              >
-                {filteredItems.map((item) => (
-                  <motion.a
-                    key={item.id}
-                    href={item.link}
-                    target="_blank"
-                    rel="noreferrer"
-                    onClick={(event) => handleItemClick(event, item)}
-                    variants={cardVariants}
-                    className="group relative flex justify-between items-start gap-4 bg-white/5 border border-white/10 p-6 rounded-2xl hover:bg-white/10 transition-colors overflow-hidden backdrop-blur-sm cursor-pointer"
-                  >
-                    <div className="flex flex-col z-10">
-                      <h3 className="text-xl font-bold text-white mb-2 group-hover:text-[#a3e635] transition-colors font-mono">
-                        {item.title}
-                      </h3>
-                      <p className="text-gray-400 text-sm font-sans leading-relaxed">
-                        {item.description}
-                      </p>
-                    </div>
-
-                    {item.image && (
-                      <div className="relative shrink-0 w-12 h-12 rounded-lg bg-black/50 border border-white/10 overflow-hidden flex items-center justify-center group-hover:border-[#a3e635]/50 transition-colors">
-                        <img
-                          src={item.image}
-                          alt={item.title}
-                          loading="lazy"
-                          decoding="async"
-                          onError={(event) => {
-                            const target = event.currentTarget;
-                            target.onerror = null;
-                            target.src = "/icon.png";
-                          }}
-                          className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity"
-                        />
-                      </div>
+                    {isLocked ? (
+                      <Lock className="w-5 h-5 text-[#a3e635]" />
+                    ) : (
+                      <Unlock className="w-5 h-5 text-white/90" />
                     )}
+                  </button>
+                  <AnimatePresence>
+                    {showUnlockHint && (
+                      <motion.div
+                        key="unlock-hint"
+                        initial={{ opacity: 0, y: 6 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: 6 }}
+                        transition={{ duration: 0.2 }}
+                        className="absolute left-full ml-3 top-1/2 -translate-y-1/2 z-50"
+                      >
+                        <div className="px-4 py-3 rounded-xl bg-black/70 border border-[#a3e635]/30 text-sm text-[#d9f99d] shadow-lg backdrop-blur-md whitespace-nowrap">
+                          Unlock the site to scroll up.
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
 
-                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 z-0" />
-                  </motion.a>
-                ))}
-              </motion.div>
-            )}
-          </AnimatePresence>
+          <CircularNav
+            activeTab={activeTab}
+            setActiveTab={(tab) => {
+              setActiveTab(tab);
+              setActiveTag("all");
+            }}
+            tabs={[...TABS]}
+            isStraight={isStraight}
+          />
+
+          <motion.div
+            animate={{ height: isStraight ? "60px" : "80px" }}
+            transition={{ duration: 0.5 }}
+          />
+
+          {/* --- STICKY TAGS --- */}
+          <motion.div
+            initial={{ opacity: 0, y: -20, pointerEvents: "none" }}
+            animate={{
+              opacity: isStraight ? 1 : 0,
+              y: isStraight ? 0 : -20,
+              pointerEvents: isStraight ? "auto" : "none"
+            }}
+            transition={{ duration: 0.5, ease: "easeInOut" }}
+            className="w-full flex justify-center pb-4 pt-2 relative z-50 pointer-events-auto"
+          >
+            {/* Blur Backdrop for Tags */}
+
+
+            <div className="relative z-10 px-4">
+              <LayoutGroup id="tags">
+                <div className="flex flex-wrap items-center justify-center gap-2">
+                  {tagOptions.map((tag, index) => {
+                    const isActive = activeTag === tag.id;
+                    const isDots = tagMode === "dots";
+
+                    return (
+                      <motion.button
+                        key={tag.id}
+                        type="button"
+                        onClick={() => {
+                          if (!isDots) setActiveTag(tag.id);
+                        }}
+                        layout
+                        transition={{ layout: { duration: 0.6, ease: [0.2, 0.8, 0.2, 1] } }}
+                        className={`relative flex items-center justify-center font-mono border text-xs md:text-sm overflow-hidden ${isDots
+                          ? "w-2 h-2 p-0 rounded-full border-transparent"
+                          : "px-3 py-1.5 rounded-full"
+                          } ${isDots
+                            ? ""
+                            : isActive
+                              ? "bg-[#a3e635]/20 border-[#a3e635]/50 text-[#d9f99d]"
+                              : "bg-white/5 border-white/10 text-white/70 hover:text-white"
+                          }`}
+                        aria-hidden={isDots}
+                      >
+                        <motion.span
+                          animate={{ opacity: isDots ? 0 : 1 }}
+                          transition={{ duration: 0.2, ease: "easeInOut" }}
+                          className="relative"
+                        >
+                          {tag.label}
+                        </motion.span>
+                        <motion.span
+                          animate={
+                            isDots
+                              ? { opacity: 1, y: dotsAnimate ? [0, -2, 0] : 0 }
+                              : { opacity: 0, y: 0 }
+                          }
+                          transition={{
+                            duration: 2,
+                            repeat: isDots && dotsAnimate ? Infinity : 0,
+                            delay: index * 0.2,
+                            ease: "easeInOut",
+                          }}
+                          className="absolute flex items-center justify-center"
+                        >
+                          <span className="block w-1 h-1 rounded-full bg-[#a3e635]" />
+                        </motion.span>
+                      </motion.button>
+                    );
+                  })}
+                </div>
+              </LayoutGroup>
+            </div>
+          </motion.div>
+
         </div>
-
       </motion.div>
+
+      <div
+        className="w-full max-w-6xl px-5 min-h-screen mx-auto relative z-10 -mt-20 pt-[140vh]"
+      >
+        <AnimatePresence mode="wait">
+          {isGridLoading ? (
+            <motion.div
+              key="grid-skeleton"
+              variants={gridVariants}
+              initial="hidden"
+              animate="show"
+              exit="hidden"
+              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full"
+            >
+              {Array.from({ length: 6 }).map((_, index) => (
+                <motion.div
+                  key={`skeleton-${index}`}
+                  variants={cardVariants}
+                  className="relative flex justify-between items-start gap-4 bg-white/5 border border-white/10 p-6 rounded-2xl overflow-hidden backdrop-blur-sm animate-pulse"
+                >
+                  <div className="flex flex-col gap-3 w-full">
+                    <div className="h-4 w-2/3 bg-white/10 rounded" />
+                    <div className="h-3 w-full bg-white/5 rounded" />
+                    <div className="h-3 w-5/6 bg-white/5 rounded" />
+                  </div>
+                  <div className="w-12 h-12 rounded-lg bg-white/10 border border-white/10" />
+                </motion.div>
+              ))}
+            </motion.div>
+          ) : (
+            <motion.div
+              key={`${activeTab}-${activeTag}`}
+              variants={gridVariants}
+              initial="hidden"
+              animate="show"
+              exit="hidden"
+              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full"
+            >
+              {filteredItems.map((item) => (
+                <ScrollBlurCard
+                  key={item.id}
+                  item={item}
+                  onClick={handleItemClick}
+                  variants={cardVariants}
+                />
+              ))}
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+
+
 
       <AnimatePresence>
         {previewItem && (
@@ -628,6 +688,6 @@ export default function ContentSection() {
         )}
       </AnimatePresence>
 
-    </section>
+    </section >
   );
 }
