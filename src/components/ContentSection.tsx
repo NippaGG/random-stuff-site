@@ -4,18 +4,29 @@ import React, { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence, useScroll, useMotionValueEvent, LayoutGroup, useTransform, MotionValue } from "framer-motion";
 import { items, type Item } from "@/data/items";
 import CircularNav from "./CircularNav";
-import { Lock, Unlock, X, ArrowUpRight, Globe, Monitor, Terminal } from "lucide-react";
+import { Lock, Unlock, X, ArrowUpRight, Globe, Monitor, Terminal, Heart } from "lucide-react";
+import { useFavorites } from "@/hooks/useFavorites";
+import { clsx, type ClassValue } from "clsx";
+import { twMerge } from "tailwind-merge";
 
 // --- NEW COMPONENT: SCROLL BLUR CARD ---
 // Blurs itself as it scrolls up towards the header
 const ScrollBlurCard = ({
   item,
   onClick,
-  variants
+  variants,
+  isFavorite,
+  onToggle,
+  disableAnimations = false,
+  className
 }: {
   item: Item;
   onClick: (e: React.MouseEvent<HTMLAnchorElement>, item: Item) => void;
   variants: any;
+  isFavorite: boolean;
+  onToggle: (id: number) => void;
+  disableAnimations?: boolean;
+  className?: string;
 }) => {
   const ref = useRef(null);
 
@@ -31,6 +42,8 @@ const ScrollBlurCard = ({
   const blur = useTransform(scrollYProgress, [0, 1], ["0px", "8px"]);
   const scale = useTransform(scrollYProgress, [0, 1], [1, 0.95]);
 
+  const style = disableAnimations ? {} : { opacity, filter: `blur(${blur})`, scale };
+
   return (
     <motion.a
       ref={ref}
@@ -39,17 +52,33 @@ const ScrollBlurCard = ({
       rel="noreferrer"
       onClick={(event) => onClick(event, item)}
       variants={variants}
-      style={{ opacity, filter: `blur(${blur})`, scale }}
-      className="group relative flex justify-between items-start gap-4 bg-white/5 border border-white/10 p-6 rounded-2xl hover:bg-white/10 transition-colors overflow-hidden backdrop-blur-sm cursor-pointer"
+      style={style}
+      className={twMerge("group relative flex justify-between items-start gap-4 bg-white/5 border border-white/10 p-6 rounded-2xl hover:bg-white/10 transition-colors overflow-hidden backdrop-blur-sm cursor-pointer h-full", className)}
     >
-      <div className="flex flex-col z-10">
+      <div className="flex flex-col z-10 pr-12">
         <h3 className="text-xl font-bold text-white mb-2 group-hover:text-[#a3e635] transition-colors font-mono">
           {item.title}
         </h3>
-        <p className="text-gray-400 text-sm font-sans leading-relaxed">
+        <p className="text-gray-400 text-sm font-sans leading-relaxed mb-6">
           {item.description}
         </p>
       </div>
+
+      <button
+        onClick={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          onToggle(item.id);
+        }}
+        className="absolute bottom-3 right-3 p-2 rounded-full hover:bg-white/10 transition-colors z-20 group/btn"
+      >
+        <Heart
+          className={`w-5 h-5 transition-colors ${isFavorite
+            ? "fill-[#a3e635] text-[#a3e635]"
+            : "text-white/40 group-hover/btn:text-white"
+            }`}
+        />
+      </button>
 
       {item.image && (
         <div className="relative shrink-0 w-12 h-12 rounded-lg bg-black/50 border border-white/10 overflow-hidden flex items-center justify-center group-hover:border-[#a3e635]/50 transition-colors">
@@ -87,6 +116,7 @@ export default function ContentSection() {
   const [dotsAnimate, setDotsAnimate] = useState(false);
   const [previewItem, setPreviewItem] = useState<Item | null>(null);
   const [isGridLoading, setIsGridLoading] = useState(true);
+  const [showFavorites, setShowFavorites] = useState(false);
 
   const prevIsStraightRef = useRef(isStraight);
   const hintTimeoutRef = useRef<number | null>(null);
@@ -96,6 +126,8 @@ export default function ContentSection() {
   const clampRafRef = useRef<number | null>(null);
   const gridLoadingTimeoutRef = useRef<number | null>(null);
   const dotsAnimateTimeoutRef = useRef<number | null>(null);
+
+  const { isFavorite, toggleFavorite } = useFavorites();
 
   const filteredItems = items.filter((item) => {
     if (item.category !== activeTab) return false;
@@ -412,6 +444,31 @@ export default function ContentSection() {
             </AnimatePresence>
           </div>
 
+
+
+          {/* --- FAVORITES BUTTON --- */}
+          <div className="absolute right-4 md:right-20 top-[30px] -translate-y-1/2 z-40">
+            <AnimatePresence>
+              {isStraight && (
+                <motion.div
+                  key="favorites-btn"
+                  initial={{ opacity: 0, scale: 0.5, x: 20 }}
+                  animate={{ opacity: 1, scale: 1, x: 0 }}
+                  exit={{ opacity: 0, scale: 0.5, x: 20 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  <button
+                    type="button"
+                    onClick={() => setShowFavorites(true)}
+                    className="p-2 bg-[#a3e635]/10 rounded-full border border-[#a3e635]/20 backdrop-blur-md hover:bg-[#a3e635]/20 transition-colors"
+                  >
+                    <Heart className="w-5 h-5 text-[#a3e635]" />
+                  </button>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+
           <CircularNav
             activeTab={activeTab}
             setActiveTab={(tab) => {
@@ -500,7 +557,7 @@ export default function ContentSection() {
           </motion.div>
 
         </div>
-      </motion.div>
+      </motion.div >
 
       <div
         className="w-full max-w-6xl px-5 min-h-screen mx-auto relative z-10 -mt-20 pt-[140vh]"
@@ -545,6 +602,8 @@ export default function ContentSection() {
                   item={item}
                   onClick={handleItemClick}
                   variants={cardVariants}
+                  isFavorite={isFavorite(item.id)}
+                  onToggle={toggleFavorite}
                 />
               ))}
             </motion.div>
@@ -683,6 +742,77 @@ export default function ContentSection() {
                     </span>
                     <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
                   </a>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {showFavorites && (
+          <motion.div
+            key="favorites-modal"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[200] flex items-center justify-center p-4 md:p-8"
+          >
+            {/* Backdrop */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setShowFavorites(false)}
+              className="absolute inset-0 bg-black/60 backdrop-blur-xl"
+            />
+
+            {/* Modal Content */}
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.9, opacity: 0, y: 20 }}
+              className="relative w-full max-w-5xl bg-[#0a0a0a] border border-white/10 rounded-3xl overflow-hidden shadow-2xl flex flex-col h-[85vh] z-10"
+            >
+              {/* Header */}
+              <div className="flex items-center justify-between p-6 border-b border-white/10 bg-black/20">
+                <h2 className="text-2xl font-bold text-[#a3e635] font-mono flex items-center gap-3">
+                  <Heart className="fill-[#a3e635] w-6 h-6" />
+                  Favorites
+                </h2>
+                <button
+                  onClick={() => setShowFavorites(false)}
+                  className="p-2 bg-white/5 hover:bg-white/10 rounded-full transition-colors"
+                >
+                  <X className="w-5 h-5 text-white/70" />
+                </button>
+              </div>
+
+              {/* Scrollable Content */}
+              <div className="flex-1 overflow-y-auto p-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {items.filter(item => isFavorite(item.id)).length > 0 ? (
+                    items.filter(item => isFavorite(item.id)).map((item) => (
+                      <ScrollBlurCard
+                        key={item.id}
+                        item={item}
+                        onClick={(e, i) => {
+                          setShowFavorites(false);
+                          handleItemClick(e, i);
+                        }}
+                        variants={cardVariants}
+                        isFavorite={true}
+                        onToggle={toggleFavorite}
+                        disableAnimations={true}
+                        className="h-full"
+                      />
+                    ))
+                  ) : (
+                    <div className="col-span-full flex flex-col items-center justify-center py-20 text-white/30 gap-4">
+                      <Heart className="w-16 h-16" />
+                      <p className="text-xl font-mono">No favorites yet.</p>
+                    </div>
+                  )}
                 </div>
               </div>
             </motion.div>
