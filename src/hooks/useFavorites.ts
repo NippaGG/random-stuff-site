@@ -43,6 +43,10 @@ export function useFavorites() {
         setFavorites((prev) => prev.filter((fav) => fav !== id));
     }, []);
 
+    const removeFavorites = useCallback((ids: number[]) => {
+        setFavorites((prev) => prev.filter((fav) => !ids.includes(fav)));
+    }, []);
+
     const toggleFavorite = useCallback((id: number) => {
         setFavorites((prev) => {
             if (prev.includes(id)) {
@@ -66,6 +70,7 @@ export function useFavorites() {
         isLoaded,
         addFavorite,
         removeFavorite,
+        removeFavorites,
         toggleFavorite,
         clearFavorites,
         isFavorite,

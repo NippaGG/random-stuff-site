@@ -159,7 +159,7 @@ export default function ContentSection() {
   const gridLoadingTimeoutRef = useRef<number | null>(null);
   const dotsAnimateTimeoutRef = useRef<number | null>(null);
 
-  const { isFavorite, toggleFavorite, clearFavorites } = useFavorites();
+  const { isFavorite, toggleFavorite, clearFavorites, removeFavorites } = useFavorites();
 
   const handleSelectFav = (id: number) => {
     setSelectedFavs(prev =>
@@ -190,11 +190,19 @@ export default function ContentSection() {
     }
   };
 
-  const handleRemoveAll = () => {
-    if (confirm("Are you sure you want to remove all favorites?")) {
-      clearFavorites();
-      setSelectedFavs([]);
-      setIsSelectionMode(false);
+  const handleRemove = () => {
+    if (selectedFavs.length > 0) {
+      if (confirm(`Remove ${selectedFavs.length} items from favorites?`)) {
+        removeFavorites(selectedFavs);
+        setSelectedFavs([]);
+        setIsSelectionMode(false);
+      }
+    } else {
+      if (confirm("Are you sure you want to remove all favorites?")) {
+        clearFavorites();
+        setSelectedFavs([]);
+        setIsSelectionMode(false);
+      }
     }
   };
 
@@ -892,10 +900,10 @@ export default function ContentSection() {
 
                       {isSelectionMode && (
                         <button
-                          onClick={handleRemoveAll}
+                          onClick={handleRemove}
                           className="px-3 py-1.5 rounded-lg text-xs font-bold bg-red-500/10 text-red-400 border border-red-500/20 hover:bg-red-500/20 transition-colors"
                         >
-                          Remove All
+                          {selectedFavs.length > 0 ? `Remove (${selectedFavs.length})` : "Remove All"}
                         </button>
                       )}
                     </>
