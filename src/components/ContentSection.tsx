@@ -18,7 +18,9 @@ const ScrollBlurCard = ({
   isFavorite,
   onToggle,
   disableAnimations = false,
-  className
+  className,
+  isSelected = false,
+  onSelect
 }: {
   item: Item;
   onClick: (e: React.MouseEvent<HTMLAnchorElement>, item: Item) => void;
@@ -27,6 +29,8 @@ const ScrollBlurCard = ({
   onToggle: (id: number) => void;
   disableAnimations?: boolean;
   className?: string;
+  isSelected?: boolean;
+  onSelect?: (id: number) => void;
 }) => {
   const ref = useRef(null);
 
@@ -64,41 +68,67 @@ const ScrollBlurCard = ({
         </p>
       </div>
 
-      <button
-        onClick={(e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          onToggle(item.id);
-        }}
-        className="absolute bottom-3 right-3 p-2 rounded-full hover:bg-white/10 transition-colors z-20 group/btn"
-      >
-        <Heart
-          className={`w-5 h-5 transition-colors ${isFavorite
-            ? "fill-[#a3e635] text-[#a3e635]"
-            : "text-white/40 group-hover/btn:text-white"
-            }`}
-        />
-      </button>
 
-      {item.image && (
-        <div className="relative shrink-0 w-12 h-12 rounded-lg bg-black/50 border border-white/10 overflow-hidden flex items-center justify-center group-hover:border-[#a3e635]/50 transition-colors">
-          <img
-            src={item.image}
-            alt={item.title}
-            loading="lazy"
-            decoding="async"
-            onError={(event) => {
-              const target = event.currentTarget;
-              target.onerror = null;
-              target.src = "/icon.png";
+      <div className="flex flex-col gap-2 z-20 absolute bottom-3 right-3">
+        {onSelect && (
+          <button
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              onSelect(item.id);
             }}
-            className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity"
+            className={`p-2 rounded-full transition-colors ${isSelected
+              ? "bg-[#a3e635] text-black"
+              : "bg-white/10 text-white/40 hover:text-white"}`}
+          >
+            {isSelected ? (
+              <div className="w-5 h-5 flex items-center justify-center">
+                <div className="w-2.5 h-2.5 bg-black rounded-sm" />
+              </div>
+            ) : (
+              <div className="w-5 h-5 border-2 border-current rounded-md" />
+            )}
+          </button>
+        )}
+
+        <button
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            onToggle(item.id);
+          }}
+          className="p-2 rounded-full hover:bg-white/10 transition-colors group/btn"
+        >
+          <Heart
+            className={`w-5 h-5 transition-colors ${isFavorite
+              ? "fill-[#a3e635] text-[#a3e635]"
+              : "text-white/40 group-hover/btn:text-white"
+              }`}
           />
-        </div>
-      )}
+        </button>
+      </div>
+
+      {
+        item.image && (
+          <div className="relative shrink-0 w-12 h-12 rounded-lg bg-black/50 border border-white/10 overflow-hidden flex items-center justify-center group-hover:border-[#a3e635]/50 transition-colors">
+            <img
+              src={item.image}
+              alt={item.title}
+              loading="lazy"
+              decoding="async"
+              onError={(event) => {
+                const target = event.currentTarget;
+                target.onerror = null;
+                target.src = "/icon.png";
+              }}
+              className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity"
+            />
+          </div>
+        )
+      }
 
       <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 z-0" />
-    </motion.a>
+    </motion.a >
   );
 };
 
@@ -117,6 +147,8 @@ export default function ContentSection() {
   const [previewItem, setPreviewItem] = useState<Item | null>(null);
   const [isGridLoading, setIsGridLoading] = useState(true);
   const [showFavorites, setShowFavorites] = useState(false);
+  const [selectedFavs, setSelectedFavs] = useState<number[]>([]);
+  const [isSelectionMode, setIsSelectionMode] = useState(false);
 
   const prevIsStraightRef = useRef(isStraight);
   const hintTimeoutRef = useRef<number | null>(null);
@@ -127,7 +159,44 @@ export default function ContentSection() {
   const gridLoadingTimeoutRef = useRef<number | null>(null);
   const dotsAnimateTimeoutRef = useRef<number | null>(null);
 
-  const { isFavorite, toggleFavorite } = useFavorites();
+  const { isFavorite, toggleFavorite, clearFavorites } = useFavorites();
+
+  const handleSelectFav = (id: number) => {
+    setSelectedFavs(prev =>
+      prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]
+    );
+  };
+
+  const handleOpenSelected = () => {
+    const selectedItems = items.filter(item => selectedFavs.includes(item.id));
+    if (selectedItems.length > 5) {
+      if (!confirm(`You are about to open ${selectedItems.length} tabs. Continue?`)) return;
+    }
+    // Reverse to open in correct order if browser focuses new tabs
+    [...selectedItems].reverse().forEach((item, index) => {
+      // Small timeout to help with some browser blocking, though not guaranteed
+      setTimeout(() => {
+        window.open(item.link, '_blank');
+      }, index * 100);
+    });
+  };
+
+  const handleSelectAll = () => {
+    const favIds = items.filter(item => isFavorite(item.id)).map(item => item.id);
+    if (selectedFavs.length === favIds.length) {
+      setSelectedFavs([]); // Deselect all if all are selected
+    } else {
+      setSelectedFavs(favIds);
+    }
+  };
+
+  const handleRemoveAll = () => {
+    if (confirm("Are you sure you want to remove all favorites?")) {
+      clearFavorites();
+      setSelectedFavs([]);
+      setIsSelectionMode(false);
+    }
+  };
 
   const filteredItems = items.filter((item) => {
     if (item.category !== activeTab) return false;
@@ -780,12 +849,64 @@ export default function ContentSection() {
                   <Heart className="fill-[#a3e635] w-6 h-6" />
                   Favorites
                 </h2>
-                <button
-                  onClick={() => setShowFavorites(false)}
-                  className="p-2 bg-white/5 hover:bg-white/10 rounded-full transition-colors"
-                >
-                  <X className="w-5 h-5 text-white/70" />
-                </button>
+                <div className="flex items-center gap-2">
+                  {items.filter(item => isFavorite(item.id)).length > 0 && (
+                    <>
+                      {isSelectionMode ? (
+                        <>
+                          <button
+                            onClick={handleOpenSelected}
+                            disabled={selectedFavs.length === 0}
+                            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all border ${selectedFavs.length > 0
+                              ? "bg-[#a3e635] text-black border-[#a3e635] hover:bg-[#a3e635]/90"
+                              : "bg-white/5 text-white/30 border-white/10 cursor-not-allowed"
+                              }`}
+                          >
+                            Open ({selectedFavs.length})
+                          </button>
+                          <button
+                            onClick={handleSelectAll}
+                            className="px-3 py-1.5 rounded-lg text-xs font-bold bg-white/10 text-white hover:bg-white/20 border border-white/10 transition-colors"
+                          >
+                            {/* Simple toggle text */}
+                            {items.filter(item => isFavorite(item.id)).length === selectedFavs.length ? "Deselect All" : "Select All"}
+                          </button>
+                          <button
+                            onClick={() => {
+                              setIsSelectionMode(false);
+                              setSelectedFavs([]);
+                            }}
+                            className="px-3 py-1.5 rounded-lg text-xs font-bold bg-white/10 text-white hover:bg-white/20 border border-white/10 transition-colors"
+                          >
+                            Cancel
+                          </button>
+                        </>
+                      ) : (
+                        <button
+                          onClick={() => setIsSelectionMode(true)}
+                          className="px-3 py-1.5 rounded-lg text-xs font-bold bg-white/5 text-white/70 hover:text-white border border-white/10 hover:border-white/20 transition-colors"
+                        >
+                          Select
+                        </button>
+                      )}
+
+                      {isSelectionMode && (
+                        <button
+                          onClick={handleRemoveAll}
+                          className="px-3 py-1.5 rounded-lg text-xs font-bold bg-red-500/10 text-red-400 border border-red-500/20 hover:bg-red-500/20 transition-colors"
+                        >
+                          Remove All
+                        </button>
+                      )}
+                    </>
+                  )}
+                  <button
+                    onClick={() => setShowFavorites(false)}
+                    className="p-2 bg-white/5 hover:bg-white/10 rounded-full transition-colors ml-2"
+                  >
+                    <X className="w-5 h-5 text-white/70" />
+                  </button>
+                </div>
               </div>
 
               {/* Scrollable Content */}
@@ -797,14 +918,22 @@ export default function ContentSection() {
                         key={item.id}
                         item={item}
                         onClick={(e, i) => {
-                          setShowFavorites(false);
-                          handleItemClick(e, i);
+                          // Only allow selection if isSelectionMode is true
+                          if (isSelectionMode) {
+                            e.preventDefault();
+                            handleSelectFav(item.id);
+                          } else {
+                            setShowFavorites(false);
+                            handleItemClick(e, i);
+                          }
                         }}
                         variants={cardVariants}
                         isFavorite={true}
                         onToggle={toggleFavorite}
                         disableAnimations={true}
                         className="h-full"
+                        isSelected={selectedFavs.includes(item.id)}
+                        onSelect={isSelectionMode ? handleSelectFav : undefined}
                       />
                     ))
                   ) : (
