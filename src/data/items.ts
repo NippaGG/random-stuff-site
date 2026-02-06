@@ -379,6 +379,23 @@ export const items: Item[] = [
     category: "Softwares",
     tags: ["all"],
     image: "https://github.com/iad1tya.png"
+  },
+  {
+    id: 138,
+    title: "Ear (web)",
+    description: "Unofficial web app to control Nothing/CMF audio devices on PC/Mac.",
+    link: "https://earweb.bttl.xyz/",
+    category: "Websites",
+    tags: ["all"],
+    image: "https://earweb.bttl.xyz/favicon.ico"
+  },
+  {
+    id: 139,
+    title: "Scrcpy GUI",
+    description: "A modern, high-performance Windows GUI for scrcpy.",
+    link: "https://github.com/kil0bit-kb/scrcpy-gui",
+    category: "Softwares",
+    tags: ["windows"],
+    image: "https://github.com/kil0bit-kb.png"
   }
-  
 ];
