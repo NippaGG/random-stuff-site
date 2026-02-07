@@ -475,7 +475,7 @@ export default function ContentSection() {
         <div className="pointer-events-auto w-full flex flex-col items-center">
           {/* --- LOCK ICON --- */}
           {/* Only appears when locked (isStraight) */}
-          <div className="absolute left-4 md:left-20 top-[30px] -translate-y-1/2 z-40">
+          <div className="absolute left-4 md:left-20 top-[20px] -translate-y-1/2 z-40">
             <AnimatePresence>
               {isStraight && (
                 <motion.div
@@ -537,7 +537,7 @@ export default function ContentSection() {
 
 
           {/* --- RIGHT SIDE BUTTONS (Favorites + Lucky) --- */}
-          <div className="absolute right-4 md:right-20 top-[30px] -translate-y-1/2 z-40 flex items-center gap-3">
+          <div className="absolute right-4 md:right-20 top-[20px] -translate-y-1/2 z-40 flex items-center gap-3">
             <AnimatePresence>
               {isStraight && (
                 <>
