@@ -36,7 +36,7 @@ export const items: Item[] = [
     link: "https://raycast.com",
     category: "Softwares",
     tags: ["macos"],
-    
+
   },
   {
     id: 4,
@@ -47,14 +47,14 @@ export const items: Item[] = [
     tags: ["macos", "windows", "linux"],
     // No image here, which is fine because we made it optional (?)
   },
- { 
+  {
     id: 101, // Update ID as needed
     title: "Chris Titus WinUtil",
     description: "The ultimate Windows utility to debloat, update, and fix Windows.",
     link: "https://christitus.com/one-tool-for-everything/",
     category: "Scripts",
     tags: ["windows"],
-    
+
   },
   {
     id: 102,
@@ -72,7 +72,7 @@ export const items: Item[] = [
     link: "https://fmhy.net/",
     category: "Websites",
     tags: ["all"],
-    
+
   },
   {
     id: 104,
@@ -117,7 +117,7 @@ export const items: Item[] = [
     link: "https://cobalt.tools/",
     category: "Websites",
     tags: ["all"],
-    
+
   },
   {
     id: 109,
@@ -135,7 +135,7 @@ export const items: Item[] = [
     link: "https://vert.sh/",
     category: "Websites",
     tags: ["all"],
-    
+
   },
   {
     id: 111,
@@ -153,7 +153,7 @@ export const items: Item[] = [
     link: "https://www.isocons.app/",
     category: "Websites",
     tags: ["all"],
-    
+
   },
   {
     id: 113,
@@ -171,7 +171,7 @@ export const items: Item[] = [
     link: "https://darkwrite.app/",
     category: "Softwares",
     tags: ["all"],
-    
+
   },
   {
     id: 115,
@@ -198,7 +198,7 @@ export const items: Item[] = [
     link: "https://www.edclub.com/sportal/",
     category: "Websites",
     tags: ["all"],
-    
+
   },
   {
     id: 118,
@@ -397,5 +397,14 @@ export const items: Item[] = [
     category: "Softwares",
     tags: ["windows"],
     image: "https://github.com/kil0bit-kb.png"
+  },
+  {
+    id: 140,
+    title: "CodexBar",
+    description: "MacOS menu bar app to track OpenAI/Claude usage quotas.",
+    link: "https://github.com/steipete/CodexBar",
+    category: "Softwares",
+    tags: ["macos"],
+    image: "https://github.com/steipete.png"
   }
 ];
