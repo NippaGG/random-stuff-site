@@ -686,55 +686,57 @@ export default function ContentSection() {
 
       <div
         ref={contentGridRef}
-        className="w-full max-w-6xl px-5 min-h-screen mx-auto relative z-10 -mt-20 pt-[140vh]"
+        className="w-full max-w-6xl px-5 mx-auto relative z-10 -mt-20 pt-[140vh] flex flex-col min-h-screen"
       >
-        <AnimatePresence mode="wait">
-          {isGridLoading ? (
-            <motion.div
-              key="grid-skeleton"
-              variants={gridVariants}
-              initial="hidden"
-              animate="show"
-              exit="hidden"
-              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full"
-            >
-              {Array.from({ length: 6 }).map((_, index) => (
-                <motion.div
-                  key={`skeleton-${index}`}
-                  variants={cardVariants}
-                  className="relative flex justify-between items-start gap-4 bg-white/5 border border-white/10 p-6 rounded-2xl overflow-hidden backdrop-blur-sm animate-pulse"
-                >
-                  <div className="flex flex-col gap-3 w-full">
-                    <div className="h-4 w-2/3 bg-white/10 rounded" />
-                    <div className="h-3 w-full bg-white/5 rounded" />
-                    <div className="h-3 w-5/6 bg-white/5 rounded" />
-                  </div>
-                  <div className="w-12 h-12 rounded-lg bg-white/10 border border-white/10" />
-                </motion.div>
-              ))}
-            </motion.div>
-          ) : (
-            <motion.div
-              key={`${activeTab}-${activeTag}`}
-              variants={gridVariants}
-              initial="hidden"
-              animate="show"
-              exit="hidden"
-              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full"
-            >
-              {filteredItems.map((item) => (
-                <ScrollBlurCard
-                  key={item.id}
-                  item={item}
-                  onClick={handleItemClick}
-                  variants={cardVariants}
-                  isFavorite={isFavorite(item.id)}
-                  onToggle={toggleFavorite}
-                />
-              ))}
-            </motion.div>
-          )}
-        </AnimatePresence>
+        <div className="flex-grow">
+          <AnimatePresence mode="wait">
+            {isGridLoading ? (
+              <motion.div
+                key="grid-skeleton"
+                variants={gridVariants}
+                initial="hidden"
+                animate="show"
+                exit="hidden"
+                className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full"
+              >
+                {Array.from({ length: 6 }).map((_, index) => (
+                  <motion.div
+                    key={`skeleton-${index}`}
+                    variants={cardVariants}
+                    className="relative flex justify-between items-start gap-4 bg-white/5 border border-white/10 p-6 rounded-2xl overflow-hidden backdrop-blur-sm animate-pulse"
+                  >
+                    <div className="flex flex-col gap-3 w-full">
+                      <div className="h-4 w-2/3 bg-white/10 rounded" />
+                      <div className="h-3 w-full bg-white/5 rounded" />
+                      <div className="h-3 w-5/6 bg-white/5 rounded" />
+                    </div>
+                    <div className="w-12 h-12 rounded-lg bg-white/10 border border-white/10" />
+                  </motion.div>
+                ))}
+              </motion.div>
+            ) : (
+              <motion.div
+                key={`${activeTab}-${activeTag}`}
+                variants={gridVariants}
+                initial="hidden"
+                animate="show"
+                exit="hidden"
+                className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full"
+              >
+                {filteredItems.map((item) => (
+                  <ScrollBlurCard
+                    key={item.id}
+                    item={item}
+                    onClick={handleItemClick}
+                    variants={cardVariants}
+                    isFavorite={isFavorite(item.id)}
+                    onToggle={toggleFavorite}
+                  />
+                ))}
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
       </div>
 
 

@@ -14,14 +14,14 @@ export default function Home() {
   useEffect(() => {
     // 1. Initialize Lenis
     const lenis = new Lenis();
-    
+
     // 2. Create the loop function
     let rafId: number;
     function raf(time: number) {
       lenis.raf(time);
       rafId = requestAnimationFrame(raf);
     }
-    
+
     // 3. Start the loop
     rafId = requestAnimationFrame(raf);
 
@@ -34,11 +34,11 @@ export default function Home() {
   }, []);
 
   return (
-    <main className="relative min-h-screen text-white">
-      
+    <main className="relative min-h-screen text-white flex flex-col">
+
       <AnimatePresence mode="wait">
         {isLoading && (
-            <LoadingScreen onComplete={() => setIsLoading(false)} />
+          <LoadingScreen onComplete={() => setIsLoading(false)} />
         )}
       </AnimatePresence>
 
@@ -47,13 +47,13 @@ export default function Home() {
       </div>
 
       <HeroSection />
-      
-      <div className="relative -mt-[300vh] z-20"> 
+
+      <div className="relative -mt-[300vh] z-20 flex-grow">
         <ContentSection />
-        
-        <div className="mt-40">
-            <Footer />
-        </div>
+      </div>
+
+      <div className="relative z-30">
+        <Footer />
       </div>
 
     </main>
