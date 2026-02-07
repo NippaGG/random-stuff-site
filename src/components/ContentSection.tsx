@@ -719,13 +719,30 @@ export default function ContentSection() {
               onClick={(e) => e.stopPropagation()}
             >
               {/* Close Button */}
-              <button
-                type="button"
-                onClick={() => setPreviewItem(null)}
-                className="absolute top-4 right-4 z-20 p-2 bg-black/50 hover:bg-black/70 text-white/70 hover:text-white rounded-full transition-colors backdrop-blur-md border border-white/5"
-              >
-                <X className="w-5 h-5" />
-              </button>
+              <div className="absolute top-4 right-4 z-20 flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    toggleFavorite(previewItem.id);
+                  }}
+                  className="p-2 bg-black/50 hover:bg-black/70 rounded-full transition-colors backdrop-blur-md border border-white/5 group/fav"
+                >
+                  <Heart
+                    className={`w-5 h-5 transition-colors ${isFavorite(previewItem.id)
+                      ? "fill-[#a3e635] text-[#a3e635]"
+                      : "text-white/70 group-hover/fav:text-white"
+                      }`}
+                  />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setPreviewItem(null)}
+                  className="p-2 bg-black/50 hover:bg-black/70 text-white/70 hover:text-white rounded-full transition-colors backdrop-blur-md border border-white/5"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
 
               {/* Left Side: Visual/Image */}
               <div className="relative w-full md:w-5/12 h-48 md:h-auto overflow-hidden bg-[#111] flex items-center justify-center group">
