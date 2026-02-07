@@ -138,6 +138,7 @@ const TABS = ["Softwares", "Websites", "Scripts"] as const;
 
 export default function ContentSection() {
   const sectionRef = useRef(null);
+  const contentGridRef = useRef<HTMLDivElement>(null);
 
   const [activeTab, setActiveTab] = useState("Websites");
   const [isStraight, setIsStraight] = useState(false);
@@ -590,6 +591,14 @@ export default function ContentSection() {
             setActiveTab={(tab) => {
               setActiveTab(tab);
               setActiveTag("all");
+              // Scroll to content tiles after a short delay for the grid to update
+              setTimeout(() => {
+                if (contentGridRef.current) {
+                  const offset = 180; // Account for sticky header
+                  const top = contentGridRef.current.getBoundingClientRect().top + window.scrollY - offset;
+                  window.scrollTo({ top, behavior: "smooth" });
+                }
+              }, 50);
             }}
             tabs={[...TABS]}
             isStraight={isStraight}
@@ -676,6 +685,7 @@ export default function ContentSection() {
       </motion.div >
 
       <div
+        ref={contentGridRef}
         className="w-full max-w-6xl px-5 min-h-screen mx-auto relative z-10 -mt-20 pt-[140vh]"
       >
         <AnimatePresence mode="wait">
