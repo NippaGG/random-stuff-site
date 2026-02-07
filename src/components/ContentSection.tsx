@@ -351,7 +351,9 @@ export default function ContentSection() {
     };
 
     const onWheel = (event: WheelEvent) => {
-      if (event.deltaY < 0) {
+      // Only block intentional upward scrolls, not tiny trackpad inertia movements
+      // Threshold of -3 allows small micro-movements while blocking real upward scrolls
+      if (event.deltaY < -3) {
         event.preventDefault();
         event.stopPropagation();
         showHint();
@@ -594,7 +596,7 @@ export default function ContentSection() {
           />
 
           <motion.div
-            animate={{ height: isStraight ? "60px" : "80px" }}
+            animate={{ height: isStraight ? "40px" : "80px" }}
             transition={{ duration: 0.5 }}
           />
 
@@ -614,7 +616,7 @@ export default function ContentSection() {
 
             <div className="relative z-10 px-4">
               <LayoutGroup id="tags">
-                <div className="flex flex-wrap items-center justify-center gap-2">
+                <div className="flex flex-wrap items-center justify-center gap-2 min-h-[36px]">
                   {tagOptions.map((tag, index) => {
                     const isActive = activeTag === tag.id;
                     const isDots = tagMode === "dots";
