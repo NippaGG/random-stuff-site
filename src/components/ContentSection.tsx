@@ -1,14 +1,14 @@
 "use client";
 
 import React, { useEffect, useRef, useState } from "react";
-import { motion, AnimatePresence, useScroll, useMotionValueEvent, LayoutGroup, useTransform, MotionValue } from "framer-motion";
+import { motion, AnimatePresence, useScroll, useMotionValueEvent, LayoutGroup, useTransform } from "framer-motion";
 import { items, type Item } from "@/data/items";
 import CircularNav from "./CircularNav";
-import { Lock, Unlock, X, ArrowUpRight, Globe, Monitor, Terminal, Heart, Sparkles } from "lucide-react";
+import { Lock, Unlock, X, ArrowUpRight, Globe, Monitor, Terminal, Heart } from "lucide-react";
 import { FolderHeartIcon, type FolderHeartIconHandle } from "./FolderHeartIcon";
 import DecryptedText from "./DecryptedText";
 import { useFavorites } from "@/hooks/useFavorites";
-import { clsx, type ClassValue } from "clsx";
+
 import { twMerge } from "tailwind-merge";
 
 // --- NEW COMPONENT: SCROLL BLUR CARD ---
