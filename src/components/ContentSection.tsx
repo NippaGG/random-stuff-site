@@ -4,7 +4,9 @@ import React, { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence, useScroll, useMotionValueEvent, LayoutGroup, useTransform, MotionValue } from "framer-motion";
 import { items, type Item } from "@/data/items";
 import CircularNav from "./CircularNav";
-import { Lock, Unlock, X, ArrowUpRight, Globe, Monitor, Terminal, Heart } from "lucide-react";
+import { Lock, Unlock, X, ArrowUpRight, Globe, Monitor, Terminal, Heart, Sparkles } from "lucide-react";
+import { FolderHeartIcon, type FolderHeartIconHandle } from "./FolderHeartIcon";
+import DecryptedText from "./DecryptedText";
 import { useFavorites } from "@/hooks/useFavorites";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
@@ -158,6 +160,7 @@ export default function ContentSection() {
   const clampRafRef = useRef<number | null>(null);
   const gridLoadingTimeoutRef = useRef<number | null>(null);
   const dotsAnimateTimeoutRef = useRef<number | null>(null);
+  const folderHeartRef = useRef<FolderHeartIconHandle>(null);
 
   const { isFavorite, toggleFavorite, clearFavorites, removeFavorites } = useFavorites();
 
@@ -165,6 +168,11 @@ export default function ContentSection() {
     setSelectedFavs(prev =>
       prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]
     );
+  };
+
+  const handleRandomItem = () => {
+    const randomIndex = Math.floor(Math.random() * items.length);
+    setPreviewItem(items[randomIndex]);
   };
 
   const handleOpenSelected = () => {
@@ -317,6 +325,8 @@ export default function ContentSection() {
         setActiveTag("all");
       } else if (event.key === "Escape" && previewItem) {
         setPreviewItem(null);
+      } else if ((event.key === "r" || event.key === "R") && !previewItem) {
+        handleRandomItem();
       }
     };
 
@@ -523,25 +533,52 @@ export default function ContentSection() {
 
 
 
-          {/* --- FAVORITES BUTTON --- */}
-          <div className="absolute right-4 md:right-20 top-[30px] -translate-y-1/2 z-40">
+          {/* --- RIGHT SIDE BUTTONS (Favorites + Lucky) --- */}
+          <div className="absolute right-4 md:right-20 top-[30px] -translate-y-1/2 z-40 flex items-center gap-3">
             <AnimatePresence>
               {isStraight && (
-                <motion.div
-                  key="favorites-btn"
-                  initial={{ opacity: 0, scale: 0.5, x: 20 }}
-                  animate={{ opacity: 1, scale: 1, x: 0 }}
-                  exit={{ opacity: 0, scale: 0.5, x: 20 }}
-                  transition={{ duration: 0.3 }}
-                >
-                  <button
-                    type="button"
-                    onClick={() => setShowFavorites(true)}
-                    className="p-2 bg-[#a3e635]/10 rounded-full border border-[#a3e635]/20 backdrop-blur-md hover:bg-[#a3e635]/20 transition-colors"
+                <>
+                  <motion.button
+                    key="lucky-btn"
+                    initial={{ opacity: 0, scale: 0.5, x: 20 }}
+                    animate={{ opacity: 1, scale: 1, x: 0 }}
+                    exit={{ opacity: 0, scale: 0.5, x: 20 }}
+                    transition={{ duration: 0.3, delay: 0.1 }}
+                    onClick={handleRandomItem}
+                    className="group relative px-4 py-1.5 bg-[#a3e635] rounded-full border border-[#a3e635] shadow-[0_0_15px_rgba(163,230,53,0.3)] hover:shadow-[0_0_25px_rgba(163,230,53,0.5)] transition-all overflow-hidden"
+                    title="I'm Feeling Lucky (Press 'R')"
                   >
-                    <Heart className="w-5 h-5 text-[#a3e635]" />
-                  </button>
-                </motion.div>
+
+                    <span className="text-black font-bold font-mono text-sm uppercase tracking-wide">
+                      <DecryptedText
+                        text="Random"
+                        speed={50}
+                        animateOnHover={true}
+                        useScrambleOnHover={true}
+                        className="relative z-10"
+                      />
+                    </span>
+                  </motion.button>
+
+                  <motion.div
+                    key="favorites-btn"
+                    initial={{ opacity: 0, scale: 0.5, x: 20 }}
+                    animate={{ opacity: 1, scale: 1, x: 0 }}
+                    exit={{ opacity: 0, scale: 0.5, x: 20 }}
+                    transition={{ duration: 0.3 }}
+                  >
+                    <button
+                      type="button"
+                      onClick={() => setShowFavorites(true)}
+                      onMouseEnter={() => folderHeartRef.current?.startAnimation()}
+                      onMouseLeave={() => folderHeartRef.current?.stopAnimation()}
+                      className="group/folder-heart p-2 bg-[#a3e635]/10 rounded-full border border-[#a3e635]/20 backdrop-blur-md hover:bg-[#a3e635]/20 transition-colors"
+                      title="Favorites"
+                    >
+                      <FolderHeartIcon ref={folderHeartRef} className="w-5 h-5 text-[#a3e635]" />
+                    </button>
+                  </motion.div>
+                </>
               )}
             </AnimatePresence>
           </div>

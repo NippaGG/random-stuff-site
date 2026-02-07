@@ -10,6 +10,7 @@ interface DecryptedTextProps {
   className?: string;
   parentTrigger?: any; // To trigger animation from parent
   animateOnHover?: boolean;
+  useScrambleOnHover?: boolean;
 }
 
 const CHARACTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+";
@@ -21,10 +22,11 @@ export default function DecryptedText({
   className = "",
   parentTrigger,
   animateOnHover = false,
+  useScrambleOnHover = false,
 }: DecryptedTextProps) {
   const [displayText, setDisplayText] = useState(text);
   const [isHovering, setIsHovering] = useState(false);
-  
+
   // Ref to track if component is mounted
   const isMounted = useRef(false);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
@@ -39,15 +41,15 @@ export default function DecryptedText({
 
   const animate = () => {
     let iteration = 0;
-    
+
     // Clear any existing animation before starting a new one
     if (intervalRef.current) clearInterval(intervalRef.current);
 
     intervalRef.current = setInterval(() => {
       // Safety check: Stop if unmounted
       if (!isMounted.current) {
-         if (intervalRef.current) clearInterval(intervalRef.current);
-         return;
+        if (intervalRef.current) clearInterval(intervalRef.current);
+        return;
       }
 
       setDisplayText((prev) =>
@@ -70,22 +72,55 @@ export default function DecryptedText({
     }, speed);
   };
 
+  const startScramble = () => {
+    if (intervalRef.current) clearInterval(intervalRef.current);
+    intervalRef.current = setInterval(() => {
+      if (!isMounted.current) {
+        if (intervalRef.current) clearInterval(intervalRef.current);
+        return;
+      }
+      setDisplayText(
+        text.split("").map(() => CHARACTERS[Math.floor(Math.random() * CHARACTERS.length)]).join("")
+      );
+    }, speed);
+  };
+
+  const stopScramble = () => {
+    if (intervalRef.current) clearInterval(intervalRef.current);
+    // Animate back to original text or just set it? 
+    // Let's decrypt back to original text for smoothness
+    animate();
+  };
+
   // Trigger animation when parentTrigger changes (e.g. active tab changes)
   useEffect(() => {
-    animate();
+    if (!useScrambleOnHover) {
+      animate();
+    }
   }, [parentTrigger]);
 
   const handleMouseEnter = () => {
-    if (animateOnHover) {
-        setIsHovering(true);
-        animate();
+    if (useScrambleOnHover) {
+      setIsHovering(true);
+      startScramble();
+    } else if (animateOnHover) {
+      setIsHovering(true);
+      animate();
+    }
+  };
+
+  const handleMouseLeave = () => {
+    if (useScrambleOnHover) {
+      setIsHovering(false);
+      stopScramble();
     }
   };
 
   return (
-    <span 
-        className={className}
-        onMouseEnter={handleMouseEnter}
+    <span
+      className={className}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
     >
       {displayText}
     </span>
