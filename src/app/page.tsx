@@ -6,6 +6,7 @@ import HeroSection from "@/components/HeroSection";
 import ContentSection from "@/components/ContentSection";
 import LoadingScreen from "@/components/LoadingScreen";
 import Footer from "@/components/Footer";
+import CustomCursor from "@/components/CustomCursor";
 import { AnimatePresence } from "framer-motion";
 
 export default function Home() {
@@ -35,6 +36,7 @@ export default function Home() {
 
   return (
     <main className="relative min-h-screen text-white flex flex-col">
+      <CustomCursor />
 
       <AnimatePresence mode="wait">
         {isLoading && (
