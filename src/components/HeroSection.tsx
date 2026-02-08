@@ -4,6 +4,7 @@ import React, { useRef, useState, useEffect } from "react";
 // 1. Import useMotionValueEvent
 import { motion, useScroll, useTransform, useMotionValueEvent } from "framer-motion";
 import TextPressure from "./TextPressure";
+import FloatingIcons from "./FloatingIcons";
 
 export default function HeroSection() {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -57,6 +58,7 @@ export default function HeroSection() {
   const scrollTextOpacity = useTransform(scrollYProgress, [0, 0.1], [1, 0]);
 
   const sideOpacity = useTransform(scrollYProgress, [0, 0.15], [1, 0]);
+  const iconsOpacity = useTransform(scrollYProgress, [0, 0.12], [1, 0]);
   const sideBlur = useTransform(scrollYProgress, [0, 0.15], ["0px", "20px"]);
   const yPos = useTransform(scrollYProgress,
     [0, 0.2, 0.45, 0.6],
@@ -76,6 +78,9 @@ export default function HeroSection() {
     >
 
       <div className="sticky top-0 h-screen flex flex-col items-center justify-center overflow-hidden w-full px-5">
+
+        {/* FLOATING ICONS */}
+        <FloatingIcons opacity={iconsOpacity} />
 
         {/* GRID LAYOUT */}
         <div className="grid grid-cols-1 md:grid-cols-[1fr_auto_1fr] items-center w-full max-w-screen-xl mx-auto gap-3 md:gap-[2vw]">
