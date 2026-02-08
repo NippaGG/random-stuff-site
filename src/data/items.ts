@@ -424,5 +424,23 @@ export const items: Item[] = [
     category: "Websites",
     tags: ["all"],
     image: "https://corca.app/favicon.ico"
+  },
+  {
+    id: 143,
+    title: "Quick Subtitles",
+    description: "Generate subtitles for videos in seconds on iOS.",
+    link: "https://apps.apple.com/us/app/quick-subtitles/id6747410609",
+    category: "Softwares",
+    tags: ["ios"],
+    image: "https://is1-ssl.mzstatic.com/image/thumb/Purple221/v4/4c/4c/4c/4c4c4c4c-4c4c-4c4c-4c4c-4c4c4c4c4c4c/AppIcon-0-0-1x_U007emarketing-0-0-0-7-0-0-sRGB-0-0-0-GLES2_U002c0-512MB-85-220-0-0.png/60x60bb.jpg"
+  },
+  {
+    id: 144,
+    title: "Transmission",
+    description: "Fast, easy, and free BitTorrent client for Mac, Windows, and Linux.",
+    link: "https://transmissionbt.com",
+    category: "Softwares",
+    tags: ["macos", "windows", "linux"],
+    image: "https://github.com/transmission.png"
   }
 ];
