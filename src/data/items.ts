@@ -406,5 +406,23 @@ export const items: Item[] = [
     category: "Softwares",
     tags: ["macos"],
     image: "https://github.com/steipete.png"
+  },
+  {
+    id: 141,
+    title: "Excalidraw",
+    description: "Virtual collaborative whiteboard with hand-drawn feel diagrams.",
+    link: "https://excalidraw.com",
+    category: "Websites",
+    tags: ["all"],
+    image: "https://excalidraw.com/favicon.ico"
+  },
+  {
+    id: 142,
+    title: "Corca",
+    description: "Fast, intuitive math editor with real-time collaboration and LaTeX export.",
+    link: "https://corca.app",
+    category: "Websites",
+    tags: ["all"],
+    image: "https://corca.app/favicon.ico"
   }
 ];
