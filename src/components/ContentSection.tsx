@@ -215,11 +215,13 @@ export default function ContentSection() {
     }
   };
 
-  const filteredItems = items.filter((item) => {
-    if (item.category !== activeTab) return false;
-    if (activeTag === "all") return true;
-    return item.tags.includes(activeTag) || item.tags.includes("all");
-  });
+  const filteredItems = items
+    .filter((item) => {
+      if (item.category !== activeTab) return false;
+      if (activeTag === "all") return true;
+      return item.tags.includes(activeTag) || item.tags.includes("all");
+    })
+    .sort((a, b) => a.title.localeCompare(b.title));
 
   const { scrollY } = useScroll();
 
@@ -605,7 +607,7 @@ export default function ContentSection() {
           />
 
           <motion.div
-            animate={{ height: isStraight ? "40px" : "80px" }}
+            animate={{ height: isStraight ? "25px" : "80px" }}
             transition={{ duration: 0.5 }}
           />
 
@@ -686,7 +688,7 @@ export default function ContentSection() {
 
       <div
         ref={contentGridRef}
-        className="w-full max-w-6xl px-5 mx-auto relative z-10 -mt-20 pt-[140vh] flex flex-col min-h-screen"
+        className="w-full max-w-6xl px-5 mx-auto relative z-10 -mt-20 pt-[145vh] flex flex-col min-h-screen"
       >
         <div className="flex-grow">
           <AnimatePresence mode="wait">
