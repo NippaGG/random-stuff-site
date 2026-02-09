@@ -442,5 +442,14 @@ export const items: Item[] = [
     category: "Softwares",
     tags: ["macos", "windows", "linux"],
     image: "https://github.com/transmission.png"
+  },
+  {
+    id: 145,
+    title: "iLovePDF",
+    description: "Free online tools to merge, split, compress, and convert PDFs.",
+    link: "https://www.ilovepdf.com/",
+    category: "Websites",
+    tags: ["all"],
+    image: "https://www.ilovepdf.com/favicon.ico"
   }
 ];
