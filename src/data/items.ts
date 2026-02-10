@@ -451,5 +451,14 @@ export const items: Item[] = [
     category: "Websites",
     tags: ["all"],
     image: "https://www.ilovepdf.com/favicon.ico"
+  },
+  {
+    id: 146,
+    title: "Mini-Agent",
+    description: "Open-source agent framework from MiniMax-AI.",
+    link: "https://github.com/MiniMax-AI/Mini-Agent",
+    category: "Softwares",
+    tags: ["all"],
+    image: "https://github.com/MiniMax-AI.png"
   }
 ];
