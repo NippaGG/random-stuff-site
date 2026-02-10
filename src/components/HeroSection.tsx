@@ -10,6 +10,9 @@ export default function HeroSection() {
   const containerRef = useRef<HTMLDivElement>(null);
   const [showScrollHint, setShowScrollHint] = useState(true);
   const [isSiteLocked, setIsSiteLocked] = useState(false);
+  const [isMobile, setIsMobile] = useState(
+    () => (typeof window !== "undefined" ? window.matchMedia("(max-width: 767px)").matches : false)
+  );
 
   // 2. New State: Should we freeze the animations?
   const [freezeAnimations, setFreezeAnimations] = useState(false);
@@ -38,6 +41,21 @@ export default function HeroSection() {
     return () => window.removeEventListener("site-lock-change", onLockChange);
   }, []);
 
+  useEffect(() => {
+    const mediaQuery = window.matchMedia("(max-width: 767px)");
+    const onChange = (event: MediaQueryListEvent) => {
+      setIsMobile(event.matches);
+    };
+
+    if (typeof mediaQuery.addEventListener === "function") {
+      mediaQuery.addEventListener("change", onChange);
+      return () => mediaQuery.removeEventListener("change", onChange);
+    }
+
+    mediaQuery.addListener(onChange);
+    return () => mediaQuery.removeListener(onChange);
+  }, []);
+
   const { scrollYProgress } = useScroll({
     target: containerRef,
     offset: ["start start", "end start"],
@@ -60,9 +78,12 @@ export default function HeroSection() {
   const sideOpacity = useTransform(scrollYProgress, [0, 0.15], [1, 0]);
   const iconsOpacity = useTransform(scrollYProgress, [0, 0.12], [1, 0]);
   const sideBlur = useTransform(scrollYProgress, [0, 0.15], ["0px", "20px"]);
-  const yPos = useTransform(scrollYProgress,
+  const yPos = useTransform(
+    scrollYProgress,
     [0, 0.2, 0.45, 0.6],
-    ["0vh", "-35vh", "-35vh", "-60vh"]
+    isMobile
+      ? ["0vh", "-24vh", "-24vh", "-42vh"]
+      : ["0vh", "-35vh", "-35vh", "-60vh"]
   );
   const lineWidth = useTransform(scrollYProgress, [0.2, 0.45], ["0%", "100%"]);
   const lineOpacity = useTransform(scrollYProgress, [0.18, 0.2], [0, 1]);
@@ -70,20 +91,20 @@ export default function HeroSection() {
   return (
     <div
       ref={containerRef}
-      className="h-[400vh] relative z-[100] pointer-events-none transform-gpu"
+      className="h-[320vh] md:h-[400vh] relative z-[100] pointer-events-none transform-gpu"
       style={{
         opacity: isSiteLocked ? 0 : 1,
         transition: "opacity 0.3s ease",
       }}
     >
 
-      <div className="sticky top-0 h-screen flex flex-col items-center justify-center overflow-hidden w-full px-5">
+      <div className="sticky top-0 h-screen flex flex-col items-center justify-center overflow-hidden w-full px-4 md:px-5">
 
         {/* FLOATING ICONS */}
-        <FloatingIcons opacity={iconsOpacity} />
+        <FloatingIcons opacity={iconsOpacity} compact={isMobile} />
 
         {/* GRID LAYOUT */}
-        <div className="grid grid-cols-1 md:grid-cols-[1fr_auto_1fr] items-center w-full max-w-screen-xl mx-auto gap-3 md:gap-[2vw]">
+        <div className="grid grid-cols-1 md:grid-cols-[1fr_auto_1fr] items-center w-full max-w-screen-xl mx-auto gap-2 md:gap-[2vw]">
 
           {/* LEFT COLUMN */}
           <motion.div
@@ -112,9 +133,9 @@ export default function HeroSection() {
           {/* CENTER COLUMN */}
           <motion.div
             style={{ y: yPos }}
-            className="flex flex-col items-center justify-center z-[101] relative pointer-events-auto w-full md:w-[300px] h-[100px]"
+            className="flex flex-col items-center justify-center z-[101] relative pointer-events-auto w-full md:w-[300px] h-[90px] md:h-[100px]"
           >
-            <div className="relative w-full h-full flex items-center justify-center -translate-y-12">
+            <div className="relative w-full h-full flex items-center justify-center -translate-y-10 md:-translate-y-12">
               <TextPressure
                 text="STUFF"
                 flex={true}
@@ -136,7 +157,7 @@ export default function HeroSection() {
                 opacity: lineOpacity,
                 width: lineWidth
               }}
-              className="absolute bottom-3 left-1/2 -translate-x-1/2 h-[4px] max-w-[90vw] overflow-hidden"
+              className="absolute bottom-1 md:bottom-3 left-1/2 -translate-x-1/2 h-[4px] max-w-[90vw] overflow-hidden"
             >
               <motion.div
                 className="w-full h-full bg-[#a3e635] shadow-[0_0_15px_#a3e635,0_0_5px_#a3e635] rounded-full"
@@ -170,9 +191,9 @@ export default function HeroSection() {
           </motion.div>
 
           {/* MOBILE FALLBACK */}
-          <div className="md:hidden flex flex-col items-center gap-2">
-            <motion.span style={{ opacity: sideOpacity }} className="font-mono text-white/70 text-xl">Random (useful)</motion.span>
-            <motion.span style={{ opacity: sideOpacity }} className="font-mono text-white/70 text-xl">from the internet</motion.span>
+          <div className="md:hidden flex flex-col items-center gap-1.5">
+            <motion.span style={{ opacity: sideOpacity }} className="font-mono text-white/70 text-base">Random (useful)</motion.span>
+            <motion.span style={{ opacity: sideOpacity }} className="font-mono text-white/70 text-base">from the internet</motion.span>
           </div>
 
         </div>
@@ -181,7 +202,7 @@ export default function HeroSection() {
         <motion.div
           animate={{ opacity: showScrollHint ? 1 : 0 }}
           transition={{ duration: 0.5 }}
-          className="absolute bottom-10"
+          className="absolute bottom-8 md:bottom-10"
         >
           {/* INNER DIV FOR SCROLL-BASED FADE */}
           <motion.div

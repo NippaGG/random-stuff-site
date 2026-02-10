@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef } from "react";
 
 export default function GridBackground() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -15,39 +15,13 @@ export default function GridBackground() {
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
-    // Set canvas size
-    const resize = () => {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-      // Force a redraw on resize by resetting last position
-      lastMouseRef.current = { x: -10000, y: -10000 };
-    };
-    window.addEventListener("resize", resize);
-    resize();
-
     // Grid config
     const size = 50; 
     const gap = 1;   
-    
-    // Animation loop
-    const animate = () => {
-      // OPTIMIZATION: Check if mouse has moved
-      // If the mouse position hasn't changed, we SKIP the heavy drawing entirely.
-      // This drops CPU usage to 0% when the mouse is idle.
-      if (
-        mouseRef.current.x === lastMouseRef.current.x &&
-        mouseRef.current.y === lastMouseRef.current.y
-      ) {
-        requestAnimationFrame(animate);
-        return;
-      }
 
-      // Update last known position
-      lastMouseRef.current = { x: mouseRef.current.x, y: mouseRef.current.y };
-
-      // Clear and Redraw
+    const drawGrid = (withGlow: boolean) => {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      
+
       const cols = Math.floor(canvas.width / size);
       const rows = Math.floor(canvas.height / size);
 
@@ -61,6 +35,8 @@ export default function GridBackground() {
           ctx.lineWidth = 1;
           ctx.strokeRect(x, y, size - gap, size - gap);
 
+          if (!withGlow) continue;
+
           // Glow logic
           const dx = mouseRef.current.x - (x + size / 2);
           const dy = mouseRef.current.y - (y + size / 2);
@@ -73,21 +49,60 @@ export default function GridBackground() {
           }
         }
       }
-      requestAnimationFrame(animate);
     };
-    
-    const animId = requestAnimationFrame(animate);
+
+    // Set canvas size
+    const resize = () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+      // Force a redraw on resize by resetting last position
+      lastMouseRef.current = { x: -10000, y: -10000 };
+      drawGrid(false);
+    };
+    window.addEventListener("resize", resize);
+    resize();
+
+    const isCoarsePointer = window.matchMedia("(pointer: coarse)").matches;
+    let rafId: number | null = null;
+
+    if (!isCoarsePointer) {
+      // Animation loop
+      const animate = () => {
+        // OPTIMIZATION: Check if mouse has moved
+        // If the mouse position hasn't changed, we SKIP the heavy drawing entirely.
+        // This drops CPU usage to near-zero when the mouse is idle.
+        if (
+          mouseRef.current.x === lastMouseRef.current.x &&
+          mouseRef.current.y === lastMouseRef.current.y
+        ) {
+          rafId = requestAnimationFrame(animate);
+          return;
+        }
+
+        // Update last known position
+        lastMouseRef.current = { x: mouseRef.current.x, y: mouseRef.current.y };
+        drawGrid(true);
+        rafId = requestAnimationFrame(animate);
+      };
+
+      rafId = requestAnimationFrame(animate);
+    }
 
     const handleMouseMove = (e: MouseEvent) => {
       mouseRef.current.x = e.clientX;
       mouseRef.current.y = e.clientY;
     };
-    window.addEventListener("mousemove", handleMouseMove);
+
+    if (!isCoarsePointer) {
+      window.addEventListener("mousemove", handleMouseMove);
+    }
 
     return () => {
       window.removeEventListener("resize", resize);
       window.removeEventListener("mousemove", handleMouseMove);
-      cancelAnimationFrame(animId);
+      if (rafId !== null) {
+        cancelAnimationFrame(rafId);
+      }
     };
   }, []); // No dependencies needed
 

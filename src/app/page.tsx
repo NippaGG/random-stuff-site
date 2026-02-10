@@ -13,6 +13,13 @@ export default function Home() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const isFinePointer = window.matchMedia("(pointer: fine)").matches;
+
+    if (prefersReducedMotion || !isFinePointer) {
+      return;
+    }
+
     // 1. Initialize Lenis
     const lenis = new Lenis();
 
@@ -50,7 +57,7 @@ export default function Home() {
 
       <HeroSection />
 
-      <div className="relative -mt-[300vh] z-20 flex-grow">
+      <div className="relative -mt-[250vh] md:-mt-[300vh] z-20 flex-grow">
         <ContentSection />
       </div>
 

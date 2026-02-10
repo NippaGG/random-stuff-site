@@ -168,20 +168,24 @@ const OrbitingIcon = ({
 
 interface FloatingIconsProps {
     opacity: MotionValue<number>;
+    compact?: boolean;
 }
 
-export default function FloatingIcons({ opacity }: FloatingIconsProps) {
-    // Two crossing orbits like an atom
-    // Each icon gets a unique startIconIndex to avoid duplicates
-    const orbitConfigs = [
-        // First orbit - tilted 45 degrees clockwise
-        { orbitRadiusX: 240, orbitRadiusY: 100, orbitSpeed: 20, startAngle: 0, size: 28, orbitRotation: 45, startIconIndex: 0 },
-        { orbitRadiusX: 240, orbitRadiusY: 100, orbitSpeed: 20, startAngle: 180, size: 26, orbitRotation: 45, startIconIndex: 1 },
+export default function FloatingIcons({ opacity, compact = false }: FloatingIconsProps) {
+    const orbitConfigs = compact
+        ? [
+            { orbitRadiusX: 150, orbitRadiusY: 70, orbitSpeed: 24, startAngle: 0, size: 20, orbitRotation: 45, startIconIndex: 0 },
+            { orbitRadiusX: 150, orbitRadiusY: 70, orbitSpeed: 24, startAngle: 180, size: 20, orbitRotation: 45, startIconIndex: 1 },
+        ]
+        : [
+            // First orbit - tilted 45 degrees clockwise
+            { orbitRadiusX: 240, orbitRadiusY: 100, orbitSpeed: 20, startAngle: 0, size: 28, orbitRotation: 45, startIconIndex: 0 },
+            { orbitRadiusX: 240, orbitRadiusY: 100, orbitSpeed: 20, startAngle: 180, size: 26, orbitRotation: 45, startIconIndex: 1 },
 
-        // Second orbit - tilted 45 degrees counter-clockwise
-        { orbitRadiusX: 240, orbitRadiusY: 100, orbitSpeed: 25, startAngle: 90, size: 28, orbitRotation: -45, startIconIndex: 2 },
-        { orbitRadiusX: 240, orbitRadiusY: 100, orbitSpeed: 25, startAngle: 270, size: 26, orbitRotation: -45, startIconIndex: 3 },
-    ];
+            // Second orbit - tilted 45 degrees counter-clockwise
+            { orbitRadiusX: 240, orbitRadiusY: 100, orbitSpeed: 25, startAngle: 90, size: 28, orbitRotation: -45, startIconIndex: 2 },
+            { orbitRadiusX: 240, orbitRadiusY: 100, orbitSpeed: 25, startAngle: 270, size: 26, orbitRotation: -45, startIconIndex: 3 },
+        ];
 
     return (
         <motion.div
