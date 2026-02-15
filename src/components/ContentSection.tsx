@@ -39,9 +39,9 @@ const ScrollBlurCard = ({
   // Track this specific card's position relative to the viewport
   const { scrollYProgress } = useScroll({
     target: ref,
-    // Start fading when top is 18vh from top (closer to header)
+    // Start fading when top is 22vh from top
     // Finish fading when top is 6vh from top (under header)
-    offset: ["start 18vh", "start 6vh"]
+    offset: ["start 22vh", "start 6vh"]
   });
 
   const opacity = useTransform(scrollYProgress, [0, 1], [1, 0]);
@@ -656,7 +656,17 @@ export default function ContentSection() {
                         key={tag.id}
                         type="button"
                         onClick={() => {
-                          if (!isDots) setActiveTag(tag.id);
+                          if (!isDots) {
+                            setActiveTag(tag.id);
+                            // Scroll to top of content grid
+                            setTimeout(() => {
+                              if (contentGridRef.current) {
+                                const offset = isMobile ? 150 : 190;
+                                const top = contentGridRef.current.getBoundingClientRect().top + window.scrollY - offset;
+                                window.scrollTo({ top, behavior: "smooth" });
+                              }
+                            }, 50);
+                          }
                         }}
                         layout
                         transition={{ layout: { duration: 0.6, ease: [0.2, 0.8, 0.2, 1] } }}
