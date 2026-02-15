@@ -39,9 +39,9 @@ const ScrollBlurCard = ({
   // Track this specific card's position relative to the viewport
   const { scrollYProgress } = useScroll({
     target: ref,
-    // Start fading when top is 30vh from top (below header)
-    // Finish fading when top is 12vh from top (under header)
-    offset: ["start 30vh", "start 12vh"]
+    // Start fading when top is 18vh from top (closer to header)
+    // Finish fading when top is 6vh from top (under header)
+    offset: ["start 18vh", "start 6vh"]
   });
 
   const opacity = useTransform(scrollYProgress, [0, 1], [1, 0]);
