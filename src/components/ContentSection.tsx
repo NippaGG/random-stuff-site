@@ -707,7 +707,7 @@ export default function ContentSection() {
 
       <div
         ref={contentGridRef}
-        className="w-full max-w-6xl px-4 md:px-5 mx-auto relative z-10 -mt-12 md:-mt-20 pt-[122vh] md:pt-[150vh] flex flex-col min-h-screen"
+        className="w-full max-w-6xl px-4 md:px-5 mx-auto relative z-10 -mt-24 md:-mt-36 pt-[122vh] md:pt-[150vh] flex flex-col min-h-screen"
       >
         <div className="flex-grow">
           <AnimatePresence mode="wait">

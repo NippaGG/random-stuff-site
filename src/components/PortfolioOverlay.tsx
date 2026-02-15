@@ -119,7 +119,7 @@ export default function PortfolioOverlay({ isOpen, onClose }: PortfolioOverlayPr
                             </div>
 
                             {/* Grid Content */}
-                            <div className="p-5 pt-3 grid grid-cols-1 md:grid-cols-12 gap-4">
+                            <div className="p-5 pt-2 grid grid-cols-1 md:grid-cols-12 gap-4">
 
                                 {/* Left Column */}
                                 <div className="md:col-span-5 flex flex-col items-center text-center space-y-3">
