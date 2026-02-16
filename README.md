@@ -12,8 +12,8 @@
 ## ✨ Features
 
 - **🎨 Modern Design**: Sleek UI with a custom grid background, smooth scrolling (Lenis), and a custom cursor.
-- **⚡ Fast & Responsive**: Built with Next.js for high performance and optimized for all devices.
-- **📂 Curated Collection**: A hand-picked list of the best tools, including **Raycast**, **WizTree**, **Ffmpeg Scripts**, and more.
+- **⚡ Fast & Responsive**: Built with Next.js for high performance and optimized for desktop.
+- **📂 Curated Collection**: A hand-picked list of the best tools, including **Raycast**, **WizTree**, **Chris Titus Toll**, and more.
 - **🏷️ Filter by Platform**: Easily sort items by **macOS** 🍎, **Windows** 🪟, or **Linux** 🐧.
 - **🎬 Interactive**: Dynamic animations powered by Framer Motion.
 
