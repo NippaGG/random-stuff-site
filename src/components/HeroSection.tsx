@@ -7,6 +7,7 @@ import TextPressure from "./TextPressure";
 import FloatingIcons from "./FloatingIcons";
 import PortfolioOverlay from "./PortfolioOverlay";
 import Image from "next/image";
+import { Github } from "lucide-react";
 
 export default function HeroSection() {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -102,6 +103,26 @@ export default function HeroSection() {
         }}
       >
         <div className="sticky top-0 h-screen flex flex-col items-center justify-center overflow-hidden w-full px-4 md:px-5">
+
+          {/* GITHUB BUTTON - Top Left */}
+          <div className="absolute top-8 left-8 z-[150] pointer-events-auto">
+            <motion.a
+              href="https://github.com/NippaGG/random-stuff-site"
+              target="_blank"
+              rel="noopener noreferrer"
+              whileHover={{
+                scale: [1, 1.15, 1.05, 1.12, 1.08],
+                rotate: [0, 5, -3, 2, 0], // Mirrored rotation
+                x: [0, 2, -3, 1, 0], // Mirrored X movement
+                y: [0, 1, -2, 1, 0],
+                transition: { duration: 0.5, ease: "easeInOut" }
+              }}
+              whileTap={{ scale: 0.9 }}
+              className="flex items-center justify-center w-10 h-10 md:w-12 md:h-12 rounded-full shadow-[0_0_12px_rgba(163,230,53,0.3)] hover:shadow-[0_0_25px_rgba(163,230,53,0.7)] transition-shadow duration-300 bg-black/20 backdrop-blur-sm border border-white/10 text-white/80 hover:text-[#a3e635]"
+            >
+              <Github size={24} />
+            </motion.a>
+          </div>
 
           {/* PORTFOLIO TRIGGER - Top Right */}
           <div className="absolute top-8 right-8 z-[150] pointer-events-auto">
