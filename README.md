@@ -5,7 +5,7 @@
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
 [![Framer Motion](https://img.shields.io/badge/Framer_Motion-0055FF?style=for-the-badge&logo=framer&logoColor=white)](https://www.framer.com/motion/)
 
-> **Random Stuff** is a curated, interactive directory of useful websites, apps, and scripts. It presents content in themed sections, with smooth navigation and filters so users can quickly find tools relevant to their platform (macOS, Windows, or Linux).
+> **Random Stuff** is a curated, interactive directory of useful websites, apps, and scripts. It presents content with filters so users can quickly find tools relevant to their platform (macOS, Windows, or Linux).
 
 ---
 
@@ -16,17 +16,6 @@
 - **📂 Curated Collection**: A hand-picked list of the best tools, including **Raycast**, **WizTree**, **Ffmpeg Scripts**, and more.
 - **🏷️ Filter by Platform**: Easily sort items by **macOS** 🍎, **Windows** 🪟, or **Linux** 🐧.
 - **🎬 Interactive**: Dynamic animations powered by Framer Motion.
-
----
-
-## 📸 Preview
-
-*Add a screenshot of your home page here to show off the design!*
-<!-- ![Home Page](./public/preview.png) -->
-
-| **Hero Section** | **Collection Grid** |
-|:---:|:---:|
-| <!-- ![Hero](./public/hero-preview.png) --> <br> *Animated Hero Section* | <!-- ![Grid](./public/grid-preview.png) --> <br> *Responsive Item Grid* |
 
 ---
 
@@ -95,4 +84,4 @@ Contributions are welcome! If you have a useful tool to share:
 
 ---
 
-Made with ❤️ by [Your Name]
+Made with ❤️ by Nipun Yatawara [shockagg]
