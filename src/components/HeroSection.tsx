@@ -7,7 +7,7 @@ import TextPressure from "./TextPressure";
 import FloatingIcons from "./FloatingIcons";
 import PortfolioOverlay from "./PortfolioOverlay";
 import Image from "next/image";
-import { Github } from "lucide-react";
+import { Github, ArrowDown } from "lucide-react";
 
 export default function HeroSection() {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -144,6 +144,30 @@ export default function HeroSection() {
                 fill
                 className="object-cover"
               />
+            </motion.button>
+          </div>
+
+          {/* SCROLL DOWN BUTTON - Bottom Right */}
+          <div className="absolute bottom-8 right-8 z-[150] pointer-events-auto">
+            <motion.button
+              onClick={() => {
+                const viewportHeight = window.innerHeight;
+                // Match the threshold from ContentSection.tsx
+                const targetScroll = viewportHeight * (isMobile ? 1.75 : 2.2);
+                window.scrollTo({
+                  top: targetScroll + 10, // Small buffer to ensure lock triggers
+                  behavior: "smooth"
+                });
+              }}
+              whileHover={{
+                scale: 1.1,
+                y: 5,
+                transition: { duration: 0.2 }
+              }}
+              whileTap={{ scale: 0.9 }}
+              className="flex items-center justify-center w-10 h-10 md:w-12 md:h-12 rounded-full shadow-[0_0_12px_rgba(163,230,53,0.3)] hover:shadow-[0_0_25px_rgba(163,230,53,0.7)] transition-shadow duration-300 bg-black/20 backdrop-blur-sm border border-white/10 text-white/80 hover:text-[#a3e635]"
+            >
+              <ArrowDown size={24} />
             </motion.button>
           </div>
 

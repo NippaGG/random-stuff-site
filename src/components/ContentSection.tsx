@@ -797,129 +797,10 @@ export default function ContentSection() {
               animate={{ opacity: 1, scale: 1, y: 0, rotateX: 0 }}
               exit={{ opacity: 0, scale: 0.9, y: 20 }}
               transition={{ type: "spring", damping: 25, stiffness: 300 }}
-              className="relative w-full max-w-4xl bg-[#0a0a0a] border border-white/10 rounded-3xl overflow-hidden shadow-2xl flex flex-col md:flex-row max-h-[90vh] md:max-h-[600px] z-10"
+              className="relative w-full max-w-5xl bg-[#0a0a0a] border border-white/10 rounded-3xl overflow-hidden shadow-2xl flex flex-col md:flex-row max-h-[90vh] md:max-h-[600px] z-10"
               onClick={(e) => e.stopPropagation()}
             >
-              {/* Close Button */}
-              <div className="absolute top-3 md:top-4 right-3 md:right-4 z-20 flex items-center gap-2">
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    toggleFavorite(previewItem.id);
-                  }}
-                  className="p-1.5 md:p-2 bg-black/50 hover:bg-black/70 rounded-full transition-colors backdrop-blur-md border border-white/5 group/fav"
-                >
-                  <Heart
-                    className={`w-4 h-4 md:w-5 md:h-5 transition-colors ${isFavorite(previewItem.id)
-                      ? "fill-[#a3e635] text-[#a3e635]"
-                      : "text-white/70 group-hover/fav:text-white"
-                      }`}
-                  />
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setPreviewItem(null)}
-                  className="p-1.5 md:p-2 bg-black/50 hover:bg-black/70 text-white/70 hover:text-white rounded-full transition-colors backdrop-blur-md border border-white/5"
-                >
-                  <X className="w-4 h-4 md:w-5 md:h-5" />
-                </button>
-              </div>
-
-              {/* Left Side: Visual/Image */}
-              <div className="relative w-full md:w-5/12 h-40 md:h-auto overflow-hidden bg-[#111] flex items-center justify-center group">
-                {/* Animated Background Mesh */}
-                <motion.div
-                  className="absolute inset-0 opacity-20"
-                  animate={{
-                    background: [
-                      "radial-gradient(circle at 20% 20%, #a3e635 0%, transparent 60%)",
-                      "radial-gradient(circle at 80% 80%, #a3e635 0%, transparent 60%)",
-                      "radial-gradient(circle at 20% 80%, #a3e635 0%, transparent 60%)",
-                      "radial-gradient(circle at 80% 20%, #a3e635 0%, transparent 60%)",
-                      "radial-gradient(circle at 20% 20%, #a3e635 0%, transparent 60%)",
-                    ],
-                  }}
-                  transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
-                />
-
-                {previewItem.image ? (
-                  <>
-                    {/* Blurred background version */}
-                    <img
-                      src={previewItem.image}
-                      alt=""
-                      className="absolute inset-0 w-full h-full object-cover blur-3xl opacity-30 scale-150"
-                      aria-hidden="true"
-                    />
-                    {/* Actual Icon */}
-                    <div className="relative w-20 h-20 md:w-32 md:h-32 rounded-2xl overflow-hidden shadow-2xl border border-white/10 bg-black/20 backdrop-blur-sm flex items-center justify-center p-3 md:p-4">
-                      <img
-                        src={previewItem.image}
-                        alt={previewItem.title}
-                        className="w-full h-full object-contain drop-shadow-lg"
-                        onError={(event) => {
-                          const target = event.currentTarget;
-                          target.onerror = null;
-                          target.src = "/icon.png";
-                        }}
-                      />
-                    </div>
-                  </>
-                ) : (
-                  <div className="w-20 h-20 md:w-32 md:h-32 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center">
-                    {previewItem.category === "Websites" && <Globe className="w-10 h-10 md:w-12 md:h-12 text-white/50" />}
-                    {previewItem.category === "Softwares" && <Monitor className="w-10 h-10 md:w-12 md:h-12 text-white/50" />}
-                    {previewItem.category === "Scripts" && <Terminal className="w-10 h-10 md:w-12 md:h-12 text-white/50" />}
-                  </div>
-                )}
-              </div>
-
-              {/* Right Side: Content */}
-              <div className="relative flex flex-col p-4 md:p-10 w-full md:w-7/12 bg-[#0a0a0a]">
-                <div className="flex-1 overflow-y-auto pr-0 md:pr-2">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-xs font-mono text-[#a3e635] tracking-widest uppercase">
-                      {previewItem.category}
-                    </span>
-                  </div>
-
-                  <h2 className="text-2xl md:text-3xl font-bold text-white mb-3 md:mb-4 font-mono leading-tight">
-                    {previewItem.title}
-                  </h2>
-
-                  <div className="flex flex-wrap gap-2 mb-4 md:mb-6">
-                    {previewItem.tags
-                      .filter((tag) => tag !== "all")
-                      .map((tag) => (
-                        <span
-                          key={tag}
-                          className="px-2.5 py-1 rounded-md text-[10px] uppercase font-bold tracking-wider border border-white/10 bg-white/5 text-white/60"
-                        >
-                          {tag}
-                        </span>
-                      ))}
-                  </div>
-
-                  <p className="text-gray-400 leading-relaxed text-sm md:text-lg font-light">
-                    {previewItem.description}
-                  </p>
-                </div>
-
-                <div className="pt-6 mt-6 border-t border-white/10">
-                  <a
-                    href={previewItem.link}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="group relative flex items-center justify-center w-full px-6 py-3 md:py-4 rounded-xl bg-[#a3e635] text-black font-bold text-base md:text-lg overflow-hidden transition-all hover:shadow-[0_0_20px_rgba(163,230,53,0.3)]"
-                  >
-                    <span className="relative z-10 flex items-center gap-2">
-                      Visit Project <ArrowUpRight className="w-5 h-5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-                    </span>
-                    <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
-                  </a>
-                </div>
-              </div>
+              <PreviewContent item={previewItem} onClose={() => setPreviewItem(null)} />
             </motion.div>
           </motion.div>
         )}
@@ -1057,5 +938,298 @@ export default function ContentSection() {
       </AnimatePresence>
 
     </section >
+  );
+}
+
+function PreviewContent({ item, onClose }: { item: Item; onClose: () => void }) {
+  const [metadata, setMetadata] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const { isFavorite, toggleFavorite } = useFavorites();
+
+  useEffect(() => {
+    let isMounted = true;
+    const fetchMetadata = async () => {
+      if (!item.link) {
+        if (isMounted) setLoading(false);
+        return;
+      }
+      setLoading(true);
+      try {
+        const res = await fetch(`/api/metadata?url=${encodeURIComponent(item.link)}`);
+        if (res.ok) {
+          const data = await res.json();
+          if (isMounted) {
+            setMetadata(data);
+          }
+        }
+      } catch (error) {
+        console.error("Failed to fetch metadata", error);
+      } finally {
+        if (isMounted) setLoading(false);
+      }
+    };
+
+    fetchMetadata();
+    return () => {
+      isMounted = false;
+    };
+  }, [item.link]);
+
+  return (
+    <>
+      {/* Close Button & Fav Button */}
+      <div className="absolute top-3 md:top-4 right-3 md:right-4 z-20 flex items-center gap-2">
+        <button
+          type="button"
+          onClick={(e) => {
+            e.stopPropagation();
+            toggleFavorite(item.id);
+          }}
+          className="p-1.5 md:p-2 bg-black/50 hover:bg-black/70 rounded-full transition-colors backdrop-blur-md border border-white/5 group/fav"
+        >
+          <Heart
+            className={`w-4 h-4 md:w-5 md:h-5 transition-colors ${isFavorite(item.id)
+              ? "fill-[#a3e635] text-[#a3e635]"
+              : "text-white/70 group-hover/fav:text-white"
+              }`}
+          />
+        </button>
+        <button
+          type="button"
+          onClick={onClose}
+          className="p-1.5 md:p-2 bg-black/50 hover:bg-black/70 text-white/70 hover:text-white rounded-full transition-colors backdrop-blur-md border border-white/5"
+        >
+          <X className="w-4 h-4 md:w-5 md:h-5" />
+        </button>
+      </div>
+
+      {/* Left Side: Visual/Image */}
+      <div className="relative w-full md:w-5/12 h-64 md:h-auto bg-[#111] overflow-hidden group flex items-center justify-center p-4 md:p-6">
+        {/* Animated Background Mesh */}
+        <motion.div
+          className="absolute inset-0 opacity-20"
+          animate={{
+            background: [
+              "radial-gradient(circle at 20% 20%, #a3e635 0%, transparent 60%)",
+              "radial-gradient(circle at 80% 80%, #a3e635 0%, transparent 60%)",
+              "radial-gradient(circle at 20% 80%, #a3e635 0%, transparent 60%)",
+              "radial-gradient(circle at 80% 20%, #a3e635 0%, transparent 60%)",
+              "radial-gradient(circle at 20% 20%, #a3e635 0%, transparent 60%)",
+            ],
+          }}
+          transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
+        />
+
+        {/* Background Image (Blurred) */}
+        <div className="absolute inset-0 z-0">
+          {metadata?.image || item.image ? (
+            <motion.img
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 0.3 }}
+              transition={{ duration: 1 }}
+              src={metadata?.image || item.image}
+              alt=""
+              className="w-full h-full object-cover blur-3xl scale-110"
+            />
+          ) : (
+            <div className="w-full h-full bg-gradient-to-br from-[#1a1a1a] to-black" />
+          )}
+        </div>
+
+        {/* Main Image Container */}
+        <div className="relative z-10 w-full h-full flex items-center justify-center">
+          <AnimatePresence mode="wait">
+            {loading ? (
+              <motion.div
+                key="loader"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="relative w-full aspect-video rounded-xl overflow-hidden bg-white/5 border border-white/10 flex items-center justify-center"
+              >
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent animate-shimmer" style={{ transform: 'skewX(-20deg) translateX(-150%)' }} />
+                <div className="w-8 h-8 border-2 border-[#a3e635] border-t-transparent rounded-full animate-spin" />
+              </motion.div>
+            ) : (
+              <motion.div
+                key="image"
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.5, ease: "easeOut" }}
+                className="relative w-full h-full rounded-xl overflow-hidden shadow-2xl border border-white/10 bg-black/50 backdrop-blur-sm"
+              >
+                {metadata?.image || item.image ? (
+                  <img
+                    src={metadata?.image || item.image}
+                    alt={item.title}
+                    className="w-full h-full object-contain p-2"
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).style.display = 'none';
+                    }}
+                  />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center text-white/20">
+                    {item.category === "Websites" && <Globe className="w-16 h-16" />}
+                    {item.category === "Softwares" && <Monitor className="w-16 h-16" />}
+                    {item.category === "Scripts" && <Terminal className="w-16 h-16" />}
+                  </div>
+                )}
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+
+        <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-[#0a0a0a] to-transparent z-10 md:hidden" />
+      </div>
+
+      {/* Right Side: Content */}
+      <div className="relative flex flex-col p-5 md:p-8 w-full md:w-7/12 bg-[#0a0a0a] z-20">
+        <div className="flex-1 overflow-y-auto pr-0 md:pr-2 custom-scrollbar">
+
+          {/* Header / Badges */}
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="flex flex-wrap items-center gap-2 mb-4"
+          >
+            <span className="px-2 py-1 rounded-md bg-white/5 border border-white/10 text-[10px] md:text-xs font-mono text-[#a3e635] uppercase tracking-wider">
+              {item.category}
+            </span>
+            {metadata?.isGitHub && (
+              <span className="flex items-center gap-1 px-2 py-1 rounded-md bg-[#24292e] border border-white/10 text-[10px] md:text-xs font-mono text-white/80">
+                GitHub
+              </span>
+            )}
+            {metadata?.stars && (
+              <span className="flex items-center gap-1 px-2 py-1 rounded-md bg-[#f1e05a]/10 border border-[#f1e05a]/20 text-[10px] md:text-xs font-mono text-[#f1e05a]">
+                ★ {metadata.stars}
+              </span>
+            )}
+            {metadata?.license && (
+              <span className="flex items-center gap-1 px-2 py-1 rounded-md bg-white/5 border border-white/10 text-[10px] md:text-xs font-mono text-gray-400">
+                {metadata.license}
+              </span>
+            )}
+          </motion.div>
+
+          <motion.h2
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="text-3xl md:text-4xl font-bold text-white mb-4 tracking-tight font-mono leading-tight"
+          >
+            {item.title}
+          </motion.h2>
+
+          {/* Description */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.3 }}
+            className="space-y-4 mb-8 flex-grow"
+          >
+            {/* Extended fetched description */}
+            <AnimatePresence mode="wait">
+              {loading ? (
+                <motion.div
+                  key="desc-skeleton"
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: "auto" }}
+                  exit={{ opacity: 0, height: 0 }}
+                  className="space-y-2 mt-4"
+                >
+                  <div className="h-3 bg-white/5 rounded w-full animate-pulse" />
+                  <div className="h-3 bg-white/5 rounded w-5/6 animate-pulse" />
+                  <div className="h-3 bg-white/5 rounded w-4/6 animate-pulse" />
+                </motion.div>
+              ) : (
+                <motion.div
+                  key="desc-real"
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: 'auto' }}
+                  exit={{ opacity: 0, height: 0 }}
+                  transition={{ duration: 0.3, ease: "easeInOut" }}
+                  className="mt-4 overflow-hidden"
+                >
+                  <p className="text-gray-400 leading-relaxed text-xs md:text-sm font-light border-l-2 border-[#a3e635]/30 pl-3">
+                    {metadata?.description || item.description}
+                  </p>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            {/* Tags */}
+            <div className="flex flex-wrap gap-2 mt-4">
+              {item.tags.map((tag, i) => (
+                tag !== 'all' && (
+                  <motion.span
+                    key={tag}
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: 0.4 + (i * 0.05) }}
+                    className="px-2.5 py-1 rounded-md text-[10px] uppercase font-bold tracking-wider border border-white/10 bg-white/5 text-white/60"
+                  >
+                    {tag}
+                  </motion.span>
+                )
+              ))}
+            </div>
+          </motion.div>
+        </div>
+
+        {/* Actions */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.5 }}
+          className="pt-6 mt-6 border-t border-white/10 flex flex-col sm:flex-row gap-3"
+        >
+          <AnimatePresence mode="popLayout" initial={false}>
+            {/* Primary Button: Website */}
+            {(metadata?.website || (!metadata?.isGitHub && item.link)) && (
+              <motion.a
+                layout
+                key="website-btn"
+                href={metadata?.website || item.link}
+                target="_blank"
+                rel="noreferrer"
+                transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                className="flex-1 group relative flex items-center justify-center px-6 py-3 md:py-4 rounded-xl bg-[#a3e635] text-black font-bold text-base md:text-lg overflow-hidden transition-all hover:shadow-[0_0_20px_rgba(163,230,53,0.3)] whitespace-nowrap order-1"
+              >
+                <motion.span layout="position" className="relative z-10 flex items-center gap-2">
+                  Visit Website <ArrowUpRight className="w-5 h-5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+                </motion.span>
+                <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
+              </motion.a>
+            )}
+
+            {/* Secondary Button: GitHub */}
+            {metadata?.isGitHub && (
+              <motion.a
+                layout
+                key="github-btn"
+                href={item.link} // item.link is the GitHub URL for GitHub items
+                target="_blank"
+                rel="noreferrer"
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.8 }}
+                transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                className={`flex-1 group flex items-center justify-center px-6 py-3 md:py-4 rounded-xl font-medium text-base md:text-lg transition-colors border whitespace-nowrap overflow-hidden order-2 ${metadata?.website
+                    ? "bg-white/5 hover:bg-white/10 text-white border-white/10" // Secondary style if website exists
+                    : "bg-[#a3e635] text-black border-[#a3e635] hover:shadow-[0_0_20px_rgba(163,230,53,0.3)] font-bold" // Primary style if ONLY GitHub
+                  }`}
+              >
+                <motion.span layout="position" className="flex items-center gap-2">
+                  <Terminal className={`w-5 h-5 transition-colors ${metadata?.website ? "text-gray-400 group-hover:text-white" : "text-black"}`} />
+                  GitHub
+                </motion.span>
+              </motion.a>
+            )}
+          </AnimatePresence>
+        </motion.div>
+      </div>
+    </>
   );
 }
