@@ -941,6 +941,10 @@ export default function ContentSection() {
   );
 }
 
+// Simple LRU Cache for the last 2 items
+const metadataCache = new Map<string, any>();
+const CACHE_LIMIT = 2;
+
 function PreviewContent({ item, onClose }: { item: Item; onClose: () => void }) {
   const [metadata, setMetadata] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -953,12 +957,36 @@ function PreviewContent({ item, onClose }: { item: Item; onClose: () => void }) 
         if (isMounted) setLoading(false);
         return;
       }
+
+      // 1. Check Cache
+      if (metadataCache.has(item.link)) {
+        // Move to end (most recently used)
+        const data = metadataCache.get(item.link);
+        metadataCache.delete(item.link);
+        metadataCache.set(item.link, data);
+
+        if (isMounted) {
+          setMetadata(data);
+          setLoading(false);
+        }
+        return;
+      }
+
       setLoading(true);
       try {
         const res = await fetch(`/api/metadata?url=${encodeURIComponent(item.link)}`);
         if (res.ok) {
           const data = await res.json();
           if (isMounted) {
+
+            // 2. Update Cache
+            if (metadataCache.size >= CACHE_LIMIT) {
+              // Remove the first item (least recently used)
+              const firstKey = metadataCache.keys().next().value;
+              if (firstKey) metadataCache.delete(firstKey);
+            }
+            metadataCache.set(item.link, data);
+
             setMetadata(data);
           }
         }
@@ -1217,8 +1245,8 @@ function PreviewContent({ item, onClose }: { item: Item; onClose: () => void }) 
                 exit={{ opacity: 0, scale: 0.8 }}
                 transition={{ type: "spring", stiffness: 300, damping: 30 }}
                 className={`flex-1 group flex items-center justify-center px-6 py-3 md:py-4 rounded-xl font-medium text-base md:text-lg transition-colors border whitespace-nowrap overflow-hidden order-2 ${metadata?.website
-                    ? "bg-white/5 hover:bg-white/10 text-white border-white/10" // Secondary style if website exists
-                    : "bg-[#a3e635] text-black border-[#a3e635] hover:shadow-[0_0_20px_rgba(163,230,53,0.3)] font-bold" // Primary style if ONLY GitHub
+                  ? "bg-white/5 hover:bg-white/10 text-white border-white/10" // Secondary style if website exists
+                  : "bg-[#a3e635] text-black border-[#a3e635] hover:shadow-[0_0_20px_rgba(163,230,53,0.3)] font-bold" // Primary style if ONLY GitHub
                   }`}
               >
                 <motion.span layout="position" className="flex items-center gap-2">
