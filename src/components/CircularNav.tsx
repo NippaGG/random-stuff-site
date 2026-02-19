@@ -1,7 +1,8 @@
 "use client";
 
 import React, { useEffect, useRef } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
+import { Globe, Terminal, FileCode } from "lucide-react";
 import DecryptedText from "./DecryptedText";
 
 type CircularNavProps = {
@@ -20,6 +21,48 @@ export default function CircularNav({ activeTab, setActiveTab, tabs, isStraight 
   useEffect(() => {
     prevIsStraightRef.current = isStraight;
   }, [isStraight]);
+
+  // NEW FLOATING BOTTOM NAVBAR FOR MOBILE (iOS Pill Style)
+  if (isMobile) {
+    return (
+      <AnimatePresence>
+        {isStraight && (
+          <motion.div
+            initial={{ y: 100, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            exit={{ y: 100, opacity: 0 }}
+            transition={{ type: "spring", stiffness: 300, damping: 30 }}
+            className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[200] flex items-center justify-around w-[90vw] max-w-[380px] px-2 py-3 bg-[#111111]/80 backdrop-blur-2xl border border-white/10 rounded-[2.5rem] shadow-[0_8px_32px_rgba(0,0,0,0.8)]"
+          >
+            {tabs.map((tab) => {
+              const isActive = activeTab === tab;
+
+              const Icon =
+                tab.toLowerCase() === "websites" ? Globe :
+                  tab.toLowerCase() === "softwares" ? Terminal :
+                    FileCode;
+
+              return (
+                <button
+                  key={tab}
+                  onClick={() => setActiveTab(tab)}
+                  className={`flex flex-col items-center justify-center min-w-[70px] transition-colors duration-300 ${isActive ? "text-[#a3e635]" : "text-white/50 hover:text-white/80"
+                    }`}
+                >
+                  <div className={`relative px-5 py-1.5 rounded-full mb-1 flex items-center justify-center transition-all duration-300 ${isActive ? "bg-[#a3e635]/20" : "bg-transparent"}`}>
+                    <Icon size={24} strokeWidth={isActive ? 2.5 : 2} />
+                  </div>
+                  <span className="text-[11px] font-semibold tracking-wide">
+                    {tab}
+                  </span>
+                </button>
+              );
+            })}
+          </motion.div>
+        )}
+      </AnimatePresence>
+    );
+  }
 
   const getPosition = (tab: string) => {
     const currentIndex = tabs.indexOf(activeTab);
@@ -65,22 +108,22 @@ export default function CircularNav({ activeTab, setActiveTab, tabs, isStraight 
     // FIX: Animated Container Height
     // - Curved: 150px height + 40px margin (Room for the "V" shape)
     // - Straight: 60px height + 0px margin (Tight fit for the bar)
-    <motion.div 
-      animate={{ 
+    <motion.div
+      animate={{
         height: isStraight ? straightHeight : curvedHeight,
         marginBottom: isStraight ? "0px" : curvedMargin
       }}
       transition={{ duration: 0.5, ease: "easeInOut" }}
       className="relative w-full flex justify-center items-start z-30 pointer-events-none"
     >
-      
-      <motion.div 
-        animate={{ 
-            top: isStraight ? "0px" : isMobile ? "72px" : "100px",
-            width: isStraight ? (isMobile ? "240px" : "300px") : (isMobile ? "80px" : "100px")
+
+      <motion.div
+        animate={{
+          top: isStraight ? "0px" : isMobile ? "72px" : "100px",
+          width: isStraight ? (isMobile ? "240px" : "300px") : (isMobile ? "80px" : "100px")
         }}
         transition={{ duration: isLayoutChange ? 0.5 : 0 }}
-        className="absolute left-1/2 -translate-x-1/2 h-[32px] md:h-[40px] bg-[#a3e635] blur-[40px] opacity-20 pointer-events-none" 
+        className="absolute left-1/2 -translate-x-1/2 h-[32px] md:h-[40px] bg-[#a3e635] blur-[40px] opacity-20 pointer-events-none"
       />
 
       {tabs.map((tab) => {
@@ -93,37 +136,37 @@ export default function CircularNav({ activeTab, setActiveTab, tabs, isStraight 
           <motion.button
             key={tab}
             onClick={() => setActiveTab(tab)}
-            initial={false} 
+            initial={false}
             animate={{
               x: slot.x,
               y: slot.y,
               scale: slot.scale,
               opacity: slot.opacity,
-              zIndex: isActive ? 100 : 0, 
+              zIndex: isActive ? 100 : 0,
               color: isActive ? "#a3e635" : "#ffffff",
               textShadow: isActive ? "0px 0px 20px rgba(163, 230, 53, 0.8)" : "none",
             }}
-            transition={{ 
-                duration: isLayoutChange ? 0.5 : 0,
-                ease: "easeInOut" 
-            }} 
+            transition={{
+              duration: isLayoutChange ? 0.5 : 0,
+              ease: "easeInOut"
+            }}
             style={{ left: "50%" }}
             className="absolute top-0 font-bold text-sm md:text-xl tracking-wide px-4 md:px-6 py-1.5 md:py-2 rounded-full cursor-pointer pointer-events-auto whitespace-nowrap"
           >
-            <DecryptedText 
-                text={tab} 
-                parentTrigger={activeTab} 
-                speed={30}
-                className="relative z-10"
+            <DecryptedText
+              text={tab}
+              parentTrigger={activeTab}
+              speed={30}
+              className="relative z-10"
             />
-            
-            <motion.div 
-                animate={{ 
-                    scale: isActive ? 1 : 0,
-                    opacity: isActive ? 1 : 0 
-                }}
-                transition={{ duration: 0.2 }}
-                className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-1 h-1 bg-[#a3e635] rounded-full"
+
+            <motion.div
+              animate={{
+                scale: isActive ? 1 : 0,
+                opacity: isActive ? 1 : 0
+              }}
+              transition={{ duration: 0.2 }}
+              className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-1 h-1 bg-[#a3e635] rounded-full"
             />
           </motion.button>
         );

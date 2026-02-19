@@ -91,10 +91,10 @@ export default function HeroSection() {
   );
 
   // NEW: "STUFF" Center Column Fade for Mobile
-  // Fade out opacity completely between 0.35 and 0.5 only on mobile
+  // Fade out opacity completely between 0.15 and 0.3 only on mobile
   const centerOpacity = useTransform(
     scrollYProgress,
-    [0.35, 0.5],
+    [0.15, 0.3],
     isMobile ? [1, 0] : [1, 1]
   );
 
@@ -113,8 +113,8 @@ export default function HeroSection() {
       >
         <div className="sticky top-0 h-screen flex flex-col items-center justify-center overflow-hidden w-full px-4 md:px-5">
 
-          {/* GITHUB BUTTON - Top Left */}
-          <div className="absolute top-8 left-8 z-[150] pointer-events-auto">
+          {/* GITHUB BUTTON - Top Left (Desktop) / Top Center (Mobile) */}
+          <div className="absolute top-8 left-1/2 -translate-x-1/2 md:left-8 md:translate-x-0 z-[150] pointer-events-auto">
             <motion.a
               href="https://github.com/NippaGG/random-stuff-site"
               target="_blank"
@@ -133,8 +133,8 @@ export default function HeroSection() {
             </motion.a>
           </div>
 
-          {/* PORTFOLIO TRIGGER - Top Right */}
-          <div className="absolute top-8 right-8 z-[150] pointer-events-auto">
+          {/* PORTFOLIO TRIGGER - Top Right (Desktop Only) */}
+          <div className="hidden md:block absolute top-8 right-8 z-[150] pointer-events-auto">
             <motion.button
               onClick={() => setShowPortfolio(true)}
               whileHover={{
