@@ -460,5 +460,104 @@ export const items: Item[] = [
     category: "Softwares",
     tags: ["all"],
     image: "https://github.com/MiniMax-AI.png"
+  },
+  {
+    id: 147,
+    title: "BetterCapture",
+    description: "The macOS screen recorder for the rest of us - always free and open source with a native look and feel.",
+    link: "https://github.com/jsattler/BetterCapture",
+    category: "Softwares",
+    tags: ["macos"],
+    image: "https://github.com/jsattler.png"
+  },
+  {
+    id: 148,
+    title: "Hidden",
+    description: "An ultra-light MacOS utility that helps hide menu bar icons.",
+    link: "https://github.com/dwarvesf/hidden",
+    category: "Softwares",
+    tags: ["macos"],
+    image: "https://github.com/dwarvesf.png"
+  },
+  {
+    id: 149,
+    title: "IINA",
+    description: "The modern video player for macOS.",
+    link: "https://github.com/iina/iina",
+    category: "Softwares",
+    tags: ["macos"],
+    image: "https://github.com/iina.png"
+  },
+  {
+    id: 150,
+    title: "Torph",
+    description: "Dependency-free animated text component.",
+    link: "https://torph.lochie.me/",
+    category: "Websites",
+    tags: ["all"],
+    image: "https://torph.lochie.me/og.png"
+  },
+  {
+    id: 151,
+    title: "Scrollbar",
+    description: "Simple online scrollbar editor.",
+    link: "https://github.com/henripar/scrollbar",
+    category: "Websites",
+    tags: ["all"],
+    image: "https://github.com/henripar.png"
+  },
+  {
+    id: 152,
+    title: "BentoPDF",
+    description: "A Privacy First PDF Toolkit.",
+    link: "https://github.com/alam00000/bentopdf",
+    category: "Softwares",
+    tags: ["all"],
+    image: "https://github.com/alam00000.png"
+  },
+  {
+    id: 153,
+    title: "PS4 Game Scraper",
+    description: "PS4 Game Scraper.",
+    link: "https://github.com/NookieAI/PS4-Game-Scraper",
+    category: "Softwares",
+    tags: ["all"],
+    image: "https://github.com/NookieAI.png"
+  },
+  {
+    id: 154,
+    title: "CopyCat Clipboard",
+    description: "An intuitive clipboard manager designed to enhance your workflow and seamlessly switch between documents, apps, and devices.",
+    link: "https://github.com/raj457036/CopyCat-Clipboard",
+    category: "Softwares",
+    tags: ["all"],
+    image: "https://github.com/raj457036.png"
+  },
+  {
+    id: 155,
+    title: "Sileo",
+    description: "Beautiful Toast Notifications for React.",
+    link: "https://sileo.aaryan.design/",
+    category: "Websites",
+    tags: ["all"],
+    image: "https://sileo.aaryan.design/favicon.ico"
+  },
+  {
+    id: 156,
+    title: "Battery-Toolkit",
+    description: "Control the platform power state of your Apple Silicon Mac.",
+    link: "https://github.com/mhaeuser/Battery-Toolkit",
+    category: "Softwares",
+    tags: ["macos"],
+    image: "https://github.com/mhaeuser.png"
+  },
+  {
+    id: 157,
+    title: "MagicPods",
+    description: "Add little magic to your Airpods on Windows.",
+    link: "https://github.com/steam3d/MagicPods-Windows",
+    category: "Softwares",
+    tags: ["windows"],
+    image: "https://github.com/steam3d.png"
   }
 ];
