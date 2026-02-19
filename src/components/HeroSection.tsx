@@ -192,19 +192,40 @@ export default function HeroSection() {
               className="flex flex-col items-center justify-center z-[101] relative pointer-events-auto w-full md:w-[300px] h-[90px] md:h-[100px]"
             >
               <div className="relative w-full h-full flex items-center justify-center -translate-y-10 md:-translate-y-12">
-                <TextPressure
-                  text="STUFF"
-                  flex={true}
-                  alpha={false}
-                  stroke={false}
-                  width={true}
-                  weight={true}
-                  italic={true}
-                  textColor="#a3e635"
-                  minFontSize={36}
-                  // 4. Pass the Freeze Prop
-                  stopAnimation={freezeAnimations}
-                />
+                {!isMobile ? (
+                  <TextPressure
+                    text="STUFF"
+                    flex={true}
+                    alpha={false}
+                    stroke={false}
+                    width={true}
+                    weight={true}
+                    italic={true}
+                    textColor="#a3e635"
+                    minFontSize={36}
+                    stopAnimation={freezeAnimations}
+                  />
+                ) : (
+                  // NEW MOBILE HERO EFFECT: Breathing Neon Text (No Mouse Required)
+                  <motion.div
+                    animate={{
+                      scale: [1, 1.05, 1],
+                      textShadow: [
+                        "0px 0px 20px rgba(163,230,53,0.3)",
+                        "0px 0px 40px rgba(163,230,53,0.8)",
+                        "0px 0px 20px rgba(163,230,53,0.3)"
+                      ]
+                    }}
+                    transition={{
+                      duration: 3,
+                      repeat: Infinity,
+                      ease: "easeInOut"
+                    }}
+                    className="font-black italic tracking-tighter text-[#a3e635] text-[15vw] leading-none"
+                  >
+                    STUFF
+                  </motion.div>
+                )}
               </div>
 
               {/* THE GROWING LINE - HIDE ON MOBILE */}

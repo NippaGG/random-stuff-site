@@ -615,14 +615,19 @@ export default function ContentSection() {
               pointerEvents: isStraight ? "auto" : "none"
             }}
             transition={{ duration: 0.5, ease: "easeInOut" }}
-            className="w-full flex justify-center pb-3 md:pb-4 pt-2 relative z-50 pointer-events-auto"
+            // NEW MOBILE TAG DESIGN: Frosted Top Bar + Horizontal Scroll
+            className={`w-full relative z-[180] pointer-events-auto transition-colors duration-500 ${isMobile && isStraight ? "bg-[#0a0a0a]/80 backdrop-blur-xl border-b border-white/10 py-3 shadow-xl" : "pb-3 md:pb-4 pt-2 flex justify-center"
+              }`}
           >
-            {/* Blur Backdrop for Tags */}
 
-
-            <div className="relative z-10 px-4">
+            <div className={`relative z-10 w-full ${isMobile ? "overflow-x-auto overflow-y-hidden no-scrollbar px-4" : "px-4"}`}>
               <LayoutGroup id="tags">
-                <div className="flex flex-wrap items-center justify-center gap-1.5 md:gap-2 min-h-[36px]">
+                {/* 
+                  Mobile: nowrap to keep them on one line, justify-start for natural scrolling 
+                  Desktop: wrap, justify-center 
+                */}
+                <div className={`flex items-center min-h-[36px] ${isMobile ? "flex-nowrap justify-start gap-2 max-w-max mx-auto md:mx-0" : "flex-wrap justify-center gap-1.5 md:gap-2"
+                  }`}>
                   {tagOptions.map((tag, index) => {
                     const isActive = activeTag === tag.id;
                     const isDots = tagMode === "dots";
