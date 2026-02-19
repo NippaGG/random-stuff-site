@@ -165,7 +165,8 @@ export default function HeroSection() {
                 transition: { duration: 0.2 }
               }}
               whileTap={{ scale: 0.9 }}
-              className="flex items-center justify-center w-10 h-10 md:w-12 md:h-12 rounded-full shadow-[0_0_12px_rgba(163,230,53,0.3)] hover:shadow-[0_0_25px_rgba(163,230,53,0.7)] transition-shadow duration-300 bg-black/20 backdrop-blur-sm border border-white/10 text-white/80 hover:text-[#a3e635]"
+              // INCREASED TOUCH TARGET PADDING
+              className="flex items-center justify-center p-3 w-12 h-12 md:w-12 md:h-12 rounded-full shadow-[0_0_12px_rgba(163,230,53,0.3)] hover:shadow-[0_0_25px_rgba(163,230,53,0.7)] transition-shadow duration-300 bg-black/20 backdrop-blur-sm border border-white/10 text-white/80 hover:text-[#a3e635]"
             >
               <ArrowDown size={24} />
             </motion.button>
@@ -263,8 +264,8 @@ export default function HeroSection() {
 
             {/* MOBILE FALLBACK */}
             <div className="md:hidden flex flex-col items-center gap-1.5">
-              <motion.span style={{ opacity: sideOpacity }} className="font-mono text-white/70 text-base">Random (useful)</motion.span>
-              <motion.span style={{ opacity: sideOpacity }} className="font-mono text-white/70 text-base">from the internet</motion.span>
+              <motion.span style={{ opacity: sideOpacity }} className="font-mono text-white/90 font-semibold drop-shadow-md text-lg">Random (useful)</motion.span>
+              <motion.span style={{ opacity: sideOpacity }} className="font-mono text-white/90 font-semibold drop-shadow-md text-lg">from the internet</motion.span>
             </div>
 
           </div>

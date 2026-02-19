@@ -526,14 +526,15 @@ export default function ContentSection() {
                         setIsLocked(true);
                       }
                     }}
-                    className="p-2 bg-[#a3e635]/10 rounded-full border border-[#a3e635]/20 backdrop-blur-md hover:bg-[#a3e635]/20 transition-colors"
+                    // LARGER MOBILE TOUCH BOX PADDING (p-2.5 vs p-2)
+                    className="p-2.5 md:p-2 bg-[#a3e635]/10 rounded-full border border-[#a3e635]/20 backdrop-blur-md hover:bg-[#a3e635]/20 transition-colors"
                     aria-pressed={isLocked}
                     aria-label={isLocked ? "Unlock section" : "Lock section"}
                   >
                     {isLocked ? (
-                      <Lock className="w-4 h-4 md:w-5 md:h-5 text-[#a3e635]" />
+                      <Lock className="w-5 h-5 text-[#a3e635]" />
                     ) : (
-                      <Unlock className="w-4 h-4 md:w-5 md:h-5 text-white/90" />
+                      <Unlock className="w-5 h-5 text-white/90" />
                     )}
                   </button>
                   <AnimatePresence>
@@ -598,10 +599,11 @@ export default function ContentSection() {
                       onClick={() => setShowFavorites(true)}
                       onMouseEnter={() => folderHeartRef.current?.startAnimation()}
                       onMouseLeave={() => folderHeartRef.current?.stopAnimation()}
-                      className="group/folder-heart p-1.5 md:p-2 bg-[#a3e635]/10 rounded-full border border-[#a3e635]/20 backdrop-blur-md hover:bg-[#a3e635]/20 transition-colors"
+                      // LARGER MOBILE TOUCH BOX PADDING
+                      className="group/folder-heart p-2.5 md:p-2 bg-[#a3e635]/10 rounded-full border border-[#a3e635]/20 backdrop-blur-md hover:bg-[#a3e635]/20 transition-colors"
                       title="Favorites"
                     >
-                      <FolderHeartIcon ref={folderHeartRef} className="w-4 h-4 md:w-5 md:h-5 text-[#a3e635]" />
+                      <FolderHeartIcon ref={folderHeartRef} className="w-5 h-5 text-[#a3e635]" />
                     </button>
                   </motion.div>
                 </>
@@ -673,9 +675,10 @@ export default function ContentSection() {
                         }}
                         layout
                         transition={{ layout: { duration: 0.6, ease: [0.2, 0.8, 0.2, 1] } }}
-                        className={`relative flex items-center justify-center font-mono border text-[11px] md:text-sm overflow-hidden ${isDots
+                        // BIGGER HIT BOX: font-sm all the way and py-2
+                        className={`relative flex items-center justify-center font-mono border text-sm overflow-hidden ${isDots
                           ? "w-2 h-2 p-0 rounded-full border-transparent"
-                          : "px-3 py-1.5 rounded-full"
+                          : "px-4 py-2 rounded-full"
                           } ${isDots
                             ? ""
                             : isActive
@@ -1008,18 +1011,19 @@ function PreviewContent({ item, onClose }: { item: Item; onClose: () => void }) 
 
   return (
     <>
-      {/* Close Button & Fav Button */}
-      <div className="absolute top-3 md:top-4 right-3 md:right-4 z-20 flex items-center gap-2">
+      {/* Close Button & Fav Button (Added padding for bigger hit targets on mobile) */}
+      <div className="absolute top-4 md:top-4 right-4 md:right-4 z-20 flex items-center gap-3">
         <button
           type="button"
           onClick={(e) => {
             e.stopPropagation();
             toggleFavorite(item.id);
           }}
-          className="p-1.5 md:p-2 bg-black/50 hover:bg-black/70 rounded-full transition-colors backdrop-blur-md border border-white/5 group/fav"
+          // INCREASED PADDING
+          className="p-2.5 md:p-2 bg-black/50 hover:bg-black/70 rounded-full transition-colors backdrop-blur-md border border-white/5 group/fav"
         >
           <Heart
-            className={`w-4 h-4 md:w-5 md:h-5 transition-colors ${isFavorite(item.id)
+            className={`w-5 h-5 transition-colors ${isFavorite(item.id)
               ? "fill-[#a3e635] text-[#a3e635]"
               : "text-white/70 group-hover/fav:text-white"
               }`}
@@ -1028,14 +1032,15 @@ function PreviewContent({ item, onClose }: { item: Item; onClose: () => void }) 
         <button
           type="button"
           onClick={onClose}
-          className="p-1.5 md:p-2 bg-black/50 hover:bg-black/70 text-white/70 hover:text-white rounded-full transition-colors backdrop-blur-md border border-white/5"
+          // INCREASED PADDING
+          className="p-2.5 md:p-2 bg-black/50 hover:bg-black/70 text-white/70 hover:text-white rounded-full transition-colors backdrop-blur-md border border-white/5"
         >
-          <X className="w-4 h-4 md:w-5 md:h-5" />
+          <X className="w-5 h-5" />
         </button>
       </div>
 
-      {/* Left Side: Visual/Image */}
-      <div className="relative w-full md:w-5/12 h-64 md:h-auto bg-[#111] overflow-hidden group flex items-center justify-center p-4 md:p-6">
+      {/* Left Side: Visual/Image - Changed Mobile Height */}
+      <div className="relative w-full md:w-5/12 h-48 md:h-auto bg-[#111] overflow-hidden group flex items-center justify-center p-4 md:p-6">
         {/* Animated Background Mesh */}
         <motion.div
           className="absolute inset-0 opacity-20"
@@ -1183,7 +1188,8 @@ function PreviewContent({ item, onClose }: { item: Item; onClose: () => void }) 
                   transition={{ duration: 0.3, ease: "easeInOut" }}
                   className="mt-4 overflow-hidden"
                 >
-                  <p className="text-gray-400 leading-relaxed text-xs md:text-sm font-light border-l-2 border-[#a3e635]/30 pl-3">
+                  {/* UNIFIED FONT SIZE text-sm */}
+                  <p className="text-gray-400 leading-relaxed text-sm font-light border-l-2 border-[#a3e635]/30 pl-3">
                     {metadata?.description || item.description}
                   </p>
                 </motion.div>
