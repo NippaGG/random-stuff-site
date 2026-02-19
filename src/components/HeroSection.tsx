@@ -7,7 +7,7 @@ import TextPressure from "./TextPressure";
 import FloatingIcons from "./FloatingIcons";
 import PortfolioOverlay from "./PortfolioOverlay";
 import Image from "next/image";
-import { Github } from "lucide-react";
+import { Github, ArrowDown } from "lucide-react";
 
 export default function HeroSection() {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -118,16 +118,8 @@ export default function HeroSection() {
             <motion.a
               href="https://github.com/NippaGG/random-stuff-site"
               target="_blank"
-              rel="noopener noreferrer"
-              whileHover={{
-                scale: [1, 1.15, 1.05, 1.12, 1.08],
-                rotate: [0, 5, -3, 2, 0], // Mirrored rotation
-                x: [0, 2, -3, 1, 0], // Mirrored X movement
-                y: [0, 1, -2, 1, 0],
-                transition: { duration: 0.5, ease: "easeInOut" }
-              }}
-              whileTap={{ scale: 0.9 }}
-              className="flex items-center justify-center w-10 h-10 md:w-12 md:h-12 rounded-full shadow-[0_0_12px_rgba(163,230,53,0.3)] hover:shadow-[0_0_25px_rgba(163,230,53,0.7)] transition-shadow duration-300 bg-black/20 backdrop-blur-sm border border-white/10 text-white/80 hover:text-[#a3e635]"
+              whileTap={{ scale: 0.95 }}
+              className="flex items-center justify-center w-10 h-10 md:w-12 md:h-12 rounded-none bg-[#a3e635]/10 border border-[#a3e635]/20 backdrop-blur-md text-[#a3e635] hover:bg-[#a3e635]/20 hover:-translate-y-1 hover:-translate-x-1 hover:shadow-[4px_4px_0px_#a3e635] transition-all"
             >
               <Github size={24} />
             </motion.a>
@@ -137,15 +129,8 @@ export default function HeroSection() {
           <div className="hidden md:block absolute top-8 right-8 z-[150] pointer-events-auto">
             <motion.button
               onClick={() => setShowPortfolio(true)}
-              whileHover={{
-                scale: [1, 1.15, 1.05, 1.12, 1.08],
-                rotate: [0, -5, 3, -2, 0],
-                x: [0, -2, 3, -1, 0],
-                y: [0, 1, -2, 1, 0],
-                transition: { duration: 0.5, ease: "easeInOut" }
-              }}
-              whileTap={{ scale: 0.9 }}
-              className="relative w-10 h-10 md:w-12 md:h-12 rounded-full overflow-hidden shadow-[0_0_12px_rgba(163,230,53,0.3)] hover:shadow-[0_0_25px_rgba(163,230,53,0.7)] transition-shadow duration-300 bg-black/20 backdrop-blur-sm border border-white/10"
+              whileTap={{ scale: 0.95 }}
+              className="relative w-10 h-10 md:w-12 md:h-12 rounded-none overflow-hidden bg-[#a3e635]/10 border border-[#a3e635]/20 backdrop-blur-md hover:bg-[#a3e635]/20 hover:-translate-y-1 hover:-translate-x-1 hover:shadow-[4px_4px_0px_#a3e635] transition-all"
             >
               <Image
                 src="/icon.png"
@@ -153,6 +138,26 @@ export default function HeroSection() {
                 fill
                 className="object-cover"
               />
+            </motion.button>
+          </div>
+
+          {/* SCROLL DOWN BUTTON - Bottom Right */}
+          <div className="absolute bottom-8 right-8 z-[150] pointer-events-auto">
+            <motion.button
+              onClick={() => {
+                const viewportHeight = window.innerHeight;
+                // Match the threshold from ContentSection.tsx
+                const targetScroll = viewportHeight * (isMobile ? 1.75 : 2.2);
+                window.scrollTo({
+                  top: targetScroll + 10, // Small buffer to ensure lock triggers
+                  behavior: "smooth"
+                });
+              }}
+              whileTap={{ scale: 0.95 }}
+              // INCREASED TOUCH TARGET PADDING
+              className="flex items-center justify-center p-3 w-12 h-12 md:w-12 md:h-12 rounded-none bg-[#a3e635]/10 border border-[#a3e635]/20 backdrop-blur-md text-[#a3e635] hover:bg-[#a3e635]/20 hover:-translate-y-1 hover:-translate-x-1 hover:shadow-[4px_4px_0px_#a3e635] transition-all"
+            >
+              <ArrowDown size={24} />
             </motion.button>
           </div>
 

@@ -62,7 +62,7 @@ const ScrollBlurCard = ({
       onClick={(event) => onClick(event, item)}
       variants={variants}
       style={style}
-      className={twMerge("group relative flex justify-between items-start gap-3 md:gap-4 bg-white/5 border border-white/10 p-5 md:p-6 rounded-2xl hover:bg-white/10 transition-colors overflow-hidden backdrop-blur-sm cursor-pointer h-full", className)}
+      className={twMerge("group relative flex justify-between items-start gap-3 md:gap-4 bg-white/5 border border-white/10 p-5 md:p-6 rounded-none hover:bg-white/10 hover:border-[#a3e635]/70 transition-colors overflow-hidden backdrop-blur-sm cursor-pointer h-full", className)}
     >
       <div className="flex flex-col z-10 pr-12">
         <h3 className="text-lg md:text-xl font-bold text-white mb-2 group-hover:text-[#a3e635] transition-colors font-mono">
@@ -115,7 +115,7 @@ const ScrollBlurCard = ({
 
       {
         item.image && (
-          <div className="relative shrink-0 w-10 h-10 md:w-12 md:h-12 rounded-lg bg-black/50 border border-white/10 overflow-hidden flex items-center justify-center group-hover:border-[#a3e635]/50 transition-colors">
+          <div className="relative shrink-0 w-10 h-10 md:w-12 md:h-12 rounded-none bg-black/50 border border-white/10 overflow-hidden flex items-center justify-center group-hover:border-[#a3e635]/50 transition-colors">
             <img
               src={item.image}
               alt={item.title}
@@ -190,6 +190,11 @@ export default function ContentSection() {
     setSelectedFavs(prev =>
       prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]
     );
+  };
+
+  const handleRandomItem = () => {
+    const randomIndex = Math.floor(Math.random() * items.length);
+    setPreviewItem(items[randomIndex]);
   };
 
   const handleOpenSelected = () => {
@@ -344,6 +349,8 @@ export default function ContentSection() {
         setActiveTag("all");
       } else if (event.key === "Escape" && previewItem) {
         setPreviewItem(null);
+      } else if ((event.key === "r" || event.key === "R") && !previewItem) {
+        handleRandomItem();
       }
     };
 
@@ -520,7 +527,7 @@ export default function ContentSection() {
                       }
                     }}
                     // LARGER MOBILE TOUCH BOX PADDING (p-2.5 vs p-2)
-                    className="p-2.5 md:p-2 bg-[#a3e635]/10 rounded-full border border-[#a3e635]/20 backdrop-blur-md hover:bg-[#a3e635]/20 transition-colors"
+                    className="flex items-center justify-center w-10 h-10 md:w-12 md:h-12 bg-[#a3e635]/10 rounded-none border border-[#a3e635]/20 backdrop-blur-md hover:bg-[#a3e635]/20 hover:-translate-y-1 hover:-translate-x-1 hover:shadow-[4px_4px_0px_#a3e635] transition-all"
                     aria-pressed={isLocked}
                     aria-label={isLocked ? "Unlock section" : "Lock section"}
                   >
@@ -553,11 +560,32 @@ export default function ContentSection() {
 
 
 
-          {/* --- RIGHT SIDE BUTTON (Favorites on Desktop usually) --- */}
+          {/* --- RIGHT SIDE BUTTONS (Favorites + Lucky) --- */}
           <div className="hidden md:flex absolute right-3 md:right-20 top-[20px] -translate-y-1/2 z-40 items-center gap-2 md:gap-3">
             <AnimatePresence>
               {isStraight && !isMobile && (
                 <>
+                  <motion.button
+                    key="lucky-btn"
+                    initial={{ opacity: 0, scale: 0.5, x: 20 }}
+                    animate={{ opacity: 1, scale: 1, x: 0 }}
+                    exit={{ opacity: 0, scale: 0.5, x: 20 }}
+                    transition={{ duration: 0.3, delay: 0.1 }}
+                    onClick={handleRandomItem}
+                    className="group relative flex items-center justify-center h-10 md:h-12 px-4 md:px-5 bg-[#a3e635] rounded-none border border-[#a3e635] hover:-translate-y-1 hover:-translate-x-1 hover:shadow-[4px_4px_0px_#a3e635] transition-all overflow-hidden"
+                    title="I'm Feeling Lucky (Press 'R')"
+                  >
+
+                    <span className="text-black font-bold font-mono text-xs md:text-sm uppercase tracking-wide">
+                      <DecryptedText
+                        text="Random"
+                        speed={50}
+                        animateOnHover={true}
+                        useScrambleOnHover={true}
+                        className="relative z-10"
+                      />
+                    </span>
+                  </motion.button>
                   <motion.div
                     key="favorites-btn"
                     initial={{ opacity: 0, scale: 0.5, x: 20 }}
@@ -571,7 +599,7 @@ export default function ContentSection() {
                       onMouseEnter={() => folderHeartRef.current?.startAnimation()}
                       onMouseLeave={() => folderHeartRef.current?.stopAnimation()}
                       // LARGER MOBILE TOUCH BOX PADDING
-                      className="group/folder-heart p-2.5 md:p-2 bg-[#a3e635]/10 rounded-full border border-[#a3e635]/20 backdrop-blur-md hover:bg-[#a3e635]/20 transition-colors"
+                      className="group/folder-heart flex items-center justify-center w-10 h-10 md:w-12 md:h-12 bg-[#a3e635]/10 rounded-none border border-[#a3e635]/20 backdrop-blur-md hover:bg-[#a3e635]/20 hover:-translate-y-1 hover:-translate-x-1 hover:shadow-[4px_4px_0px_#a3e635] transition-all"
                       title="Favorites"
                     >
                       <FolderHeartIcon ref={folderHeartRef} className="w-5 h-5 text-[#a3e635]" />
@@ -716,14 +744,14 @@ export default function ContentSection() {
                   <motion.div
                     key={`skeleton-${index}`}
                     variants={cardVariants}
-                    className="relative flex justify-between items-start gap-3 md:gap-4 bg-white/5 border border-white/10 p-5 md:p-6 rounded-2xl overflow-hidden backdrop-blur-sm animate-pulse"
+                    className="relative flex justify-between items-start gap-3 md:gap-4 bg-white/5 border border-white/10 p-5 md:p-6 rounded-none overflow-hidden backdrop-blur-sm animate-pulse"
                   >
                     <div className="flex flex-col gap-3 w-full">
-                      <div className="h-4 w-2/3 bg-white/10 rounded" />
-                      <div className="h-3 w-full bg-white/5 rounded" />
-                      <div className="h-3 w-5/6 bg-white/5 rounded" />
+                      <div className="h-4 w-2/3 bg-white/10 rounded-none" />
+                      <div className="h-3 w-full bg-white/5 rounded-none" />
+                      <div className="h-3 w-5/6 bg-white/5 rounded-none" />
                     </div>
-                    <div className="w-10 h-10 md:w-12 md:h-12 rounded-lg bg-white/10 border border-white/10" />
+                    <div className="w-10 h-10 md:w-12 md:h-12 rounded-none bg-white/10 border border-white/10" />
                   </motion.div>
                 ))}
               </motion.div>
@@ -779,7 +807,7 @@ export default function ContentSection() {
               animate={{ opacity: 1, scale: 1, y: 0, rotateX: 0 }}
               exit={{ opacity: 0, scale: 0.9, y: 20 }}
               transition={{ type: "spring", damping: 25, stiffness: 300 }}
-              className="relative w-full max-w-5xl bg-[#0a0a0a] border border-white/10 rounded-3xl overflow-hidden shadow-2xl flex flex-col md:flex-row max-h-[90vh] md:max-h-[600px] z-10"
+              className="relative w-full max-w-5xl bg-[#0a0a0a] border border-white/10 rounded-none overflow-hidden shadow-2xl flex flex-col md:flex-row max-h-[90vh] md:max-h-[600px] z-10"
               onClick={(e) => e.stopPropagation()}
             >
               <PreviewContent item={previewItem} onClose={() => setPreviewItem(null)} />
@@ -811,7 +839,7 @@ export default function ContentSection() {
               initial={{ scale: 0.9, opacity: 0, y: 20 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.9, opacity: 0, y: 20 }}
-              className="relative w-full max-w-5xl bg-[#0a0a0a] border border-white/10 rounded-3xl overflow-hidden shadow-2xl flex flex-col h-[90vh] md:h-[85vh] z-10"
+              className="relative w-full max-w-5xl bg-[#0a0a0a] border border-white/10 rounded-none overflow-hidden shadow-2xl flex flex-col h-[90vh] md:h-[85vh] z-10"
             >
               {/* Header */}
               <div className="flex flex-wrap items-center justify-between gap-3 p-4 md:p-6 border-b border-white/10 bg-black/20">
@@ -827,7 +855,7 @@ export default function ContentSection() {
                           <button
                             onClick={handleOpenSelected}
                             disabled={selectedFavs.length === 0}
-                            className={`px-2.5 md:px-3 py-1.5 rounded-lg text-[11px] md:text-xs font-bold transition-all border ${selectedFavs.length > 0
+                            className={`px-2.5 md:px-3 py-1.5 rounded-none text-[11px] md:text-xs font-bold transition-all border ${selectedFavs.length > 0
                               ? "bg-[#a3e635] text-black border-[#a3e635] hover:bg-[#a3e635]/90"
                               : "bg-white/5 text-white/30 border-white/10 cursor-not-allowed"
                               }`}
@@ -836,7 +864,7 @@ export default function ContentSection() {
                           </button>
                           <button
                             onClick={handleSelectAll}
-                            className="px-2.5 md:px-3 py-1.5 rounded-lg text-[11px] md:text-xs font-bold bg-white/10 text-white hover:bg-white/20 border border-white/10 transition-colors"
+                            className="px-2.5 md:px-3 py-1.5 rounded-none text-[11px] md:text-xs font-bold bg-white/10 text-white hover:bg-white/20 border border-white/10 transition-colors"
                           >
                             {/* Simple toggle text */}
                             {items.filter(item => isFavorite(item.id)).length === selectedFavs.length ? "Deselect All" : "Select All"}
@@ -846,7 +874,7 @@ export default function ContentSection() {
                               setIsSelectionMode(false);
                               setSelectedFavs([]);
                             }}
-                            className="px-2.5 md:px-3 py-1.5 rounded-lg text-[11px] md:text-xs font-bold bg-white/10 text-white hover:bg-white/20 border border-white/10 transition-colors"
+                            className="px-2.5 md:px-3 py-1.5 rounded-none text-[11px] md:text-xs font-bold bg-white/10 text-white hover:bg-white/20 border border-white/10 transition-colors"
                           >
                             Cancel
                           </button>
@@ -854,7 +882,7 @@ export default function ContentSection() {
                       ) : (
                         <button
                           onClick={() => setIsSelectionMode(true)}
-                          className="px-2.5 md:px-3 py-1.5 rounded-lg text-[11px] md:text-xs font-bold bg-white/5 text-white/70 hover:text-white border border-white/10 hover:border-white/20 transition-colors"
+                          className="px-2.5 md:px-3 py-1.5 rounded-none text-[11px] md:text-xs font-bold bg-white/5 text-white/70 hover:text-white border border-white/10 hover:border-white/20 transition-colors"
                         >
                           Select
                         </button>
@@ -863,7 +891,7 @@ export default function ContentSection() {
                       {isSelectionMode && (
                         <button
                           onClick={handleRemove}
-                          className="px-2.5 md:px-3 py-1.5 rounded-lg text-[11px] md:text-xs font-bold bg-red-500/10 text-red-400 border border-red-500/20 hover:bg-red-500/20 transition-colors"
+                          className="px-2.5 md:px-3 py-1.5 rounded-none text-[11px] md:text-xs font-bold bg-red-500/10 text-red-400 border border-red-500/20 hover:bg-red-500/20 transition-colors"
                         >
                           {selectedFavs.length > 0 ? `Remove (${selectedFavs.length})` : "Remove All"}
                         </button>
@@ -872,7 +900,7 @@ export default function ContentSection() {
                   )}
                   <button
                     onClick={() => setShowFavorites(false)}
-                    className="p-1.5 md:p-2 bg-white/5 hover:bg-white/10 rounded-full transition-colors md:ml-2"
+                    className="p-1.5 md:p-2 bg-white/5 hover:bg-white/10 rounded-none transition-colors md:ml-2"
                   >
                     <X className="w-4 h-4 md:w-5 md:h-5 text-white/70" />
                   </button>
@@ -996,7 +1024,7 @@ function PreviewContent({ item, onClose }: { item: Item; onClose: () => void }) 
             toggleFavorite(item.id);
           }}
           // INCREASED PADDING
-          className="p-2.5 md:p-2 bg-black/50 hover:bg-black/70 rounded-full transition-colors backdrop-blur-md border border-white/5 group/fav"
+          className="p-2.5 md:p-2 bg-black/50 hover:bg-black/70 rounded-none transition-colors backdrop-blur-md border border-white/5 group/fav"
         >
           <Heart
             className={`w-5 h-5 transition-colors ${isFavorite(item.id)
@@ -1009,7 +1037,7 @@ function PreviewContent({ item, onClose }: { item: Item; onClose: () => void }) 
           type="button"
           onClick={onClose}
           // INCREASED PADDING
-          className="p-2.5 md:p-2 bg-black/50 hover:bg-black/70 text-white/70 hover:text-white rounded-full transition-colors backdrop-blur-md border border-white/5"
+          className="p-2.5 md:p-2 bg-black/50 hover:bg-black/70 text-white/70 hover:text-white rounded-none transition-colors backdrop-blur-md border border-white/5"
         >
           <X className="w-5 h-5" />
         </button>
@@ -1057,7 +1085,7 @@ function PreviewContent({ item, onClose }: { item: Item; onClose: () => void }) 
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                className="relative w-full aspect-video rounded-xl overflow-hidden bg-white/5 border border-white/10 flex items-center justify-center"
+                className="relative w-full aspect-video rounded-none overflow-hidden bg-white/5 border border-white/10 flex items-center justify-center"
               >
                 <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent animate-shimmer" style={{ transform: 'skewX(-20deg) translateX(-150%)' }} />
                 <div className="w-8 h-8 border-2 border-[#a3e635] border-t-transparent rounded-full animate-spin" />
@@ -1068,7 +1096,7 @@ function PreviewContent({ item, onClose }: { item: Item; onClose: () => void }) 
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.5, ease: "easeOut" }}
-                className="relative w-full h-full rounded-xl overflow-hidden shadow-2xl border border-white/10 bg-black/50 backdrop-blur-sm"
+                className="relative w-full h-full rounded-none overflow-hidden shadow-2xl border border-white/10 bg-black/50 backdrop-blur-sm"
               >
                 {metadata?.image || item.image ? (
                   <img
@@ -1105,21 +1133,21 @@ function PreviewContent({ item, onClose }: { item: Item; onClose: () => void }) 
             transition={{ delay: 0.1 }}
             className="flex flex-wrap items-center gap-2 mb-4"
           >
-            <span className="px-2 py-1 rounded-md bg-white/5 border border-white/10 text-[10px] md:text-xs font-mono text-[#a3e635] uppercase tracking-wider">
+            <span className="px-2 py-1 rounded-none bg-white/5 border border-white/10 text-[10px] md:text-xs font-mono text-[#a3e635] uppercase tracking-wider">
               {item.category}
             </span>
             {metadata?.isGitHub && (
-              <span className="flex items-center gap-1 px-2 py-1 rounded-md bg-[#24292e] border border-white/10 text-[10px] md:text-xs font-mono text-white/80">
+              <span className="flex items-center gap-1 px-2 py-1 rounded-none bg-[#24292e] border border-white/10 text-[10px] md:text-xs font-mono text-white/80">
                 GitHub
               </span>
             )}
             {metadata?.stars && (
-              <span className="flex items-center gap-1 px-2 py-1 rounded-md bg-[#f1e05a]/10 border border-[#f1e05a]/20 text-[10px] md:text-xs font-mono text-[#f1e05a]">
+              <span className="flex items-center gap-1 px-2 py-1 rounded-none bg-[#f1e05a]/10 border border-[#f1e05a]/20 text-[10px] md:text-xs font-mono text-[#f1e05a]">
                 ★ {metadata.stars}
               </span>
             )}
             {metadata?.license && (
-              <span className="flex items-center gap-1 px-2 py-1 rounded-md bg-white/5 border border-white/10 text-[10px] md:text-xs font-mono text-gray-400">
+              <span className="flex items-center gap-1 px-2 py-1 rounded-none bg-white/5 border border-white/10 text-[10px] md:text-xs font-mono text-gray-400">
                 {metadata.license}
               </span>
             )}
@@ -1151,9 +1179,9 @@ function PreviewContent({ item, onClose }: { item: Item; onClose: () => void }) 
                   exit={{ opacity: 0, height: 0 }}
                   className="space-y-2 mt-4"
                 >
-                  <div className="h-3 bg-white/5 rounded w-full animate-pulse" />
-                  <div className="h-3 bg-white/5 rounded w-5/6 animate-pulse" />
-                  <div className="h-3 bg-white/5 rounded w-4/6 animate-pulse" />
+                  <div className="h-3 bg-white/5 rounded-none w-full animate-pulse" />
+                  <div className="h-3 bg-white/5 rounded-none w-5/6 animate-pulse" />
+                  <div className="h-3 bg-white/5 rounded-none w-4/6 animate-pulse" />
                 </motion.div>
               ) : (
                 <motion.div
@@ -1181,7 +1209,7 @@ function PreviewContent({ item, onClose }: { item: Item; onClose: () => void }) 
                     initial={{ opacity: 0, scale: 0.8 }}
                     animate={{ opacity: 1, scale: 1 }}
                     transition={{ delay: 0.4 + (i * 0.05) }}
-                    className="px-2.5 py-1 rounded-md text-[10px] uppercase font-bold tracking-wider border border-white/10 bg-white/5 text-white/60"
+                    className="px-2.5 py-1 rounded-none text-[10px] uppercase font-bold tracking-wider border border-white/10 bg-white/5 text-white/60"
                   >
                     {tag}
                   </motion.span>
@@ -1208,7 +1236,7 @@ function PreviewContent({ item, onClose }: { item: Item; onClose: () => void }) 
                 target="_blank"
                 rel="noreferrer"
                 transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                className="flex-1 group relative flex items-center justify-center px-6 py-3 md:py-4 rounded-xl bg-[#a3e635] text-black font-bold text-base md:text-lg overflow-hidden transition-all hover:shadow-[0_0_20px_rgba(163,230,53,0.3)] whitespace-nowrap order-1"
+                className="flex-1 group relative flex items-center justify-center px-6 py-3 md:py-4 rounded-none bg-[#a3e635] text-black font-bold text-base md:text-lg overflow-hidden transition-all hover:shadow-[0_0_20px_rgba(163,230,53,0.3)] whitespace-nowrap order-1"
               >
                 <motion.span layout="position" className="relative z-10 flex items-center gap-2">
                   Visit Website <ArrowUpRight className="w-5 h-5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
@@ -1229,7 +1257,7 @@ function PreviewContent({ item, onClose }: { item: Item; onClose: () => void }) 
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.8 }}
                 transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                className={`flex-1 group flex items-center justify-center px-6 py-3 md:py-4 rounded-xl font-medium text-base md:text-lg transition-colors border whitespace-nowrap overflow-hidden order-2 ${metadata?.website
+                className={`flex-1 group flex items-center justify-center px-6 py-3 md:py-4 rounded-none font-medium text-base md:text-lg transition-colors border whitespace-nowrap overflow-hidden order-2 ${metadata?.website
                   ? "bg-white/5 hover:bg-white/10 text-white border-white/10" // Secondary style if website exists
                   : "bg-[#a3e635] text-black border-[#a3e635] hover:shadow-[0_0_20px_rgba(163,230,53,0.3)] font-bold" // Primary style if ONLY GitHub
                   }`}

@@ -93,7 +93,7 @@ export default function PortfolioOverlay({ isOpen, onClose }: PortfolioOverlayPr
                         onClick={(e) => e.stopPropagation()}
                     >
                         {/* Main Card */}
-                        <div className="bg-[#0a0a0a] rounded-xl border border-[#a3e635]/30 shadow-[0_0_30px_rgba(163,230,53,0.12),0_0_60px_rgba(163,230,53,0.04)] backdrop-blur-md bg-opacity-95 overflow-hidden">
+                        <div className="bg-[#0a0a0a] rounded-none border border-[#a3e635]/30 shadow-[0_0_30px_rgba(163,230,53,0.12),0_0_60px_rgba(163,230,53,0.04)] backdrop-blur-md bg-opacity-95 overflow-hidden">
 
                             {/* Welcome Tab */}
                             <div className="px-5 py-2 border-b border-[#a3e635]/20">
@@ -110,7 +110,7 @@ export default function PortfolioOverlay({ isOpen, onClose }: PortfolioOverlayPr
                                     <ArrowRight size={20} className="cursor-pointer hover:text-[#a3e635] transition-colors" />
                                     <RefreshCw size={18} className="cursor-pointer hover:text-[#a3e635] transition-colors" />
                                 </div>
-                                <div className="flex-1 w-full bg-[#050505] rounded-full px-4 py-2 flex justify-between items-center text-sm font-mono border border-white/5 shadow-inner shadow-black/50">
+                                <div className="flex-1 w-full bg-[#050505] rounded-none px-4 py-2 flex justify-between items-center text-sm font-mono border border-white/5 shadow-inner shadow-black/50">
                                     <span className="text-[#a3e635] tracking-wide drop-shadow-[0_0_2px_rgba(163,230,53,0.3)]">
                                         random-stuff.site
                                     </span>
@@ -134,7 +134,7 @@ export default function PortfolioOverlay({ isOpen, onClose }: PortfolioOverlayPr
 
                                     <div className="w-full border-t border-dashed border-[#a3e635]/50"></div>
 
-                                    <div className="w-full border border-white/10 p-2 bg-[#050505]/80 text-xs font-mono rounded shadow-inner text-gray-300">
+                                    <div className="w-full border border-white/10 p-2 bg-[#050505]/80 text-xs font-mono rounded-none shadow-inner text-gray-300">
                                         <span className="font-bold text-[#a3e635]">STATUS</span> BSc Software Engineering @ OUSL
                                     </div>
 
@@ -163,8 +163,8 @@ export default function PortfolioOverlay({ isOpen, onClose }: PortfolioOverlayPr
                                 {/* Right Column */}
                                 <div className="md:col-span-7 flex flex-col space-y-3">
                                     <div className="relative group max-w-[280px] mx-auto w-full">
-                                        <div className="absolute -inset-0.5 bg-gradient-to-r from-[#a3e635] to-green-900 rounded-lg blur opacity-30 group-hover:opacity-60 transition duration-1000 group-hover:duration-200"></div>
-                                        <div className="relative w-full max-w-[280px] mx-auto aspect-square rounded-lg overflow-hidden border border-white/10 bg-[#050505]">
+                                        <div className="absolute -inset-0.5 bg-gradient-to-r from-[#a3e635] to-green-900 rounded-none blur opacity-30 group-hover:opacity-60 transition duration-1000 group-hover:duration-200"></div>
+                                        <div className="relative w-full max-w-[280px] mx-auto aspect-square rounded-none overflow-hidden border border-white/10 bg-[#050505]">
                                             <Image
                                                 src="/icon.png"
                                                 alt="Nipun Yatawara"
@@ -187,13 +187,13 @@ export default function PortfolioOverlay({ isOpen, onClose }: PortfolioOverlayPr
                                 {/* Bottom Row — Interests & Experience side by side */}
                                 <div className="md:col-span-12 grid grid-cols-1 md:grid-cols-2 gap-4">
                                     {/* Interests */}
-                                    <div className="text-xs leading-relaxed bg-[#050505]/30 p-3 rounded-lg border border-white/10 text-gray-400 font-mono">
+                                    <div className="text-xs leading-relaxed bg-[#050505]/30 p-3 rounded-none border border-white/10 text-gray-400 font-mono">
                                         <span className="font-bold text-[#a3e635] italic mr-2 text-sm block mb-1">interests</span>
                                         Custom PC building, hardware troubleshooting, Next.js & PHP
                                     </div>
 
                                     {/* Experience */}
-                                    <div className="text-xs leading-relaxed bg-[#050505]/30 p-3 rounded-lg border border-white/10 text-gray-400 font-mono">
+                                    <div className="text-xs leading-relaxed bg-[#050505]/30 p-3 rounded-none border border-white/10 text-gray-400 font-mono">
                                         <span className="font-bold text-[#a3e635] italic mr-2 text-sm block mb-1">experience</span>
                                         <div className="space-y-2">
                                             <div>
