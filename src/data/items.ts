@@ -559,5 +559,14 @@ export const items: Item[] = [
     category: "Softwares",
     tags: ["windows"],
     image: "https://github.com/steam3d.png"
+  },
+  {
+    id: 158,
+    title: "IPSW Downloads",
+    description: "Download current and previous versions of Apple's iOS, iPadOS, macOS, watchOS, tvOS, audioOS and visionOS firmware.",
+    link: "https://ipsw.me/",
+    category: "Websites",
+    tags: ["all"],
+    image: "https://ipsw.me/favicon.ico"
   }
 ];
