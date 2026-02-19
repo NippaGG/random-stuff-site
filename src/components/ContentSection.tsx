@@ -65,7 +65,7 @@ const ScrollBlurCard = ({
         <h3 className="text-lg md:text-xl font-bold text-white mb-2 group-hover:text-[#a3e635] transition-colors font-mono">
           {item.title}
         </h3>
-        <p className="text-gray-400 text-sm font-sans leading-relaxed mb-4 md:mb-6">
+        <p className="line-clamp-3 text-gray-400 text-sm font-sans leading-relaxed mb-4 md:mb-6">
           {item.description}
         </p>
       </div>
