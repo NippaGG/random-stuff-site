@@ -576,7 +576,7 @@ export default function ContentSection() {
                     title="I'm Feeling Lucky (Press 'R')"
                   >
 
-                    <span className="text-black font-bold font-mono text-xs md:text-sm uppercase tracking-wide">
+                    <span className="text-black font-bold font-mono text-sm md:text-base uppercase tracking-wide">
                       <DecryptedText
                         text="Random"
                         speed={50}
