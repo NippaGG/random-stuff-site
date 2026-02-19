@@ -192,11 +192,6 @@ export default function ContentSection() {
     );
   };
 
-  const handleRandomItem = () => {
-    const randomIndex = Math.floor(Math.random() * items.length);
-    setPreviewItem(items[randomIndex]);
-  };
-
   const handleOpenSelected = () => {
     const selectedItems = items.filter(item => selectedFavs.includes(item.id));
     if (selectedItems.length > 5) {
@@ -349,8 +344,6 @@ export default function ContentSection() {
         setActiveTag("all");
       } else if (event.key === "Escape" && previewItem) {
         setPreviewItem(null);
-      } else if ((event.key === "r" || event.key === "R") && !previewItem) {
-        handleRandomItem();
       }
     };
 
@@ -560,33 +553,11 @@ export default function ContentSection() {
 
 
 
-          {/* --- RIGHT SIDE BUTTONS (Favorites + Lucky) --- */}
-          <div className="absolute right-3 md:right-20 top-[20px] -translate-y-1/2 z-40 flex items-center gap-2 md:gap-3">
+          {/* --- RIGHT SIDE BUTTON (Favorites on Desktop usually) --- */}
+          <div className="hidden md:flex absolute right-3 md:right-20 top-[20px] -translate-y-1/2 z-40 items-center gap-2 md:gap-3">
             <AnimatePresence>
-              {isStraight && (
+              {isStraight && !isMobile && (
                 <>
-                  <motion.button
-                    key="lucky-btn"
-                    initial={{ opacity: 0, scale: 0.5, x: 20 }}
-                    animate={{ opacity: 1, scale: 1, x: 0 }}
-                    exit={{ opacity: 0, scale: 0.5, x: 20 }}
-                    transition={{ duration: 0.3, delay: 0.1 }}
-                    onClick={handleRandomItem}
-                    className="group relative px-3 md:px-4 py-1.5 bg-[#a3e635] rounded-full border border-[#a3e635] shadow-[0_0_15px_rgba(163,230,53,0.3)] hover:shadow-[0_0_25px_rgba(163,230,53,0.5)] transition-all overflow-hidden"
-                    title="I'm Feeling Lucky (Press 'R')"
-                  >
-
-                    <span className="text-black font-bold font-mono text-xs md:text-sm uppercase tracking-wide">
-                      <DecryptedText
-                        text="Random"
-                        speed={50}
-                        animateOnHover={true}
-                        useScrambleOnHover={true}
-                        className="relative z-10"
-                      />
-                    </span>
-                  </motion.button>
-
                   <motion.div
                     key="favorites-btn"
                     initial={{ opacity: 0, scale: 0.5, x: 20 }}

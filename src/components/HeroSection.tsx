@@ -7,7 +7,7 @@ import TextPressure from "./TextPressure";
 import FloatingIcons from "./FloatingIcons";
 import PortfolioOverlay from "./PortfolioOverlay";
 import Image from "next/image";
-import { Github, ArrowDown } from "lucide-react";
+import { Github } from "lucide-react";
 
 export default function HeroSection() {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -89,6 +89,15 @@ export default function HeroSection() {
       ? ["0vh", "-24vh", "-24vh", "-42vh"]
       : ["0vh", "-35vh", "-35vh", "-60vh"]
   );
+
+  // NEW: "STUFF" Center Column Fade for Mobile
+  // Fade out opacity completely between 0.35 and 0.5 only on mobile
+  const centerOpacity = useTransform(
+    scrollYProgress,
+    [0.35, 0.5],
+    isMobile ? [1, 0] : [1, 1]
+  );
+
   const lineWidth = useTransform(scrollYProgress, [0.2, 0.45], ["0%", "100%"]);
   const lineOpacity = useTransform(scrollYProgress, [0.18, 0.2], [0, 1]);
 
@@ -147,31 +156,6 @@ export default function HeroSection() {
             </motion.button>
           </div>
 
-          {/* SCROLL DOWN BUTTON - Bottom Right */}
-          <div className="absolute bottom-8 right-8 z-[150] pointer-events-auto">
-            <motion.button
-              onClick={() => {
-                const viewportHeight = window.innerHeight;
-                // Match the threshold from ContentSection.tsx
-                const targetScroll = viewportHeight * (isMobile ? 1.75 : 2.2);
-                window.scrollTo({
-                  top: targetScroll + 10, // Small buffer to ensure lock triggers
-                  behavior: "smooth"
-                });
-              }}
-              whileHover={{
-                scale: 1.1,
-                y: 5,
-                transition: { duration: 0.2 }
-              }}
-              whileTap={{ scale: 0.9 }}
-              // INCREASED TOUCH TARGET PADDING
-              className="flex items-center justify-center p-3 w-12 h-12 md:w-12 md:h-12 rounded-full shadow-[0_0_12px_rgba(163,230,53,0.3)] hover:shadow-[0_0_25px_rgba(163,230,53,0.7)] transition-shadow duration-300 bg-black/20 backdrop-blur-sm border border-white/10 text-white/80 hover:text-[#a3e635]"
-            >
-              <ArrowDown size={24} />
-            </motion.button>
-          </div>
-
           {/* FLOATING ICONS */}
           <FloatingIcons opacity={iconsOpacity} compact={isMobile} />
 
@@ -204,7 +188,7 @@ export default function HeroSection() {
 
             {/* CENTER COLUMN */}
             <motion.div
-              style={{ y: yPos }}
+              style={{ y: yPos, opacity: centerOpacity }}
               className="flex flex-col items-center justify-center z-[101] relative pointer-events-auto w-full md:w-[300px] h-[90px] md:h-[100px]"
             >
               <div className="relative w-full h-full flex items-center justify-center -translate-y-10 md:-translate-y-12">
@@ -223,13 +207,13 @@ export default function HeroSection() {
                 />
               </div>
 
-              {/* THE GROWING LINE */}
+              {/* THE GROWING LINE - HIDE ON MOBILE */}
               <motion.div
                 style={{
                   opacity: lineOpacity,
                   width: lineWidth
                 }}
-                className="absolute bottom-1 md:bottom-3 left-1/2 -translate-x-1/2 h-[4px] max-w-[90vw] overflow-hidden"
+                className="hidden md:block absolute bottom-1 md:bottom-3 left-1/2 -translate-x-1/2 h-[4px] max-w-[90vw] overflow-hidden"
               >
                 <motion.div
                   className="w-full h-full bg-[#a3e635] shadow-[0_0_15px_#a3e635,0_0_5px_#a3e635] rounded-full"
@@ -262,8 +246,8 @@ export default function HeroSection() {
               </div>
             </motion.div>
 
-            {/* MOBILE FALLBACK */}
-            <div className="md:hidden flex flex-col items-center gap-1.5">
+            {/* MOBILE FALLBACK - HIDDEN */}
+            <div className="hidden flex-col items-center gap-1.5">
               <motion.span style={{ opacity: sideOpacity }} className="font-mono text-white/90 font-semibold drop-shadow-md text-lg">Random (useful)</motion.span>
               <motion.span style={{ opacity: sideOpacity }} className="font-mono text-white/90 font-semibold drop-shadow-md text-lg">from the internet</motion.span>
             </div>
