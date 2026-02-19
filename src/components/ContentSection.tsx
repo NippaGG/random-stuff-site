@@ -681,8 +681,8 @@ export default function ContentSection() {
                         transition={{ layout: { duration: 0.6, ease: [0.2, 0.8, 0.2, 1] } }}
                         // BIGGER HIT BOX: font-sm all the way and py-2
                         className={`relative flex items-center justify-center font-mono border text-sm overflow-hidden ${isDots
-                          ? "w-2 h-2 p-0 rounded-full border-transparent"
-                          : "px-4 py-2 rounded-full"
+                          ? "w-2 h-2 p-0 rounded-none border-transparent"
+                          : "px-4 py-2 rounded-none"
                           } ${isDots
                             ? ""
                             : isActive
@@ -712,7 +712,7 @@ export default function ContentSection() {
                           }}
                           className="absolute flex items-center justify-center"
                         >
-                          <span className="block w-1 h-1 rounded-full bg-[#a3e635]" />
+                          <span className="block w-1 h-1 rounded-none bg-[#a3e635]" />
                         </motion.span>
                       </motion.button>
                     );
