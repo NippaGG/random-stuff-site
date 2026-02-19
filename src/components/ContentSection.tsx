@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useRef, useState } from "react";
-import { motion, AnimatePresence, useScroll, useMotionValueEvent, LayoutGroup, useTransform } from "framer-motion";
+import { motion, AnimatePresence, useScroll, useMotionValueEvent, LayoutGroup, useTransform, useMotionTemplate } from "framer-motion";
 import { items, type Item } from "@/data/items";
 import CircularNav from "./CircularNav";
 import { Lock, Unlock, X, ArrowUpRight, Globe, Monitor, Terminal, Heart } from "lucide-react";
@@ -45,10 +45,13 @@ const ScrollBlurCard = ({
   });
 
   const opacity = useTransform(scrollYProgress, [0, 1], [1, 0]);
-  const blur = useTransform(scrollYProgress, [0, 1], ["0px", "8px"]);
+  const blurValue = useTransform(scrollYProgress, [0, 1], ["0px", "8px"]);
   const scale = useTransform(scrollYProgress, [0, 1], [1, 0.95]);
+  const filter = useMotionTemplate`blur(${blurValue})`;
 
-  const style = disableAnimations ? {} : { opacity, filter: `blur(${blur})`, scale };
+  const style = disableAnimations
+    ? {}
+    : { opacity, filter, scale, willChange: "transform, opacity, filter", transformOrigin: "top center" };
 
   return (
     <motion.a
