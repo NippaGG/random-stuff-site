@@ -568,5 +568,23 @@ export const items: Item[] = [
     category: "Websites",
     tags: ["all"],
     image: "https://ipsw.me/favicon.ico"
+  },
+  {
+    id: 159,
+    title: "Carbon Design System",
+    description: "IBM's open source design system for products and digital experiences.",
+    link: "https://github.com/carbon-design-system/carbon",
+    category: "Websites",
+    tags: ["all"],
+    image: "https://github.com/carbon-design-system.png"
+  },
+  {
+    id: 160,
+    title: "Poke",
+    description: "A free software YouTube front-end, translator, map app, and more! All-in-one privacy app.",
+    link: "https://poketube.fun/",
+    category: "Websites",
+    tags: ["all"],
+    image: "https://poketube.fun/favicon.ico"
   }
 ];
