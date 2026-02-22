@@ -5,7 +5,6 @@ import React, { useRef, useState, useEffect } from "react";
 import { motion, useScroll, useTransform, useMotionValueEvent } from "framer-motion";
 import TextPressure from "./TextPressure";
 import FloatingIcons from "./FloatingIcons";
-import PortfolioOverlay from "./PortfolioOverlay";
 import Image from "next/image";
 import { Github, ArrowDown } from "lucide-react";
 
@@ -19,7 +18,6 @@ export default function HeroSection() {
 
   // 2. New State: Should we freeze the animations?
   const [freezeAnimations, setFreezeAnimations] = useState(false);
-  const [showPortfolio, setShowPortfolio] = useState(false);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -127,10 +125,10 @@ export default function HeroSection() {
 
           {/* PORTFOLIO TRIGGER - Top Right (Desktop Only) */}
           <div className="hidden md:block absolute top-8 right-8 z-[150] pointer-events-auto">
-            <motion.button
-              onClick={() => setShowPortfolio(true)}
+            <motion.a
+              href="https://shockagg.vercel.app/"
               whileTap={{ scale: 0.95 }}
-              className="relative w-10 h-10 md:w-12 md:h-12 rounded-none overflow-hidden bg-[#a3e635]/10 border border-[#a3e635]/20 backdrop-blur-md hover:bg-[#a3e635]/20 hover:-translate-y-1 hover:-translate-x-1 hover:shadow-[4px_4px_0px_#a3e635] transition-all"
+              className="block relative w-10 h-10 md:w-12 md:h-12 rounded-none overflow-hidden bg-[#a3e635]/10 border border-[#a3e635]/20 backdrop-blur-md hover:bg-[#a3e635]/20 hover:-translate-y-1 hover:-translate-x-1 hover:shadow-[4px_4px_0px_#a3e635] transition-all"
             >
               <Image
                 src="/icon.png"
@@ -138,7 +136,7 @@ export default function HeroSection() {
                 fill
                 className="object-cover"
               />
-            </motion.button>
+            </motion.a>
           </div>
 
           {/* SCROLL DOWN BUTTON - Bottom Right */}
@@ -297,9 +295,6 @@ export default function HeroSection() {
 
         </div>
       </div>
-
-      {/* OVERLAY - Moved outside of transformed container */}
-      <PortfolioOverlay isOpen={showPortfolio} onClose={() => setShowPortfolio(false)} />
     </>
   );
 }
