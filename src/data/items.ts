@@ -251,8 +251,7 @@ export const items: Item[] = [
     description: "Dock alternative for macOS.",
     link: "https://dockdoor.net/",
     category: "Softwares",
-    tags: ["macos"],
-    image: "https://dockdoor.net/favicon.ico"
+    tags: ["macos"]
   },
   {
     id: 124,
@@ -350,8 +349,7 @@ export const items: Item[] = [
     description: "Generate shader-style gradients.",
     link: "https://shadergradient.co/",
     category: "Websites",
-    tags: ["all"],
-    image: "https://shadergradient.co/favicon.ico"
+    tags: ["all"]
   },
   {
     id: 135,
@@ -431,8 +429,7 @@ export const items: Item[] = [
     description: "Generate subtitles for videos in seconds on iOS.",
     link: "https://apps.apple.com/us/app/quick-subtitles/id6747410609",
     category: "Softwares",
-    tags: ["ios"],
-    image: "https://is1-ssl.mzstatic.com/image/thumb/Purple221/v4/4c/4c/4c/4c4c4c4c-4c4c-4c4c-4c4c-4c4c4c4c4c4c/AppIcon-0-0-1x_U007emarketing-0-0-0-7-0-0-sRGB-0-0-0-GLES2_U002c0-512MB-85-220-0-0.png/60x60bb.jpg"
+    tags: ["ios"]
   },
   {
     id: 144,
