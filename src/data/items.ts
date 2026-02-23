@@ -365,10 +365,10 @@ export const items: Item[] = [
   {
     id: 136,
     title: "FineTune",
-    description: "Fine-tuning utilities for ML models.",
+    description: "A macOS menu bar app for per-app volume control, multi-device output, audio routing, and 10-band EQ.",
     link: "https://github.com/ronitsingh10/FineTune",
-    category: "Scripts",
-    tags: ["all"],
+    category: "Softwares",
+    tags: ["macos"],
     image: "https://github.com/ronitsingh10.png"
   },
   {
