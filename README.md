@@ -14,9 +14,11 @@
 
 - **🎨 Modern Design**: Sleek UI with a custom grid background, smooth scrolling (Lenis), and a custom cursor.
 - **⚡ Fast & Responsive**: Built with Next.js 16 and React 19 for high performance and optimized for desktop.
-- **📂 Curated Collection**: A hand-picked list of the best tools, including **Raycast**, **WizTree**, **Chris Titus WinUtil**, **React Bits**, and more.
+- **📂 Curated Collection**: A hand-picked list of 60+ tools, including **Raycast**, **WizTree**, **Chris Titus WinUtil**, **React Bits**, and more.
 - **🏷️ Filter by Platform**: Easily sort items by **All**, **macOS** 🍎, **Windows** 🪟, **Linux** 🐧, or **iOS** 📱.
 - **🎬 Interactive**: Dynamic animations powered by Framer Motion and GSAP.
+- **❤️ Favorites**: Save your favorite tools locally with a built-in favorites system.
+- **📬 Submit a Tool**: Anyone can suggest new tools via the submission portal — notifications are sent to Discord via webhook.
 
 ---
 
@@ -27,9 +29,12 @@
 - **Language**: [TypeScript](https://www.typescriptlang.org/)
 - **Styling**: [Tailwind CSS v4](https://tailwindcss.com/)
 - **Animations**: [Framer Motion](https://www.framer.com/motion/) & [GSAP](https://gsap.com/)
+- **Database**: [SQLite](https://www.sqlite.org/) (via [better-sqlite3](https://github.com/WiseLibs/better-sqlite3)) + JSON export for production
 - **Icons**: [Lucide React](https://lucide.dev/)
 - **Smooth Scrolling**: [Lenis](https://github.com/studio-freight/lenis)
+- **Notifications**: Discord Webhooks
 - **Analytics**: [Vercel Analytics & Speed Insights](https://vercel.com/)
+- **Hosting**: [Vercel](https://vercel.com/)
 
 ---
 
@@ -39,53 +44,66 @@ Follow these steps to run the project locally:
 
 1.  **Clone the repository:**
     ```bash
-    git clone https://github.com/shockagg/random-stuff-site.git
+    git clone https://github.com/NippaGG/random-stuff-site.git
     cd random-stuff-site
     ```
 
 2.  **Install dependencies:**
     ```bash
     npm install
-    # or
-    yarn install
-    # or
-    pnpm install
     ```
 
-3.  **Run the development server:**
+3.  **Seed the database:**
+    ```bash
+    npx tsx scripts/seed.ts
+    ```
+    This generates both `data/items.db` (SQLite) and `data/items.json` (used by the API at runtime).
+
+4.  **Set up environment variables:**
+    Create a `.env.local` file in the project root:
+    ```env
+    DISCORD_WEBHOOK_URL=your_discord_webhook_url_here
+    ```
+
+5.  **Run the development server:**
     ```bash
     npm run dev
     ```
 
-4.  **Open locally:**
+6.  **Open locally:**
     Visit [http://localhost:3000](http://localhost:3000) in your browser.
 
 ---
 
 ## 📦 Data Structure
 
-Items are stored in `src/data/items.ts` with the following structure:
+Items are stored in a SQLite database (`data/items.db`) and exported as `data/items.json` for production. The data follows this structure:
+
 ```typescript
 interface Item {
   id: number;
   title: string;
   description: string;
   link: string;
-  category: string; // e.g., "Websites", "Softwares", "Scripts"
-  tags: string[]; // e.g., ["all", "macos", "windows", "linux", "ios"]
+  category: string; // "Websites", "Softwares", or "Scripts"
+  tags: string[];   // e.g., ["all", "macos", "windows", "linux", "ios"]
   image?: string;
 }
+```
+
+To add new items, update `scripts/seed-data.ts` and re-run the seed script:
+```bash
+npx tsx scripts/seed.ts
 ```
 
 ---
 
 ## 🤝 Contributing
 
-Contributions are welcome! If you have a useful tool to share:
-1.  Fork the repo.
-2.  Add your item to `src/data/items.ts`.
-3.  Submit a Pull Request.
+Contributions are welcome! You can:
+1.  **Submit via the site**: Visit the [Submit a Tool](https://random-stuff-by-shockagg.vercel.app/submit) page.
+2.  **Open a PR**: Fork the repo, add your item to `scripts/seed-data.ts`, and submit a Pull Request.
 
 ---
 
-Made with ❤️ by Nipun Yatawara [shockagg]
+Made with ❤️ by Nipun Yatawara [[ShockaGG](https://shockagg.vercel.app/)]
