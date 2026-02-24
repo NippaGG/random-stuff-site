@@ -176,7 +176,13 @@ export default function ContentSection() {
   useEffect(() => {
     fetch("/api/items")
       .then((res) => res.json())
-      .then((data: Item[]) => setItems(data))
+      .then((data) => {
+        if (Array.isArray(data)) {
+          setItems(data as Item[]);
+        } else {
+          console.error("API did not return an array:", data);
+        }
+      })
       .catch((err) => console.error("Failed to fetch items:", err));
   }, []);
 
