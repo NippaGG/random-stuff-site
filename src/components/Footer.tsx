@@ -22,7 +22,7 @@ export default function Footer() {
 
         {/* SHOCKAGG LINK */}
         <a
-          href="https://shockagg-portfolio.vercel.app/"
+          href="https://shockagg.vercel.app/"
           target="_blank"
           rel="noopener noreferrer"
           className="group relative text-[#a3e635] font-bold cursor-pointer"
