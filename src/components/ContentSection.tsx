@@ -2,7 +2,7 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence, useScroll, useMotionValueEvent, LayoutGroup, useTransform, useMotionTemplate } from "framer-motion";
-import { items, type Item } from "@/data/items";
+import { type Item } from "@/data/items";
 import CircularNav from "./CircularNav";
 import { Lock, Unlock, X, ArrowUpRight, Globe, Monitor, Terminal, Heart } from "lucide-react";
 import { FolderHeartIcon, type FolderHeartIconHandle } from "./FolderHeartIcon";
@@ -143,6 +143,7 @@ export default function ContentSection() {
   const sectionRef = useRef(null);
   const contentGridRef = useRef<HTMLDivElement>(null);
 
+  const [items, setItems] = useState<Item[]>([]);
   const [activeTab, setActiveTab] = useState("Websites");
   const [isStraight, setIsStraight] = useState(false);
   const [isLocked, setIsLocked] = useState(false);
@@ -170,6 +171,14 @@ export default function ContentSection() {
   const folderHeartRef = useRef<FolderHeartIconHandle>(null);
 
   const { isFavorite, toggleFavorite, clearFavorites, removeFavorites } = useFavorites();
+
+  // Fetch items from the database API
+  useEffect(() => {
+    fetch("/api/items")
+      .then((res) => res.json())
+      .then((data: Item[]) => setItems(data))
+      .catch((err) => console.error("Failed to fetch items:", err));
+  }, []);
 
   useEffect(() => {
     const mediaQuery = window.matchMedia("(max-width: 767px)");
@@ -615,13 +624,12 @@ export default function ContentSection() {
             setActiveTab={(tab) => {
               setActiveTab(tab);
               setActiveTag("all");
-              // Scroll to content tiles after a short delay for the grid to update
+              // Scroll to the lock position (where navbar straightens and content begins)
+              // This ensures a consistent resting position regardless of current scroll depth
               setTimeout(() => {
-                if (contentGridRef.current) {
-                  const offset = isMobile ? 150 : 190; // Account for sticky header
-                  const top = contentGridRef.current.getBoundingClientRect().top + window.scrollY - offset;
-                  window.scrollTo({ top, behavior: "smooth" });
-                }
+                const viewportHeight = window.innerHeight;
+                const lockPosition = viewportHeight * (isMobile ? 1.75 : 2.2);
+                window.scrollTo({ top: lockPosition, behavior: "smooth" });
               }, 50);
             }}
             tabs={[...TABS]}
@@ -667,13 +675,11 @@ export default function ContentSection() {
                         onClick={() => {
                           if (!isDots) {
                             setActiveTag(tag.id);
-                            // Scroll to top of content grid
+                            // Scroll to top of content grid (lock position)
                             setTimeout(() => {
-                              if (contentGridRef.current) {
-                                const offset = isMobile ? 150 : 190;
-                                const top = contentGridRef.current.getBoundingClientRect().top + window.scrollY - offset;
-                                window.scrollTo({ top, behavior: "smooth" });
-                              }
+                              const viewportHeight = window.innerHeight;
+                              const lockPosition = viewportHeight * (isMobile ? 1.75 : 2.2);
+                              window.scrollTo({ top: lockPosition, behavior: "smooth" });
                             }, 50);
                           }
                         }}
