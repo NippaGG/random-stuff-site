@@ -7,15 +7,35 @@ import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 
 export default function SubmitPage() {
-    const [status, setStatus] = useState<"idle" | "submitting" | "success">("idle");
+    const [status, setStatus] = useState<"idle" | "submitting" | "success" | "error">("idle");
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setStatus("submitting");
-        // Simulate a network request
-        setTimeout(() => {
-            setStatus("success");
-        }, 1500);
+
+        const form = e.target as HTMLFormElement;
+        const payload = {
+            name: (form.elements.namedItem("name") as HTMLInputElement).value,
+            link: (form.elements.namedItem("link") as HTMLInputElement).value,
+            category: (form.elements.namedItem("category") as HTMLSelectElement).value,
+            description: (form.elements.namedItem("description") as HTMLTextAreaElement).value,
+        };
+
+        try {
+            const res = await fetch("/api/submit", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload),
+            });
+
+            if (res.ok) {
+                setStatus("success");
+            } else {
+                setStatus("error");
+            }
+        } catch {
+            setStatus("error");
+        }
     };
 
     return (
