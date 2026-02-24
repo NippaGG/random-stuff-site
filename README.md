@@ -15,10 +15,10 @@
 - **🎨 Modern Design**: Sleek UI with a custom grid background, smooth scrolling (Lenis), and a custom cursor.
 - **⚡ Fast & Responsive**: Built with Next.js 16 and React 19 for high performance and optimized for desktop.
 - **📂 Curated Collection**: A hand-picked list of 60+ tools, including **Raycast**, **WizTree**, **Chris Titus WinUtil**, **React Bits**, and more.
-- **🏷️ Filter by Platform**: Easily sort items by **All**, **macOS** 🍎, **Windows** 🪟, **Linux** 🐧, or **iOS** 📱.
+- **🏷️ Filter by Platform**: Easily sort items by **All**, **macOS** 🍎, **Windows** 🪟, or **Linux** 🐧.
 - **🎬 Interactive**: Dynamic animations powered by Framer Motion and GSAP.
 - **❤️ Favorites**: Save your favorite tools locally with a built-in favorites system.
-- **📬 Submit a Tool**: Anyone can suggest new tools via the submission portal — notifications are sent to Discord via webhook.
+- **📬 Submit a Tool**: Anyone can suggest new tools via the submission portal.
 
 ---
 
@@ -35,66 +35,6 @@
 - **Notifications**: Discord Webhooks
 - **Analytics**: [Vercel Analytics & Speed Insights](https://vercel.com/)
 - **Hosting**: [Vercel](https://vercel.com/)
-
----
-
-## 🚀 Getting Started
-
-Follow these steps to run the project locally:
-
-1.  **Clone the repository:**
-    ```bash
-    git clone https://github.com/NippaGG/random-stuff-site.git
-    cd random-stuff-site
-    ```
-
-2.  **Install dependencies:**
-    ```bash
-    npm install
-    ```
-
-3.  **Seed the database:**
-    ```bash
-    npx tsx scripts/seed.ts
-    ```
-    This generates both `data/items.db` (SQLite) and `data/items.json` (used by the API at runtime).
-
-4.  **Set up environment variables:**
-    Create a `.env.local` file in the project root:
-    ```env
-    DISCORD_WEBHOOK_URL=your_discord_webhook_url_here
-    ```
-
-5.  **Run the development server:**
-    ```bash
-    npm run dev
-    ```
-
-6.  **Open locally:**
-    Visit [http://localhost:3000](http://localhost:3000) in your browser.
-
----
-
-## 📦 Data Structure
-
-Items are stored in a SQLite database (`data/items.db`) and exported as `data/items.json` for production. The data follows this structure:
-
-```typescript
-interface Item {
-  id: number;
-  title: string;
-  description: string;
-  link: string;
-  category: string; // "Websites", "Softwares", or "Scripts"
-  tags: string[];   // e.g., ["all", "macos", "windows", "linux", "ios"]
-  image?: string;
-}
-```
-
-To add new items, update `scripts/seed-data.ts` and re-run the seed script:
-```bash
-npx tsx scripts/seed.ts
-```
 
 ---
 
