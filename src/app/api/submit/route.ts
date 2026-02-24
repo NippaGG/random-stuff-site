@@ -81,14 +81,18 @@ export async function POST(request: Request) {
             timestamp: new Date().toISOString(),
         };
 
-        // Send to Discord and save to file in parallel
-        const [discordSuccess] = await Promise.all([
-            sendToDiscord(body),
-            Promise.resolve(appendToFile(submission)),
-        ]);
+        // Send to Discord (primary)
+        const discordSuccess = await sendToDiscord(body);
+
+        // Save to file as backup (best-effort, will silently fail on read-only filesystems like Vercel)
+        try {
+            appendToFile(submission);
+        } catch {
+            // Expected on Vercel — filesystem is read-only
+        }
 
         if (!discordSuccess) {
-            console.warn("Discord notification failed, but submission was saved to file.");
+            console.warn("Discord notification failed.");
         }
 
         return NextResponse.json({ success: true });
