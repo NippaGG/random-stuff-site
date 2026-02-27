@@ -10,15 +10,22 @@
 
 ---
 
+## 🤝 Contributing
+
+Contributions are welcome! 
+You can **Submit tools via the site**: Visit the [Submit a Tool](https://random-stuff-by-shockagg.vercel.app/submit) page.
+
+---
+
 ## ✨ Features
 
-- **🎨 Modern Design**: Sleek UI with a custom grid background, smooth scrolling (Lenis), and a custom cursor.
-- **⚡ Fast & Responsive**: Built with Next.js 16 and React 19 for high performance and optimized for desktop.
-- **📂 Curated Collection**: A hand-picked list of 60+ tools, including **Raycast**, **WizTree**, **Chris Titus WinUtil**, **React Bits**, and more.
-- **🏷️ Filter by Platform**: Easily sort items by **All**, **macOS** 🍎, **Windows** 🪟, or **Linux** 🐧.
-- **🎬 Interactive**: Dynamic animations powered by Framer Motion and GSAP.
-- **❤️ Favorites**: Save your favorite tools locally with a built-in favorites system.
-- **📬 Submit a Tool**: Anyone can suggest new tools via the submission portal.
+- **Modern Design**: Sleek UI with a custom grid background, smooth scrolling (Lenis), and a custom cursor.
+- **Fast & Responsive**: Built with Next.js 16 and React 19 for high performance and optimized for desktop.
+- **Curated Collection**: A list of 60+ tools, including **Raycast**, **WizTree**, **Chris Titus WinUtil**, **React Bits**, and more.
+- **Filter by Platform**: Easily sort items by **All**, **macOS** 🍎, **Windows** 🪟, or **Linux** 🐧.
+- **Interactive**: Dynamic animations powered by Framer Motion and GSAP.
+- **Favorites**: Save your favorite tools locally with a built-in favorites system.
+- **Submit a Tool**: Anyone can suggest new tools via the submission portal.
 
 ---
 
@@ -36,14 +43,5 @@
 - **Analytics**: [Vercel Analytics & Speed Insights](https://vercel.com/)
 - **Hosting**: [Vercel](https://vercel.com/)
 
----
-
-## 🤝 Contributing
-
-Contributions are welcome! You can:
-1.  **Submit via the site**: Visit the [Submit a Tool](https://random-stuff-by-shockagg.vercel.app/submit) page.
-2.  **Open a PR**: Fork the repo, add your item to `scripts/seed-data.ts`, and submit a Pull Request.
-
----
 
 Made with ❤️ by Nipun Yatawara [[ShockaGG](https://shockagg.vercel.app/)]
