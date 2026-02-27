@@ -1,33 +1,15 @@
 import { NextResponse } from "next/server";
-import fs from "fs";
-import path from "path";
+import dbConnect from "@/lib/mongodb";
+import Item from "@/models/Item";
+import Submission from "@/models/Submission";
 
-interface SubmissionPayload {
-    name: string;
+// Send a formatted embed to Discord
+async function sendToDiscord(submission: {
+    toolName: string;
     link: string;
     category: string;
     description: string;
-}
-
-const SUBMISSIONS_PATH = path.join(process.cwd(), "data", "submissions.json");
-
-function appendToFile(submission: SubmissionPayload & { timestamp: string }) {
-    let existing: (SubmissionPayload & { timestamp: string })[] = [];
-
-    try {
-        if (fs.existsSync(SUBMISSIONS_PATH)) {
-            const raw = fs.readFileSync(SUBMISSIONS_PATH, "utf-8");
-            existing = JSON.parse(raw);
-        }
-    } catch {
-        existing = [];
-    }
-
-    existing.push(submission);
-    fs.writeFileSync(SUBMISSIONS_PATH, JSON.stringify(existing, null, 2), "utf-8");
-}
-
-async function sendToDiscord(submission: SubmissionPayload) {
+}) {
     const webhookUrl = process.env.DISCORD_WEBHOOK_URL;
 
     if (!webhookUrl) {
@@ -39,7 +21,7 @@ async function sendToDiscord(submission: SubmissionPayload) {
         title: "📬 New Tool Submission",
         color: 0xa3e635, // lime green to match site theme
         fields: [
-            { name: "Tool Name", value: submission.name, inline: true },
+            { name: "Tool Name", value: submission.toolName, inline: true },
             { name: "Category", value: submission.category, inline: true },
             { name: "Link", value: submission.link },
             { name: "Description", value: submission.description },
@@ -52,9 +34,7 @@ async function sendToDiscord(submission: SubmissionPayload) {
         const res = await fetch(webhookUrl, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                embeds: [embed],
-            }),
+            body: JSON.stringify({ embeds: [embed] }),
         });
 
         return res.ok;
@@ -64,42 +44,97 @@ async function sendToDiscord(submission: SubmissionPayload) {
     }
 }
 
+// GET /api/submit → return submission stats
+export async function GET() {
+    try {
+        await dbConnect();
+        const submissionCount = await Submission.countDocuments();
+        return NextResponse.json({
+            submissionCount,
+        });
+    } catch (error) {
+        console.error("Error fetching submission stats:", error);
+        return NextResponse.json(
+            { error: "Failed to fetch stats" },
+            { status: 500 }
+        );
+    }
+}
+
+// POST /api/submit → create a new submission + notify Discord
 export async function POST(request: Request) {
     try {
-        const body: SubmissionPayload = await request.json();
+        await dbConnect();
 
-        // Basic validation
-        if (!body.name || !body.link || !body.category || !body.description) {
+        const body = await request.json();
+        const { toolName, link, category, description } = body;
+
+        if (!toolName || !link || !category || !description) {
             return NextResponse.json(
                 { error: "All fields are required" },
                 { status: 400 }
             );
         }
 
-        const submission = {
-            ...body,
-            timestamp: new Date().toISOString(),
-        };
+        // Check if tool already exists in the curated items (case-insensitive)
+        const existingItem = await Item.findOne({
+            title: { $regex: new RegExp(`^${toolName.trim()}$`, "i") },
+        });
 
-        // Send to Discord (primary)
-        const discordSuccess = await sendToDiscord(body);
-
-        // Save to file as backup (best-effort, will silently fail on read-only filesystems like Vercel)
-        try {
-            appendToFile(submission);
-        } catch {
-            // Expected on Vercel — filesystem is read-only
+        if (existingItem) {
+            return NextResponse.json(
+                { error: "This tool already exists in our directory!" },
+                { status: 409 }
+            );
         }
+
+        // Check if already submitted (case-insensitive)
+        const existingSubmission = await Submission.findOne({
+            toolName: { $regex: new RegExp(`^${toolName.trim()}$`, "i") },
+        });
+
+        if (existingSubmission) {
+            return NextResponse.json(
+                { error: "This tool has already been submitted!" },
+                { status: 409 }
+            );
+        }
+
+        // Create the submission in MongoDB
+        const submission = await Submission.create({
+            toolName: toolName.trim(),
+            link: link.trim(),
+            category,
+            description: description.trim(),
+        });
+
+        // Send Discord notification (non-blocking, don't fail the request)
+        const discordSuccess = await sendToDiscord({
+            toolName: toolName.trim(),
+            link: link.trim(),
+            category,
+            description: description.trim(),
+        });
 
         if (!discordSuccess) {
-            console.warn("Discord notification failed.");
+            console.warn("Discord notification failed, but submission was saved.");
         }
 
-        return NextResponse.json({ success: true });
-    } catch (error) {
-        console.error("Submission error:", error);
+        // Get updated count
+        const submissionCount = await Submission.countDocuments();
+
         return NextResponse.json(
-            { error: "Failed to process submission" },
+            {
+                message: "Submission received!",
+                submission,
+                submissionCount,
+            },
+            { status: 201 }
+        );
+    } catch (error) {
+        console.error("Error creating submission:", error);
+        return NextResponse.json(
+            { error: "Failed to create submission" },
             { status: 500 }
         );
     }
