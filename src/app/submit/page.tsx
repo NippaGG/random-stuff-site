@@ -1,41 +1,73 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import GridBackground from "@/components/GridBackground";
 import CustomCursor from "@/components/CustomCursor";
 import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Users, Package } from "lucide-react";
 
 export default function SubmitPage() {
     const [status, setStatus] = useState<"idle" | "submitting" | "success" | "error">("idle");
+    const [errorMessage, setErrorMessage] = useState("");
+    const [submissionCount, setSubmissionCount] = useState<number | null>(null);
+
+    const nameRef = useRef<HTMLInputElement>(null);
+    const linkRef = useRef<HTMLInputElement>(null);
+    const categoryRef = useRef<HTMLSelectElement>(null);
+    const descriptionRef = useRef<HTMLTextAreaElement>(null);
+
+    // Fetch submission stats on mount
+    useEffect(() => {
+        fetch("/api/submit")
+            .then((res) => res.json())
+            .then((data) => {
+                setSubmissionCount(data.submissionCount ?? 0);
+            })
+            .catch(() => setSubmissionCount(0));
+    }, []);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setStatus("submitting");
+        setErrorMessage("");
 
-        const form = e.target as HTMLFormElement;
-        const payload = {
-            name: (form.elements.namedItem("name") as HTMLInputElement).value,
-            link: (form.elements.namedItem("link") as HTMLInputElement).value,
-            category: (form.elements.namedItem("category") as HTMLSelectElement).value,
-            description: (form.elements.namedItem("description") as HTMLTextAreaElement).value,
+        const body = {
+            toolName: nameRef.current?.value ?? "",
+            link: linkRef.current?.value ?? "",
+            category: categoryRef.current?.value ?? "",
+            description: descriptionRef.current?.value ?? "",
         };
 
         try {
             const res = await fetch("/api/submit", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(payload),
+                body: JSON.stringify(body),
             });
 
-            if (res.ok) {
-                setStatus("success");
-            } else {
+            const data = await res.json();
+
+            if (!res.ok) {
                 setStatus("error");
+                setErrorMessage(data.error || "Something went wrong.");
+                return;
             }
+
+            setStatus("success");
+            setSubmissionCount(data.submissionCount);
         } catch {
             setStatus("error");
+            setErrorMessage("Network error. Please try again.");
         }
+    };
+
+    const resetForm = () => {
+        setStatus("idle");
+        setErrorMessage("");
+        if (nameRef.current) nameRef.current.value = "";
+        if (linkRef.current) linkRef.current.value = "";
+        if (categoryRef.current) categoryRef.current.value = "";
+        if (descriptionRef.current) descriptionRef.current.value = "";
     };
 
     return (
@@ -65,9 +97,45 @@ export default function SubmitPage() {
                 <div className="absolute inset-x-0 -top-px h-px w-1/2 mx-auto bg-gradient-to-r from-transparent via-[#a3e635] to-transparent opacity-50" />
 
                 <h1 className="text-3xl font-bold mb-2 text-center tracking-tight">Submit a Tool</h1>
-                <p className="text-gray-400 text-sm text-center mb-8">
-                    Found something cool? Let us know and we'll add it to the directory.
+                <p className="text-gray-400 text-sm text-center mb-5">
+                    Found something cool? Let us know and we&apos;ll add it to the directory.
                 </p>
+
+                {/* Community Stats Indicator */}
+                <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5, delay: 0.2, ease: "easeOut" }}
+                    className="flex items-center justify-center gap-5 mb-8 py-3 px-4 border border-white/5 bg-white/[0.02] rounded-none"
+                >
+                    <div className="flex items-center gap-2">
+                        <Users size={14} className="text-[#a3e635]/70" />
+                        <span className="font-mono text-xs text-gray-400">
+                            <span className="text-white font-semibold">
+                                {submissionCount !== null ? submissionCount : "–"}
+                            </span>{" "}
+                            users submitted
+                        </span>
+                    </div>
+                    <div className="w-px h-4 bg-white/10" />
+                    <div className="flex items-center gap-2">
+                        <Package size={14} className="text-[#a3e635]/70" />
+                        <span className="font-mono text-xs text-gray-400">
+                            <span className="text-white font-semibold">
+                                {submissionCount !== null ? submissionCount : "–"}
+                            </span>{" "}
+                            tools submitted
+                        </span>
+                    </div>
+                    <div className="w-px h-4 bg-white/10" />
+                    <div className="flex items-center gap-1.5">
+                        <span className="relative flex h-2 w-2">
+                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#a3e635] opacity-75" />
+                            <span className="relative inline-flex rounded-full h-2 w-2 bg-[#a3e635]" />
+                        </span>
+                        <span className="font-mono text-xs text-gray-500">live</span>
+                    </div>
+                </motion.div>
 
                 {status === "success" ? (
                     <motion.div
@@ -86,7 +154,7 @@ export default function SubmitPage() {
                             Thanks for sharing. We will review it shortly before adding it to the list.
                         </p>
                         <button
-                            onClick={() => setStatus("idle")}
+                            onClick={resetForm}
                             className="mt-6 px-6 py-2 rounded-none bg-white/5 hover:bg-white/10 border border-white/10 transition-colors text-sm font-mono"
                         >
                             Submit another
@@ -94,9 +162,20 @@ export default function SubmitPage() {
                     </motion.div>
                 ) : (
                     <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+                        {status === "error" && (
+                            <motion.div
+                                initial={{ opacity: 0, y: -10 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                className="py-2.5 px-4 border border-red-500/30 bg-red-500/10 text-red-400 text-sm font-mono rounded-none"
+                            >
+                                {errorMessage}
+                            </motion.div>
+                        )}
+
                         <div className="space-y-1.5">
                             <label htmlFor="name" className="text-sm font-medium text-gray-300 ml-1">Tool Name</label>
                             <input
+                                ref={nameRef}
                                 id="name"
                                 type="text"
                                 required
@@ -108,6 +187,7 @@ export default function SubmitPage() {
                         <div className="space-y-1.5">
                             <label htmlFor="link" className="text-sm font-medium text-gray-300 ml-1">Website / GitHub URL</label>
                             <input
+                                ref={linkRef}
                                 id="link"
                                 type="url"
                                 required
@@ -120,6 +200,7 @@ export default function SubmitPage() {
                             <label htmlFor="category" className="text-sm font-medium text-gray-300 ml-1">Category</label>
                             <div className="relative">
                                 <select
+                                    ref={categoryRef}
                                     id="category"
                                     required
                                     defaultValue=""
@@ -141,6 +222,7 @@ export default function SubmitPage() {
                         <div className="space-y-1.5">
                             <label htmlFor="description" className="text-sm font-medium text-gray-300 ml-1">Short Description</label>
                             <textarea
+                                ref={descriptionRef}
                                 id="description"
                                 required
                                 rows={3}
