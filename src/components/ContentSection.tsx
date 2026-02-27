@@ -2,7 +2,7 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence, useScroll, useMotionValueEvent, LayoutGroup, useTransform, useMotionTemplate } from "framer-motion";
-import { type Item } from "@/data/items";
+import { items as staticItems, type Item } from "@/data/items";
 import CircularNav from "./CircularNav";
 import { Lock, Unlock, X, ArrowUpRight, Globe, Monitor, Terminal, Heart } from "lucide-react";
 import { FolderHeartIcon, type FolderHeartIconHandle } from "./FolderHeartIcon";
@@ -143,7 +143,7 @@ export default function ContentSection() {
   const sectionRef = useRef(null);
   const contentGridRef = useRef<HTMLDivElement>(null);
 
-  const [items, setItems] = useState<Item[]>([]);
+  const [items, setItems] = useState<Item[]>(staticItems);
   const [activeTab, setActiveTab] = useState("Websites");
   const [isStraight, setIsStraight] = useState(false);
   const [isLocked, setIsLocked] = useState(false);
@@ -154,14 +154,19 @@ export default function ContentSection() {
   const [previewItem, setPreviewItem] = useState<Item | null>(null);
   const [isGridLoading, setIsGridLoading] = useState(true);
 
-  // Fetch items from MongoDB on mount
+  // Fetch items from MongoDB on mount, fall back to static data
   useEffect(() => {
     fetch("/api/items")
-      .then((res) => res.json())
-      .then((data) => {
-        setItems(data);
+      .then((res) => {
+        if (!res.ok) throw new Error(`API returned ${res.status}`);
+        return res.json();
       })
-      .catch((err) => console.error("Failed to fetch items:", err));
+      .then((data) => {
+        if (Array.isArray(data) && data.length > 0) {
+          setItems(data);
+        }
+      })
+      .catch((err) => console.error("Failed to fetch items, using static data:", err));
   }, []);
   const [showFavorites, setShowFavorites] = useState(false);
   const [selectedFavs, setSelectedFavs] = useState<number[]>([]);
