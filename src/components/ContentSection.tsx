@@ -153,6 +153,16 @@ export default function ContentSection() {
   const [dotsAnimate, setDotsAnimate] = useState(false);
   const [previewItem, setPreviewItem] = useState<Item | null>(null);
   const [isGridLoading, setIsGridLoading] = useState(true);
+
+  // Fetch items from MongoDB on mount
+  useEffect(() => {
+    fetch("/api/items")
+      .then((res) => res.json())
+      .then((data) => {
+        setItems(data);
+      })
+      .catch((err) => console.error("Failed to fetch items:", err));
+  }, []);
   const [showFavorites, setShowFavorites] = useState(false);
   const [selectedFavs, setSelectedFavs] = useState<number[]>([]);
   const [isSelectionMode, setIsSelectionMode] = useState(false);
