@@ -1,13 +1,11 @@
 import { NextResponse } from "next/server";
-import fs from "fs";
-import path from "path";
+import dbConnect from "@/lib/mongodb";
+import Item from "@/models/Item";
 
 export async function GET() {
     try {
-        // Read items from the pre-generated JSON file (works on all platforms including Vercel)
-        const jsonPath = path.join(process.cwd(), "data", "items.json");
-        const raw = fs.readFileSync(jsonPath, "utf-8");
-        const items = JSON.parse(raw);
+        await dbConnect();
+        const items = await Item.find({}).sort({ title: 1 }).lean();
         return NextResponse.json(items);
     } catch (error) {
         console.error("Error fetching items:", error);
