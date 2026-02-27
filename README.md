@@ -17,18 +17,6 @@ You can **Submit tools via the site**: Visit the [Submit a Tool](https://random-
 
 ---
 
-## ✨ Features
-
-- **Modern Design**: Sleek UI with a custom grid background, smooth scrolling (Lenis), and a custom cursor.
-- **Fast & Responsive**: Built with Next.js 16 and React 19 for high performance and optimized for desktop.
-- **Curated Collection**: A list of 60+ tools, including **Raycast**, **WizTree**, **Chris Titus WinUtil**, **React Bits**, and more.
-- **Filter by Platform**: Easily sort items by **All**, **macOS** 🍎, **Windows** 🪟, or **Linux** 🐧.
-- **Interactive**: Dynamic animations powered by Framer Motion and GSAP.
-- **Favorites**: Save your favorite tools locally with a built-in favorites system.
-- **Submit a Tool**: Anyone can suggest new tools via the submission portal.
-
----
-
 ## 🛠️ Tech Stack
 
 - **Framework**: [Next.js 16+](https://nextjs.org/)
