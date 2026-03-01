@@ -511,6 +511,7 @@ export default function ContentSection() {
     { id: "macos", label: "macOS" },
     { id: "windows", label: "Windows" },
     { id: "linux", label: "Linux" },
+    { id: "android", label: "Android" },
   ];
 
   return (

@@ -627,5 +627,14 @@ export const items: Item[] = [
     link: "https://component.gallery/",
     category: "Websites",
     tags: ["all"]
+  },
+  {
+    id: 166,
+    title: "Metrolist",
+    description: "A simple to-do list taking design cues from the Metro design language.",
+    link: "https://github.com/MetrolistGroup/Metrolist",
+    category: "Softwares",
+    tags: ["android"],
+    image: "https://github.com/MetrolistGroup.png"
   }
 ];
