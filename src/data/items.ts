@@ -583,5 +583,49 @@ export const items: Item[] = [
     category: "Websites",
     tags: ["all"],
     image: "https://poketube.fun/favicon.ico"
+  },
+  {
+    id: 161,
+    title: "NouTube Desktop",
+    description: "Ad-free YouTube desktop application.",
+    link: "https://github.com/nonbili/NouTube-Desktop",
+    category: "Softwares",
+    tags: ["macos", "windows", "linux"],
+    image: "https://github.com/nonbili.png"
+  },
+  {
+    id: 162,
+    title: "NouTube",
+    description: "Ad-free YouTube client.",
+    link: "https://github.com/nonbili/NouTube",
+    category: "Softwares",
+    tags: ["all"],
+    image: "https://github.com/nonbili.png"
+  },
+  {
+    id: 163,
+    title: "Lucide Animated",
+    description: "Beautiful animated icons for Lucide.",
+    link: "https://lucide-animated.com/",
+    category: "Websites",
+    tags: ["all"],
+    image: "https://lucide-animated.com/favicon.ico"
+  },
+  {
+    id: 164,
+    title: "Scrapy",
+    description: "A fast high-level web crawling and scraping framework for Python.",
+    link: "https://github.com/scrapy/scrapy",
+    category: "Scripts",
+    tags: ["all"],
+    image: "https://github.com/scrapy.png"
+  },
+  {
+    id: 165,
+    title: "The Component Gallery",
+    description: "A collection of components from the best Design Systems.",
+    link: "https://component.gallery/",
+    category: "Websites",
+    tags: ["all"]
   }
 ];
