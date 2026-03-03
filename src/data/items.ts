@@ -636,5 +636,23 @@ export const items: Item[] = [
     category: "Softwares",
     tags: ["android"],
     image: "https://github.com/MetrolistGroup.png"
+  },
+  {
+    id: 167,
+    title: "Karaoke Eternal",
+    description: "Open karaoke party system.",
+    link: "https://github.com/bhj/KaraokeEternal",
+    category: "Softwares",
+    tags: ["all"],
+    image: "https://github.com/bhj.png"
+  },
+  {
+    id: 168,
+    title: "Shadcn Admin",
+    description: "Admin Dashboard UI built with Shadcn and Vite.",
+    link: "https://github.com/satnaing/shadcn-admin",
+    category: "Websites",
+    tags: ["all"],
+    image: "https://github.com/satnaing.png"
   }
 ];
