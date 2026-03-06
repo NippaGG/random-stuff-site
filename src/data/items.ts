@@ -209,15 +209,7 @@ export const items: Item[] = [
     tags: ["windows"],
     image: "https://github.com/massgravel.png"
   },
-  {
-    id: 119,
-    title: "Katy's Daisies",
-    description: "Send virtual flower bouquets and messages to friends.",
-    link: "https://www.katysdaisies.com/",
-    category: "Websites",
-    tags: ["all"],
-    image: "https://www.katysdaisies.com/favicon.ico"
-  },
+
   {
     id: 120,
     title: "niri",
