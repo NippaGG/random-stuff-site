@@ -654,5 +654,50 @@ export const items: Item[] = [
     category: "Websites",
     tags: ["all"],
     image: "https://github.com/satnaing.png"
+  },
+  {
+    id: 169,
+    title: "FlyCut Caption",
+    description: "A complete video subtitle editing React component with AI-powered speech recognition and visual editing capabilities.",
+    link: "https://github.com/x007xyz/flycut-caption",
+    category: "Softwares",
+    tags: ["all"],
+    image: "https://github.com/x007xyz.png"
+  },
+  {
+    id: 170,
+    title: "Awesome Self-Hosted",
+    description: "A list of Free Software network services and web applications which can be hosted on your own servers.",
+    link: "https://github.com/awesome-selfhosted/awesome-selfhosted",
+    category: "Websites",
+    tags: ["all"],
+    image: "https://github.com/awesome-selfhosted.png"
+  },
+  {
+    id: 171,
+    title: "WinShot",
+    description: "A Windows screenshot tool with annotation, crop, and export features.",
+    link: "https://github.com/mrgoonie/winshot",
+    category: "Softwares",
+    tags: ["windows"],
+    image: "https://github.com/mrgoonie.png"
+  },
+  {
+    id: 172,
+    title: "Stats",
+    description: "macOS system monitor in your menu bar.",
+    link: "https://github.com/exelban/stats",
+    category: "Softwares",
+    tags: ["macos"],
+    image: "https://github.com/exelban.png"
+  },
+  {
+    id: 173,
+    title: "API Mega List",
+    description: "A powerhouse collection of APIs you can start using immediately to build everything from simple automations to full-scale applications.",
+    link: "https://github.com/cporter202/API-mega-list",
+    category: "Websites",
+    tags: ["all"],
+    image: "https://github.com/cporter202.png"
   }
 ];
