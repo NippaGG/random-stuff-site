@@ -691,5 +691,14 @@ export const items: Item[] = [
     category: "Websites",
     tags: ["all"],
     image: "https://github.com/cporter202.png"
+  },
+  {
+    id: 174,
+    title: "Gopeed",
+    description: "A modern download manager that supports all platforms. Built with Golang and Flutter.",
+    link: "https://github.com/GopeedLab/gopeed",
+    category: "Softwares",
+    tags: ["all"],
+    image: "https://github.com/GopeedLab.png"
   }
 ];
