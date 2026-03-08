@@ -738,7 +738,7 @@ export default function ContentSection() {
         transition={{ type: "spring", stiffness: 300, damping: 30 }}
         className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[190] w-[calc(100%-32px)] max-w-[400px]"
       >
-        <div className="relative flex items-center gap-2 p-1.5 md:p-2 bg-black/50 backdrop-blur-xl border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.5)]">
+        <div className="relative flex items-center gap-2 p-1.5 md:p-2 bg-black/50 backdrop-blur-xl border border-[#a3e635]/20 shadow-[0_8px_32px_rgba(163,230,53,0.15),0_0_20px_rgba(163,230,53,0.1)]">
           {/* Search Input */}
           <div className="relative flex-1 flex items-center bg-white/5 border border-white/10 overflow-hidden focus-within:border-[#a3e635]/50 transition-colors">
             <Search className="absolute left-3 w-4 h-4 text-white/40" />
