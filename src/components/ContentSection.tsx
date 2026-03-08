@@ -4,7 +4,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence, useScroll, useMotionValueEvent, LayoutGroup, useTransform, useMotionTemplate } from "framer-motion";
 import { items as staticItems, type Item } from "@/data/items";
 import CircularNav from "./CircularNav";
-import { Lock, Unlock, X, ArrowUpRight, Globe, Monitor, Terminal, Heart } from "lucide-react";
+import { Lock, Unlock, X, ArrowUpRight, Globe, Monitor, Terminal, Heart, Search, ListFilter } from "lucide-react";
 import { FolderHeartIcon, type FolderHeartIconHandle } from "./FolderHeartIcon";
 import DecryptedText from "./DecryptedText";
 import { useFavorites } from "@/hooks/useFavorites";
@@ -39,9 +39,9 @@ const ScrollBlurCard = ({
   // Track this specific card's position relative to the viewport
   const { scrollYProgress } = useScroll({
     target: ref,
-    // Start fading when top is 22vh from top
+    // Start fading when top is 18vh from top (was 22vh)
     // Finish fading when top is 6vh from top (under header)
-    offset: ["start 22vh", "start 6vh"]
+    offset: ["start 18vh", "start 6vh"]
   });
 
   const opacity = useTransform(scrollYProgress, [0, 1], [1, 0]);
@@ -153,6 +153,8 @@ export default function ContentSection() {
   const [dotsAnimate, setDotsAnimate] = useState(false);
   const [previewItem, setPreviewItem] = useState<Item | null>(null);
   const [isGridLoading, setIsGridLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [isSortMenuOpen, setIsSortMenuOpen] = useState(false);
 
   // Fetch items from MongoDB on mount, fall back to static data
   useEffect(() => {
@@ -269,6 +271,12 @@ export default function ContentSection() {
   const filteredItems = items
     .filter((item) => {
       if (item.category !== activeTab) return false;
+
+      const searchLower = searchQuery.toLowerCase();
+      const matchesSearch = item.title.toLowerCase().includes(searchLower) ||
+        item.description.toLowerCase().includes(searchLower);
+      if (!matchesSearch) return false;
+
       if (activeTag === "all") return true;
       return item.tags.includes(activeTag) || item.tags.includes("all");
     })
@@ -279,8 +287,9 @@ export default function ContentSection() {
   useMotionValueEvent(scrollY, "change", (latest) => {
     // Add hysteresis to prevent flickering
     const viewportHeight = typeof window !== "undefined" ? window.innerHeight : 800;
-    const lockThreshold = viewportHeight * (isMobile ? 1.75 : 2.2); // approx where hero ends
-    const unlockThreshold = viewportHeight * (isMobile ? 1.45 : 1.8); // give some buffer before unlocking
+    // lockThreshold reduced since tags were removed
+    const lockThreshold = viewportHeight * (isMobile ? 1.6 : 1.9); // approx where hero ends
+    const unlockThreshold = viewportHeight * (isMobile ? 1.3 : 1.6); // give some buffer before unlocking
 
     if (latest > lockThreshold && !isStraight) {
       setIsStraight(true);
@@ -349,7 +358,7 @@ export default function ContentSection() {
         window.clearTimeout(gridLoadingTimeoutRef.current);
       }
     };
-  }, [activeTab, activeTag]);
+  }, [activeTab, activeTag, searchQuery]);
 
   useEffect(() => {
     if (!previewItem) return;
@@ -650,7 +659,7 @@ export default function ContentSection() {
               // This ensures a consistent resting position regardless of current scroll depth
               setTimeout(() => {
                 const viewportHeight = window.innerHeight;
-                const lockPosition = viewportHeight * (isMobile ? 1.75 : 2.2);
+                const lockPosition = viewportHeight * (isMobile ? 1.6 : 1.9);
                 window.scrollTo({ top: lockPosition, behavior: "smooth" });
               }, 50);
             }}
@@ -664,98 +673,12 @@ export default function ContentSection() {
             transition={{ duration: 0.5 }}
           />
 
-          {/* --- STICKY TAGS --- */}
-          <motion.div
-            initial={{ opacity: 0, y: -20, pointerEvents: "none" }}
-            animate={{
-              opacity: isStraight ? 1 : 0,
-              y: isStraight ? 0 : -20,
-              pointerEvents: isStraight ? "auto" : "none"
-            }}
-            transition={{ duration: 0.5, ease: "easeInOut" }}
-            // NEW MOBILE TAG DESIGN: Frosted Top Bar + Horizontal Scroll
-            className={`w-full relative z-[180] pointer-events-auto transition-colors duration-500 ${isMobile && isStraight ? "bg-[#0a0a0a]/80 backdrop-blur-xl border-b border-white/10 py-3 shadow-xl" : "pb-3 md:pb-4 pt-2 flex justify-center"
-              }`}
-          >
-
-            <div className={`relative z-10 w-full ${isMobile ? "overflow-x-auto overflow-y-hidden no-scrollbar px-4" : "px-4"}`}>
-              <LayoutGroup id="tags">
-                {/* 
-                  Mobile: nowrap to keep them on one line, justify-start for natural scrolling 
-                  Desktop: wrap, justify-center 
-                */}
-                <div className={`flex items-center min-h-[36px] ${isMobile ? "flex-nowrap justify-start gap-2 max-w-max mx-auto md:mx-0" : "flex-wrap justify-center gap-1.5 md:gap-2"
-                  }`}>
-                  {tagOptions.map((tag, index) => {
-                    const isActive = activeTag === tag.id;
-                    const isDots = tagMode === "dots";
-
-                    return (
-                      <motion.button
-                        key={tag.id}
-                        type="button"
-                        onClick={() => {
-                          if (!isDots) {
-                            setActiveTag(tag.id);
-                            // Scroll to top of content grid (lock position)
-                            setTimeout(() => {
-                              const viewportHeight = window.innerHeight;
-                              const lockPosition = viewportHeight * (isMobile ? 1.75 : 2.2);
-                              window.scrollTo({ top: lockPosition, behavior: "smooth" });
-                            }, 50);
-                          }
-                        }}
-                        layout
-                        transition={{ layout: { duration: 0.6, ease: [0.2, 0.8, 0.2, 1] } }}
-                        // BIGGER HIT BOX: font-sm all the way and py-2
-                        className={`relative flex items-center justify-center font-mono border text-sm overflow-hidden ${isDots
-                          ? "w-2 h-2 p-0 rounded-none border-transparent"
-                          : "px-4 py-2 rounded-none"
-                          } ${isDots
-                            ? ""
-                            : isActive
-                              ? "bg-[#a3e635]/20 border-[#a3e635]/50 text-[#d9f99d]"
-                              : "bg-white/5 border-white/10 text-white/70 hover:text-white"
-                          }`}
-                        aria-hidden={isDots}
-                      >
-                        <motion.span
-                          animate={{ opacity: isDots ? 0 : 1 }}
-                          transition={{ duration: 0.2, ease: "easeInOut" }}
-                          className="relative"
-                        >
-                          {tag.label}
-                        </motion.span>
-                        <motion.span
-                          animate={
-                            isDots
-                              ? { opacity: 1, y: dotsAnimate ? [0, -2, 0] : 0 }
-                              : { opacity: 0, y: 0 }
-                          }
-                          transition={{
-                            duration: 2,
-                            repeat: isDots && dotsAnimate ? Infinity : 0,
-                            delay: index * 0.2,
-                            ease: "easeInOut",
-                          }}
-                          className="absolute flex items-center justify-center"
-                        >
-                          <span className="block w-1 h-1 rounded-none bg-[#a3e635]" />
-                        </motion.span>
-                      </motion.button>
-                    );
-                  })}
-                </div>
-              </LayoutGroup>
-            </div>
-          </motion.div>
-
         </div>
       </motion.div >
 
       <div
         ref={contentGridRef}
-        className="w-full max-w-6xl px-4 md:px-5 mx-auto relative z-10 -mt-24 md:-mt-36 pt-[122vh] md:pt-[150vh] flex flex-col min-h-screen"
+        className="w-full max-w-6xl px-4 md:px-5 mx-auto relative z-10 -mt-24 md:-mt-36 pt-[100vh] md:pt-[125vh] flex flex-col min-h-screen"
       >
         <div className="flex-grow">
           <AnimatePresence mode="wait">
@@ -808,7 +731,82 @@ export default function ContentSection() {
         </div>
       </div>
 
+      {/* --- FLOATING BOTTOM SEARCH & SORT BAR --- */}
+      <motion.div
+        initial={{ y: 100, opacity: 0 }}
+        animate={{ y: isStraight ? 0 : 100, opacity: isStraight ? 1 : 0 }}
+        transition={{ type: "spring", stiffness: 300, damping: 30 }}
+        className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[190] w-[calc(100%-32px)] max-w-[400px]"
+      >
+        <div className="relative flex items-center gap-2 p-1.5 md:p-2 bg-black/50 backdrop-blur-xl border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.5)]">
+          {/* Search Input */}
+          <div className="relative flex-1 flex items-center bg-white/5 border border-white/10 overflow-hidden focus-within:border-[#a3e635]/50 transition-colors">
+            <Search className="absolute left-3 w-4 h-4 text-white/40" />
+            <input
+              type="text"
+              placeholder={`Search ${activeTab}...`}
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full bg-transparent text-sm text-white placeholder-white/40 pl-9 pr-4 py-2.5 outline-none font-sans"
+            />
+          </div>
 
+          {/* Sort Button */}
+          <div className="relative">
+            <button
+              onClick={() => setIsSortMenuOpen(!isSortMenuOpen)}
+              className={`flex items-center justify-center p-2.5 border transition-all ${isSortMenuOpen || activeTag !== "all"
+                ? "bg-[#a3e635]/20 border-[#a3e635]/50 text-[#d9f99d]"
+                : "bg-white/5 border-white/10 text-white/70 hover:text-white"
+                }`}
+            >
+              <ListFilter className="w-5 h-5" />
+            </button>
+
+            {/* Sort Menu Popup */}
+            <AnimatePresence>
+              {isSortMenuOpen && (
+                <motion.div
+                  initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                  transition={{ duration: 0.15 }}
+                  className="absolute bottom-full right-0 mb-3 w-48 bg-black/80 backdrop-blur-xl border border-white/10 shadow-xl overflow-hidden"
+                >
+                  <div className="flex flex-col p-1">
+                    <div className="px-3 py-2 text-xs font-mono text-white/40 uppercase tracking-widest border-b border-white/10 mb-1">
+                      Filter Tags
+                    </div>
+                    {tagOptions.map((tag) => (
+                      <button
+                        key={tag.id}
+                        onClick={() => {
+                          setActiveTag(tag.id);
+                          setIsSortMenuOpen(false);
+                          setTimeout(() => {
+                            const viewportHeight = window.innerHeight;
+                            const lockPosition = viewportHeight * (isMobile ? 1.6 : 1.9);
+                            window.scrollTo({ top: lockPosition, behavior: "smooth" });
+                          }, 50);
+                        }}
+                        className={`flex items-center justify-between px-3 py-2 text-sm font-sans transition-colors ${activeTag === tag.id
+                          ? "bg-[#a3e635] text-black font-bold"
+                          : "text-white/70 hover:bg-white/10 hover:text-white"
+                          }`}
+                      >
+                        {tag.label}
+                        {activeTag === tag.id && (
+                          <div className="w-1.5 h-1.5 rounded-full bg-black ml-2" />
+                        )}
+                      </button>
+                    ))}
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+        </div>
+      </motion.div>
 
       <AnimatePresence>
         {previewItem && (
