@@ -400,8 +400,10 @@ export default function ContentSection() {
   useEffect(() => {
     if (!isLocked || isMobile) return;
 
-    lockedScrollYRef.current = window.scrollY;
-    window.scrollTo({ top: lockedScrollYRef.current });
+    const viewportHeight = window.innerHeight;
+    const lockPosition = viewportHeight * (isMobile ? 1.6 : 1.9);
+    lockedScrollYRef.current = lockPosition;
+    window.scrollTo({ top: lockPosition });
 
     const showHint = () => {
       setShowUnlockHint(true);
@@ -669,7 +671,7 @@ export default function ContentSection() {
           />
 
           <motion.div
-            animate={{ height: isStraight ? (isMobile ? "18px" : "25px") : (isMobile ? "56px" : "80px") }}
+            animate={{ height: isStraight ? (isMobile ? "8px" : "10px") : (isMobile ? "40px" : "56px") }}
             transition={{ duration: 0.5 }}
           />
 
@@ -678,7 +680,7 @@ export default function ContentSection() {
 
       <div
         ref={contentGridRef}
-        className="w-full max-w-6xl px-4 md:px-5 mx-auto relative z-10 -mt-24 md:-mt-36 pt-[100vh] md:pt-[125vh] flex flex-col min-h-screen"
+        className="w-full max-w-6xl px-4 md:px-5 mx-auto relative z-10 -mt-36 md:-mt-52 pt-[100vh] md:pt-[125vh] flex flex-col min-h-screen"
       >
         <div className="flex-grow">
           <AnimatePresence mode="wait">
@@ -747,6 +749,13 @@ export default function ContentSection() {
               placeholder={`Search ${activeTab}...`}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
+              onFocus={() => {
+                const viewportHeight = window.innerHeight;
+                const lockPosition = viewportHeight * (isMobile ? 1.6 : 1.9);
+                if (window.scrollY > lockPosition + 50) {
+                  window.scrollTo({ top: lockPosition, behavior: "smooth" });
+                }
+              }}
               className="w-full bg-transparent text-sm text-white placeholder-white/40 pl-9 pr-4 py-2.5 outline-none font-sans"
             />
           </div>
