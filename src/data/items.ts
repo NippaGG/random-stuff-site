@@ -700,5 +700,14 @@ export const items: Item[] = [
     category: "Softwares",
     tags: ["all"],
     image: "https://github.com/GopeedLab.png"
+  },
+  {
+    id: 175,
+    title: "Bulk Crap Uninstaller",
+    description: "Remove large amounts of unwanted applications quickly.",
+    link: "https://github.com/Klocman/Bulk-Crap-Uninstaller",
+    category: "Softwares",
+    tags: ["windows"],
+    image: "https://github.com/Klocman.png"
   }
 ];
