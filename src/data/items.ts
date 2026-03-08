@@ -709,5 +709,14 @@ export const items: Item[] = [
     category: "Softwares",
     tags: ["windows"],
     image: "https://github.com/Klocman.png"
+  },
+  {
+    id: 176,
+    title: "Delphi Tools",
+    description: "A collection of small, low stakes and low effort web tools including calculators, converters, and generators.",
+    link: "https://delphi.tools/",
+    category: "Websites",
+    tags: ["all"],
+    image: "https://delphi.tools/favicon.ico"
   }
 ];
