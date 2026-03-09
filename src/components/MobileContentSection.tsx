@@ -1,11 +1,12 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { items as staticItems, type Item } from "@/data/items";
 import { Terminal, Globe, FileCode, Search, X, ArrowUpRight, Heart, Monitor, Menu, Github, ListFilter } from "lucide-react";
 import { useFavorites } from "@/hooks/useFavorites";
 import Image from "next/image";
+import { scrollToY } from "@/lib/lenis";
 
 const TABS = ["Softwares", "Websites", "Scripts"] as const;
 type TabType = (typeof TABS)[number];
@@ -38,6 +39,7 @@ export default function MobileContentSection() {
 
     const sectionRef = useRef<HTMLDivElement>(null);
     const contentTopRef = useRef<HTMLDivElement>(null);
+    const lockPointRef = useRef<number>(0);
 
     // Fetch items from MongoDB on mount, fallback to static
     useEffect(() => {
@@ -65,7 +67,7 @@ export default function MobileContentSection() {
     }, [previewItem, isMenuOpen, showFavorites]);
 
     const lockedScrollYRef = useRef<number | null>(null);
-    const clampRafRef = useRef<number | null>(null);
+    const isClampingRef = useRef(false);
     const isLockedRef = useRef(false);
 
     // Helper: get the absolute top of the content section in the document
@@ -74,80 +76,111 @@ export default function MobileContentSection() {
         return sectionRef.current.getBoundingClientRect().top + window.scrollY;
     };
 
-    // Scroll lock: clamp scroll position so user can't scroll above the lock point
+    // Scroll lock: enforce lock on scroll events (lighter than a continuous RAF loop)
     useEffect(() => {
         if (!isLocked) {
             isLockedRef.current = false;
-            if (clampRafRef.current !== null) {
-                cancelAnimationFrame(clampRafRef.current);
-                clampRafRef.current = null;
-            }
             lockedScrollYRef.current = null;
+            isClampingRef.current = false;
             return;
         }
 
         isLockedRef.current = true;
         lockedScrollYRef.current = getSectionTop();
+        lockPointRef.current = lockedScrollYRef.current;
 
-        const clampScroll = () => {
+        const enforceLock = () => {
             if (!isLockedRef.current) return;
             const lockedY = lockedScrollYRef.current;
-            if (lockedY !== null && window.scrollY < lockedY) {
-                window.scrollTo({ top: lockedY });
+            if (lockedY !== null && window.scrollY < lockedY && !isClampingRef.current) {
+                isClampingRef.current = true;
+                scrollToY(lockedY, { immediate: true });
+                requestAnimationFrame(() => {
+                    isClampingRef.current = false;
+                });
             }
-            clampRafRef.current = requestAnimationFrame(clampScroll);
         };
-        clampRafRef.current = requestAnimationFrame(clampScroll);
+
+        const onScroll = () => enforceLock();
+        const onViewportChange = () => {
+            const nextLockPoint = getSectionTop();
+            lockPointRef.current = nextLockPoint;
+            lockedScrollYRef.current = nextLockPoint;
+            enforceLock();
+        };
+
+        enforceLock();
+        window.addEventListener("scroll", onScroll, { passive: true });
+        window.addEventListener("resize", onViewportChange);
+        window.addEventListener("orientationchange", onViewportChange);
 
         return () => {
-            if (clampRafRef.current !== null) {
-                cancelAnimationFrame(clampRafRef.current);
-                clampRafRef.current = null;
-            }
+            window.removeEventListener("scroll", onScroll);
+            window.removeEventListener("resize", onViewportChange);
+            window.removeEventListener("orientationchange", onViewportChange);
+            isClampingRef.current = false;
         };
     }, [isLocked]);
 
     // Activate lock when content section header reaches the top of the viewport
     useEffect(() => {
+        const updateLockPoint = () => {
+            lockPointRef.current = getSectionTop();
+            if (isLocked) {
+                lockedScrollYRef.current = lockPointRef.current;
+            }
+        };
+
         const onScroll = () => {
-            const sectionTop = getSectionTop();
-            if (window.scrollY >= sectionTop && !isLocked) {
+            if (window.scrollY >= lockPointRef.current && !isLocked) {
                 setIsLocked(true);
             }
         };
 
+        updateLockPoint();
+        window.addEventListener("resize", updateLockPoint);
+        window.addEventListener("orientationchange", updateLockPoint);
         window.addEventListener("scroll", onScroll, { passive: true });
-        return () => window.removeEventListener("scroll", onScroll);
+        return () => {
+            window.removeEventListener("resize", updateLockPoint);
+            window.removeEventListener("orientationchange", updateLockPoint);
+            window.removeEventListener("scroll", onScroll);
+        };
     }, [isLocked]);
 
     const handleUnlock = () => {
         setIsLocked(false);
-        // Wait a frame so the clamp RAF stops, then scroll to top
+        // Wait a frame so lock enforcement settles, then scroll to top
         requestAnimationFrame(() => {
-            window.scrollTo({ top: 0, behavior: "smooth" });
+            scrollToY(0);
         });
     };
 
-    const filteredItems = items
-        .filter((item) => {
-            if (item.category !== activeTab) return false;
+    const filteredItems = useMemo(() => {
+        return items
+            .filter((item) => {
+                if (item.category !== activeTab) return false;
 
-            // Tag filtering
-            if (activeTag !== "all") {
-                if (!item.tags.includes(activeTag) && !item.tags.includes("all")) {
-                    return false;
+                // Tag filtering
+                if (activeTag !== "all") {
+                    if (!item.tags.includes(activeTag) && !item.tags.includes("all")) {
+                        return false;
+                    }
                 }
-            }
 
-            const q = searchQuery.toLowerCase();
-            return (
-                item.title.toLowerCase().includes(q) ||
-                item.description.toLowerCase().includes(q)
-            );
-        })
-        .sort((a, b) => a.title.localeCompare(b.title));
+                const q = searchQuery.toLowerCase();
+                return (
+                    item.title.toLowerCase().includes(q) ||
+                    item.description.toLowerCase().includes(q)
+                );
+            })
+            .sort((a, b) => a.title.localeCompare(b.title));
+    }, [items, activeTab, activeTag, searchQuery]);
 
-    const favoriteItems = items.filter((item) => isFavorite(item.id));
+    const favoriteItems = useMemo(
+        () => items.filter((item) => isFavorite(item.id)),
+        [items, isFavorite]
+    );
 
     const categoryLabel = activeTab === "Softwares"
         ? "UTILITIES // RUN"

@@ -25,22 +25,28 @@ export default function Home() {
     return () => mq.removeEventListener("change", onChange);
   }, []);
 
-  // Lenis smooth scrolling — desktop only
+  // Lenis smooth scrolling — desktop and mobile
   useEffect(() => {
-    if (isMobile === null || isMobile) return;
+    if (isMobile === null) return;
 
     const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const isFinePointer = window.matchMedia("(pointer: fine)").matches;
 
-    if (prefersReducedMotion || !isFinePointer) {
+    if (prefersReducedMotion) {
+      return;
+    }
+
+    // Keep desktop guard for non-fine pointers, but allow mobile Lenis touch sync.
+    if (!isMobile && !isFinePointer) {
       return;
     }
 
     const lenis = new Lenis({
-      lerp: 0.08,
-      wheelMultiplier: 0.9,
-      touchMultiplier: 1,
-      syncTouch: false,
+      lerp: isMobile ? 0.1 : 0.08,
+      wheelMultiplier: isMobile ? 1 : 0.9,
+      touchMultiplier: isMobile ? 1.1 : 1,
+      syncTouch: isMobile,
+      syncTouchLerp: 0.085,
     });
     setLenisInstance(lenis);
     let rafId: number;

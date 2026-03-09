@@ -4,6 +4,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import { ArrowDown } from "lucide-react";
 import { items } from "@/data/items";
+import { scrollToY } from "@/lib/lenis";
 
 const SYMBOLS = ["!", "@", "#", "$", "%", "&", "*", "(", ")", "_", "[", "]", "{", "}", "|", "<", ">", "?", ":", ";"];
 const FINAL_TEXT = "RANDOM \nSTUFF.";
@@ -161,10 +162,7 @@ export default function MobileHeroSection() {
                             const anchor = document.getElementById('mobile-content-anchor');
                             if (anchor) {
                                 const rect = anchor.getBoundingClientRect();
-                                window.scrollTo({
-                                    top: window.scrollY + rect.top,
-                                    behavior: 'smooth'
-                                });
+                                scrollToY(window.scrollY + rect.top);
                             }
                         }}
                         className="group relative flex items-center justify-between px-8 py-5 bg-[#bef264] text-[#0a0a0a] font-bold uppercase tracking-widest text-[14px] overflow-hidden transition-all hover:pr-12"
