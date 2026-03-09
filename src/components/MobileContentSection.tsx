@@ -311,12 +311,12 @@ export default function MobileContentSection() {
                             animate={{ y: 0, opacity: 1 }}
                             exit={{ y: 100, opacity: 0 }}
                             transition={{ type: "spring", damping: 25, stiffness: 200 }}
-                            className="fixed bottom-0 left-0 right-0 p-4 z-50 pointer-events-none"
+                            className="fixed bottom-0 left-0 right-0 px-4 pt-4 pb-2 z-50 pointer-events-none"
                         >
                             {/* Backdrop Glow & Blur Effect */}
                             <div className="absolute inset-0 bottom-0 pointer-events-none -z-10 bg-gradient-to-t from-[#bef264]/10 to-transparent blur-xl" />
 
-                            <div className="max-w-md mx-auto flex flex-col gap-4 items-center pointer-events-auto relative">
+                            <div className="max-w-md mx-auto flex flex-col gap-2 items-center pointer-events-auto relative">
                                 {/* Floating Search Bar */}
                                 <div className="w-full">
                                     <div className="flex w-full items-stretch bg-[#111111]/80 backdrop-blur-md border border-white/10 h-12 overflow-hidden shadow-[0_0_15px_rgba(190,242,100,0.15)]">
