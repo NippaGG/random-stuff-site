@@ -20,18 +20,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={mono.className}>
-        {/* Mobile View Block */}
-        <div className="md:hidden fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-black text-white p-8 text-center h-[100dvh]">
-          <h1 className="text-3xl font-bold mb-4 tracking-tight drop-shadow-[0_0_10px_rgba(163,230,53,0.8)] text-[#a3e635]">Use a Desktop Browser</h1>
-          <p className="text-gray-400 max-w-sm text-lg">
-            Please use a desktop device for the best experience. Mobile development is currently ongoing, thank you for your patience!
-          </p>
-        </div>
-
-        {/* Desktop Content */}
-        <div className="hidden md:contents">
-          {children}
-        </div>
+        {children}
 
         <SpeedInsights />
         <Analytics />

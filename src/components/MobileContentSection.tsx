@@ -1,0 +1,674 @@
+"use client";
+
+import React, { useState, useEffect, useRef } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { items as staticItems, type Item } from "@/data/items";
+import { Terminal, Globe, FileCode, Search, X, ArrowUpRight, Heart, Monitor, Menu, Github } from "lucide-react";
+import { useFavorites } from "@/hooks/useFavorites";
+import Image from "next/image";
+
+const TABS = ["Softwares", "Websites", "Scripts"] as const;
+type TabType = (typeof TABS)[number];
+
+const TAB_ICONS: Record<TabType, React.ElementType> = {
+    Softwares: Terminal,
+    Websites: Globe,
+    Scripts: FileCode,
+};
+
+export default function MobileContentSection() {
+    const [items, setItems] = useState<Item[]>(staticItems);
+    const [activeTab, setActiveTab] = useState<TabType>("Softwares");
+    const [searchQuery, setSearchQuery] = useState("");
+    const [previewItem, setPreviewItem] = useState<Item | null>(null);
+    const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const [showFavorites, setShowFavorites] = useState(false);
+    const [isLocked, setIsLocked] = useState(false);
+    const { isFavorite, toggleFavorite } = useFavorites();
+
+    const sectionRef = useRef<HTMLDivElement>(null);
+    const contentTopRef = useRef<HTMLDivElement>(null);
+
+    // Fetch items from MongoDB on mount, fallback to static
+    useEffect(() => {
+        fetch("/api/items")
+            .then((res) => {
+                if (!res.ok) throw new Error(`API returned ${res.status}`);
+                return res.json();
+            })
+            .then((data) => {
+                if (Array.isArray(data) && data.length > 0) {
+                    setItems(data);
+                }
+            })
+            .catch((err) => console.error("Failed to fetch items, using static data:", err));
+    }, []);
+
+    // Lock body scroll when preview/menu/favorites is open
+    useEffect(() => {
+        if (!previewItem && !isMenuOpen && !showFavorites) return;
+        const prev = document.body.style.overflow;
+        document.body.style.overflow = "hidden";
+        return () => {
+            document.body.style.overflow = prev;
+        };
+    }, [previewItem, isMenuOpen, showFavorites]);
+
+    const lockedScrollYRef = useRef<number | null>(null);
+    const clampRafRef = useRef<number | null>(null);
+    const isLockedRef = useRef(false);
+
+    // Helper: get the absolute top of the content section in the document
+    const getSectionTop = () => {
+        if (!sectionRef.current) return 0;
+        return sectionRef.current.getBoundingClientRect().top + window.scrollY;
+    };
+
+    // Scroll lock: clamp scroll position so user can't scroll above the lock point
+    useEffect(() => {
+        if (!isLocked) {
+            isLockedRef.current = false;
+            if (clampRafRef.current !== null) {
+                cancelAnimationFrame(clampRafRef.current);
+                clampRafRef.current = null;
+            }
+            lockedScrollYRef.current = null;
+            return;
+        }
+
+        isLockedRef.current = true;
+        lockedScrollYRef.current = getSectionTop();
+
+        const clampScroll = () => {
+            if (!isLockedRef.current) return;
+            const lockedY = lockedScrollYRef.current;
+            if (lockedY !== null && window.scrollY < lockedY) {
+                window.scrollTo({ top: lockedY });
+            }
+            clampRafRef.current = requestAnimationFrame(clampScroll);
+        };
+        clampRafRef.current = requestAnimationFrame(clampScroll);
+
+        return () => {
+            if (clampRafRef.current !== null) {
+                cancelAnimationFrame(clampRafRef.current);
+                clampRafRef.current = null;
+            }
+        };
+    }, [isLocked]);
+
+    // Activate lock when content section header reaches the top of the viewport
+    useEffect(() => {
+        const onScroll = () => {
+            const sectionTop = getSectionTop();
+            if (window.scrollY >= sectionTop && !isLocked) {
+                setIsLocked(true);
+            }
+        };
+
+        window.addEventListener("scroll", onScroll, { passive: true });
+        return () => window.removeEventListener("scroll", onScroll);
+    }, [isLocked]);
+
+    const handleUnlock = () => {
+        setIsLocked(false);
+        // Wait a frame so the clamp RAF stops, then scroll to top
+        requestAnimationFrame(() => {
+            window.scrollTo({ top: 0, behavior: "smooth" });
+        });
+    };
+
+    const filteredItems = items
+        .filter((item) => {
+            if (item.category !== activeTab) return false;
+            const q = searchQuery.toLowerCase();
+            return (
+                item.title.toLowerCase().includes(q) ||
+                item.description.toLowerCase().includes(q)
+            );
+        })
+        .sort((a, b) => a.title.localeCompare(b.title));
+
+    const favoriteItems = items.filter((item) => isFavorite(item.id));
+
+    const categoryLabel = activeTab === "Softwares"
+        ? "UTILITIES // RUN"
+        : activeTab === "Websites"
+            ? "Web Resources // Net"
+            : "Script Library // Exec";
+
+    return (
+        <>
+            <div ref={sectionRef} id="mobile-content-anchor" className="relative flex min-h-screen w-full flex-col pb-40 bg-[#0a0a0a] text-slate-100">
+                {/* Scroll lock anchor */}
+                <div ref={contentTopRef} />
+
+                {/* Header */}
+                <div className="flex items-center bg-[#0a0a0a]/80 backdrop-blur-md p-4 sticky top-0 z-[250] border-b border-white/10 justify-between">
+                    {/* Left: Animated Hamburger / Close */}
+                    <button
+                        onClick={() => setIsMenuOpen(!isMenuOpen)}
+                        className="flex size-10 shrink-0 items-center justify-center text-[#bef264] relative"
+                    >
+                        <div className="w-6 h-5 relative flex flex-col justify-between items-center">
+                            <motion.span
+                                animate={isMenuOpen
+                                    ? { rotate: 45, y: 9, width: "100%" }
+                                    : { rotate: 0, y: 0, width: "100%" }
+                                }
+                                transition={{ duration: 0.3, ease: "easeInOut" }}
+                                className="block h-[2px] w-full bg-[#bef264] rounded-full origin-center"
+                            />
+                            <motion.span
+                                animate={isMenuOpen
+                                    ? { opacity: 0, scaleX: 0 }
+                                    : { opacity: 1, scaleX: 1 }
+                                }
+                                transition={{ duration: 0.2 }}
+                                className="block h-[2px] w-full bg-[#bef264] rounded-full origin-center"
+                            />
+                            <motion.span
+                                animate={isMenuOpen
+                                    ? { rotate: -45, y: -9, width: "100%" }
+                                    : { rotate: 0, y: 0, width: "100%" }
+                                }
+                                transition={{ duration: 0.3, ease: "easeInOut" }}
+                                className="block h-[2px] w-full bg-[#bef264] rounded-full origin-center"
+                            />
+                        </div>
+                    </button>
+
+                    {/* Center: Random Stuff — tap to unlock */}
+                    <button
+                        onClick={handleUnlock}
+                        className={`text-lg font-bold leading-tight tracking-tight flex-1 text-center uppercase transition-colors ${isLocked ? "text-[#bef264]" : "text-slate-100 active:text-[#bef264]"
+                            }`}
+                    >
+                        Random Stuff
+                    </button>
+
+                    {/* Right: Cross-fading Favorites / Close */}
+                    <button
+                        onClick={() => setShowFavorites(!showFavorites)}
+                        className="flex size-10 shrink-0 items-center justify-center text-[#bef264] relative z-[210]"
+                    >
+                        <AnimatePresence mode="wait">
+                            {showFavorites ? (
+                                <motion.div
+                                    key="close-icon"
+                                    initial={{ opacity: 0, scale: 0.8 }}
+                                    animate={{ opacity: 1, scale: 1 }}
+                                    exit={{ opacity: 0, scale: 0.8 }}
+                                    transition={{ duration: 0.15 }}
+                                    className="absolute inset-0 flex items-center justify-center"
+                                >
+                                    <X className="w-6 h-6" />
+                                </motion.div>
+                            ) : (
+                                <motion.div
+                                    key="heart-icon"
+                                    initial={{ opacity: 0, scale: 0.8 }}
+                                    animate={{ opacity: 1, scale: 1 }}
+                                    exit={{ opacity: 0, scale: 0.8 }}
+                                    transition={{ duration: 0.15 }}
+                                    className="absolute inset-0 flex items-center justify-center"
+                                >
+                                    <Heart className="w-6 h-6" />
+                                </motion.div>
+                            )}
+                        </AnimatePresence>
+                    </button>
+                </div>
+
+                {/* Content Section */}
+                <div className="px-4 pt-6">
+                    <AnimatePresence mode="wait">
+                        <motion.div
+                            key={activeTab}
+                            initial={{ opacity: 0, y: 8 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -8 }}
+                            transition={{ duration: 0.2 }}
+                        >
+                            <h2 className="text-[#bef264] text-xs font-bold leading-tight tracking-[0.2em] uppercase mb-4">
+                                {categoryLabel}
+                            </h2>
+
+                            <div className="flex flex-col gap-4">
+                                {filteredItems.length === 0 ? (
+                                    <div className="flex flex-col items-center justify-center py-20 text-white/30 gap-4">
+                                        <Search className="w-12 h-12" />
+                                        <p className="text-base">No results found.</p>
+                                    </div>
+                                ) : (
+                                    filteredItems.map((item) => (
+                                        <motion.div
+                                            key={item.id}
+                                            onClick={() => setPreviewItem(item)}
+                                            initial={{ opacity: 0, y: 10 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            className="bg-white/5 border border-white/10 p-2 flex gap-3 items-center hover:border-[#bef264]/50 group text-left w-full cursor-pointer"
+                                        >
+                                            {/* Image Thumbnail */}
+                                            <div className="size-10 shrink-0 bg-slate-800 relative overflow-hidden border border-white/10">
+                                                {item.image ? (
+                                                    <img
+                                                        alt={item.title}
+                                                        className="w-full h-full object-cover opacity-60"
+                                                        src={item.image}
+                                                        loading="lazy"
+                                                        onError={(e) => {
+                                                            (e.target as HTMLImageElement).src = "/icon.png";
+                                                        }}
+                                                    />
+                                                ) : (
+                                                    <div className="w-full h-full flex items-center justify-center text-white/20">
+                                                        {activeTab === "Websites" && <Globe className="w-5 h-5" />}
+                                                        {activeTab === "Softwares" && <Monitor className="w-5 h-5" />}
+                                                        {activeTab === "Scripts" && <FileCode className="w-5 h-5" />}
+                                                    </div>
+                                                )}
+                                            </div>
+
+                                            {/* Text */}
+                                            <div className="flex-1 min-w-0">
+                                                <p className="text-[#bef264] text-sm font-bold truncate">
+                                                    {item.title}
+                                                </p>
+                                                <p className="text-slate-400 text-[10px] font-normal truncate">
+                                                    {item.description}
+                                                </p>
+                                            </div>
+
+                                            {/* Heart/Favorite Button */}
+                                            <button
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    toggleFavorite(item.id);
+                                                }}
+                                                className="p-2 shrink-0 transition-colors"
+                                            >
+                                                <Heart
+                                                    className={`w-4 h-4 transition-colors ${isFavorite(item.id)
+                                                        ? "fill-[#bef264] text-[#bef264]"
+                                                        : "text-white/30"
+                                                        }`}
+                                                />
+                                            </button>
+                                        </motion.div>
+                                    ))
+                                )}
+                            </div>
+                        </motion.div>
+                    </AnimatePresence>
+                </div>
+
+                {/* Floating Fixed Navigation Area */}
+                <AnimatePresence>
+                    {isLocked && (
+                        <motion.div
+                            initial={{ y: 100, opacity: 0 }}
+                            animate={{ y: 0, opacity: 1 }}
+                            exit={{ y: 100, opacity: 0 }}
+                            transition={{ type: "spring", damping: 25, stiffness: 200 }}
+                            className="fixed bottom-0 left-0 right-0 p-4 z-50 pointer-events-none"
+                        >
+                            {/* Backdrop Glow & Blur Effect */}
+                            <div className="absolute inset-0 bottom-0 pointer-events-none -z-10 bg-gradient-to-t from-[#bef264]/10 to-transparent blur-xl" />
+
+                            <div className="max-w-md mx-auto flex flex-col gap-4 items-center pointer-events-auto relative">
+                                {/* Floating Search Bar */}
+                                <div className="w-full">
+                                    <div className="flex w-full items-stretch bg-[#111111]/80 backdrop-blur-md border border-white/10 h-12 overflow-hidden shadow-[0_0_15px_rgba(190,242,100,0.15)]">
+                                        <div className="text-[#bef264] flex items-center justify-center pl-4">
+                                            <Search className="w-5 h-5" />
+                                        </div>
+                                        <input
+                                            className="flex w-full flex-1 bg-transparent border-none focus:ring-0 focus:outline-none text-white placeholder:text-slate-500 text-sm px-4"
+                                            placeholder={`Search ${activeTab.toLowerCase()}...`}
+                                            value={searchQuery}
+                                            onChange={(e) => setSearchQuery(e.target.value)}
+                                        />
+                                        {searchQuery && (
+                                            <button
+                                                onClick={() => setSearchQuery("")}
+                                                className="px-3 text-white/40 hover:text-white transition-colors"
+                                            >
+                                                <X className="w-4 h-4" />
+                                            </button>
+                                        )}
+                                    </div>
+                                </div>
+
+                                {/* Floating Bottom Navbar */}
+                                <div className="flex w-full bg-[#111111]/80 backdrop-blur-lg border border-white/10 p-2 shadow-lg items-center justify-around">
+                                    {TABS.map((tab) => {
+                                        const Icon = TAB_ICONS[tab];
+                                        const isActive = activeTab === tab;
+                                        return (
+                                            <button
+                                                key={tab}
+                                                onClick={() => {
+                                                    setActiveTab(tab);
+                                                    setSearchQuery("");
+                                                }}
+                                                className={`flex flex-1 flex-col items-center justify-center gap-1 py-1 transition-colors ${isActive ? "text-[#bef264]" : "text-slate-500 hover:text-[#bef264]"
+                                                    }`}
+                                            >
+                                                <Icon className="w-6 h-6" />
+                                                <p className="text-[10px] font-bold tracking-tighter uppercase">
+                                                    {tab}
+                                                </p>
+                                            </button>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+                        </motion.div>
+                    )}
+                </AnimatePresence>
+            </div>
+
+            {/* ─── HAMBURGER MENU ──────────────────────────── */}
+            <AnimatePresence>
+                {isMenuOpen && (
+                    <motion.div
+                        key="hamburger-menu"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="fixed inset-0 z-[200] flex"
+                    >
+                        {/* Backdrop */}
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            onClick={() => setIsMenuOpen(false)}
+                            className="absolute inset-0 bg-black/70 backdrop-blur-xl"
+                        />
+
+                        {/* Menu Panel */}
+                        <motion.div
+                            initial={{ x: "-100%" }}
+                            animate={{ x: 0 }}
+                            exit={{ x: "-100%" }}
+                            transition={{ type: "spring", damping: 30, stiffness: 300 }}
+                            className="relative w-[280px] max-w-[80vw] h-full bg-[#0a0a0a] border-r border-white/10 flex flex-col z-10 pt-[72px]"
+                        >
+                            {/* Divider below header area */}
+                            <div className="border-b border-white/10" />
+
+                            {/* Menu Links */}
+                            <div className="flex flex-col p-4 gap-2">
+                                <a
+                                    href="https://github.com/NippaGG/random-stuff-site"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="flex items-center gap-4 px-4 py-3.5 bg-white/5 border border-white/10 hover:border-[#bef264]/50 transition-colors group"
+                                >
+                                    <Github className="w-5 h-5 text-[#bef264]" />
+                                    <div>
+                                        <p className="text-white font-bold text-sm group-hover:text-[#bef264] transition-colors">
+                                            GitHub Repo
+                                        </p>
+                                        <p className="text-slate-500 text-[10px]">
+                                            View the source code
+                                        </p>
+                                    </div>
+                                </a>
+
+                                <a
+                                    href="https://shockagg.vercel.app/"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="flex items-center gap-4 px-4 py-3.5 bg-white/5 border border-white/10 hover:border-[#bef264]/50 transition-colors group"
+                                >
+                                    <div className="relative w-5 h-5 rounded-sm overflow-hidden">
+                                        <Image
+                                            src="/icon.png"
+                                            alt="Portfolio"
+                                            fill
+                                            className="object-cover"
+                                        />
+                                    </div>
+                                    <div>
+                                        <p className="text-white font-bold text-sm group-hover:text-[#bef264] transition-colors">
+                                            Portfolio
+                                        </p>
+                                        <p className="text-slate-500 text-[10px]">
+                                            shockagg.vercel.app
+                                        </p>
+                                    </div>
+                                </a>
+                            </div>
+
+                            {/* Footer in menu */}
+                            <div className="mt-auto p-5 border-t border-white/10">
+                                <p className="text-slate-600 text-[10px] tracking-widest uppercase">
+                                    Made with ❤ by ShockaGG
+                                </p>
+                            </div>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
+            {/* ─── FAVORITES PANEL ────────────────────────── */}
+            <AnimatePresence>
+                {showFavorites && (
+                    <motion.div
+                        key="favorites-panel"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="fixed inset-0 z-[200] flex justify-end"
+                    >
+                        {/* Backdrop */}
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            onClick={() => setShowFavorites(false)}
+                            className="absolute inset-0 bg-black/70 backdrop-blur-xl"
+                        />
+
+                        {/* Menu Panel */}
+                        <motion.div
+                            initial={{ x: "100%" }}
+                            animate={{ x: 0 }}
+                            exit={{ x: "100%" }}
+                            transition={{ type: "spring", damping: 30, stiffness: 300 }}
+                            className="relative w-[280px] max-w-[80vw] h-full bg-[#0a0a0a] border-l border-white/10 flex flex-col z-10 pt-[72px]"
+                        >
+                            {/* Header */}
+                            <div className="flex items-center justify-between p-5 border-b border-white/10">
+                                <h2 className="text-xl font-bold text-[#bef264] flex items-center gap-2">
+                                    <Heart className="w-5 h-5 fill-[#bef264]" />
+                                    Favorites
+                                </h2>
+                            </div>
+
+                            {/* Favorites List - Scrollable Area */}
+                            <div className="p-4 flex-1 overflow-y-auto">
+                                {favoriteItems.length === 0 ? (
+                                    <div className="flex flex-col items-center justify-center py-16 text-white/30 gap-4">
+                                        <Heart className="w-14 h-14" />
+                                        <p className="text-base text-center">No favorites yet.</p>
+                                        <p className="text-sm text-center text-white/20 px-2">Tap the heart icon on any item to save it here.</p>
+                                    </div>
+                                ) : (
+                                    <div className="flex flex-col gap-3">
+                                        {favoriteItems.map((item) => (
+                                            <button
+                                                key={item.id}
+                                                onClick={() => {
+                                                    setShowFavorites(false);
+                                                    setPreviewItem(item);
+                                                }}
+                                                className="bg-white/5 border border-white/10 p-2 flex gap-3 items-center text-left w-full hover:border-[#bef264]/50 transition-colors"
+                                            >
+                                                <div className="size-10 shrink-0 bg-slate-800 relative overflow-hidden border border-white/10 flex items-center justify-center">
+                                                    {item.image ? (
+                                                        <img
+                                                            alt={item.title}
+                                                            className="w-full h-full object-cover opacity-60"
+                                                            src={item.image}
+                                                            loading="lazy"
+                                                        />
+                                                    ) : (
+                                                        <Terminal className="w-4 h-4 text-white/20" />
+                                                    )}
+                                                </div>
+                                                <div className="flex-1 min-w-0">
+                                                    <p className="text-[#bef264] text-sm font-bold truncate">{item.title}</p>
+                                                    <p className="text-slate-400 text-[10px] truncate">{item.description}</p>
+                                                </div>
+                                                <div
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        toggleFavorite(item.id);
+                                                    }}
+                                                    className="p-2 shrink-0 relative z-10"
+                                                >
+                                                    <Heart className="w-4 h-4 fill-[#bef264] text-[#bef264]" />
+                                                </div>
+                                            </button>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
+            {/* ─── PREVIEW MODAL ──────────────────────────── */}
+            <AnimatePresence>
+                {previewItem && (
+                    <motion.div
+                        key="mobile-preview"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="fixed inset-0 z-[200] flex items-end justify-center"
+                    >
+                        {/* Backdrop */}
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            onClick={() => setPreviewItem(null)}
+                            className="absolute inset-0 bg-black/70 backdrop-blur-xl"
+                        />
+
+                        {/* Sheet */}
+                        <motion.div
+                            initial={{ y: "100%" }}
+                            animate={{ y: 0 }}
+                            exit={{ y: "100%" }}
+                            transition={{ type: "spring", damping: 30, stiffness: 300 }}
+                            className="relative w-full max-h-[85vh] bg-[#0a0a0a] border-t border-white/10 overflow-y-auto z-10 rounded-t-2xl"
+                        >
+                            {/* Drag handle */}
+                            <div className="flex justify-center pt-3 pb-2">
+                                <div className="w-10 h-1 bg-white/20 rounded-full" />
+                            </div>
+
+                            {/* Close button */}
+                            <button
+                                onClick={() => setPreviewItem(null)}
+                                className="absolute top-4 right-4 p-2 bg-white/5 hover:bg-white/10 rounded-full transition-colors z-20"
+                            >
+                                <X className="w-5 h-5 text-white/70" />
+                            </button>
+
+                            {/* Image area */}
+                            {(previewItem.image) && (
+                                <div className="relative w-full h-48 bg-[#111] overflow-hidden flex items-center justify-center">
+                                    <motion.div
+                                        className="absolute inset-0 opacity-20"
+                                        animate={{
+                                            background: [
+                                                "radial-gradient(circle at 20% 20%, #a3e635 0%, transparent 60%)",
+                                                "radial-gradient(circle at 80% 80%, #a3e635 0%, transparent 60%)",
+                                                "radial-gradient(circle at 20% 20%, #a3e635 0%, transparent 60%)",
+                                            ],
+                                        }}
+                                        transition={{ duration: 6, repeat: Infinity, ease: "linear" }}
+                                    />
+                                    <img
+                                        src={previewItem.image}
+                                        alt={previewItem.title}
+                                        className="relative z-10 w-20 h-20 object-contain"
+                                        onError={(e) => {
+                                            (e.target as HTMLImageElement).style.display = "none";
+                                        }}
+                                    />
+                                </div>
+                            )}
+
+                            {/* Content */}
+                            <div className="p-5 pb-8">
+                                {/* Badge */}
+                                <span className="px-2 py-1 bg-white/5 border border-white/10 text-[10px] uppercase tracking-wider text-[#bef264] mb-3 inline-block">
+                                    {previewItem.category}
+                                </span>
+
+                                <h2 className="text-2xl font-bold text-white mb-3 tracking-tight leading-tight">
+                                    {previewItem.title}
+                                </h2>
+
+                                <p className="text-gray-400 text-sm leading-relaxed mb-4 border-l-2 border-[#a3e635]/30 pl-3">
+                                    {previewItem.description}
+                                </p>
+
+                                {/* Tags */}
+                                <div className="flex flex-wrap gap-2 mb-6">
+                                    {previewItem.tags
+                                        .filter((t) => t !== "all")
+                                        .map((tag) => (
+                                            <span
+                                                key={tag}
+                                                className="px-2 py-1 text-[10px] uppercase font-bold tracking-wider border border-white/10 bg-white/5 text-white/60"
+                                            >
+                                                {tag}
+                                            </span>
+                                        ))}
+                                </div>
+
+                                {/* Action buttons */}
+                                <div className="flex gap-3">
+                                    <a
+                                        href={previewItem.link}
+                                        target="_blank"
+                                        rel="noreferrer"
+                                        className="flex-1 flex items-center justify-center gap-2 px-4 py-3.5 bg-[#bef264] text-black font-bold text-sm hover:bg-white transition-colors"
+                                    >
+                                        Open Link
+                                        <ArrowUpRight className="w-4 h-4" />
+                                    </a>
+                                    <button
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            toggleFavorite(previewItem.id);
+                                        }}
+                                        className={`px-4 py-3.5 border transition-colors ${isFavorite(previewItem.id)
+                                            ? "bg-[#bef264]/20 border-[#bef264]/50 text-[#bef264]"
+                                            : "bg-white/5 border-white/10 text-white/70"
+                                            }`}
+                                    >
+                                        <Heart
+                                            className={`w-5 h-5 ${isFavorite(previewItem.id) ? "fill-[#bef264]" : ""
+                                                }`}
+                                        />
+                                    </button>
+                                </div>
+                            </div>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+        </>
+    );
+}

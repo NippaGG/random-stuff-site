@@ -7,12 +7,27 @@ import ContentSection from "@/components/ContentSection";
 import LoadingScreen from "@/components/LoadingScreen";
 import Footer from "@/components/Footer";
 import CustomCursor from "@/components/CustomCursor";
+import MobileHeroSection from "@/components/MobileHeroSection";
+import MobileContentSection from "@/components/MobileContentSection";
 import { AnimatePresence } from "framer-motion";
 
 export default function Home() {
   const [isLoading, setIsLoading] = useState(true);
+  const [isMobile, setIsMobile] = useState<boolean | null>(null);
 
+  // Detect mobile on mount (avoids SSR hydration mismatch)
   useEffect(() => {
+    const mq = window.matchMedia("(max-width: 767px)");
+    setIsMobile(mq.matches);
+    const onChange = (e: MediaQueryListEvent) => setIsMobile(e.matches);
+    mq.addEventListener("change", onChange);
+    return () => mq.removeEventListener("change", onChange);
+  }, []);
+
+  // Lenis smooth scrolling — desktop only
+  useEffect(() => {
+    if (isMobile === null || isMobile) return;
+
     const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const isFinePointer = window.matchMedia("(pointer: fine)").matches;
 
@@ -20,27 +35,40 @@ export default function Home() {
       return;
     }
 
-    // 1. Initialize Lenis
     const lenis = new Lenis();
-
-    // 2. Create the loop function
     let rafId: number;
     function raf(time: number) {
       lenis.raf(time);
       rafId = requestAnimationFrame(raf);
     }
-
-    // 3. Start the loop
     rafId = requestAnimationFrame(raf);
 
-    // FIX: CLEANUP FUNCTION
-    // This runs when the component unmounts. It kills the old loop and listener.
     return () => {
       lenis.destroy();
       cancelAnimationFrame(rafId);
     };
-  }, []);
+  }, [isMobile]);
 
+  // Don't render until we know the viewport size
+  if (isMobile === null) return null;
+
+  // ─── MOBILE ─────────────────────────────────────────
+  if (isMobile) {
+    return (
+      <main className="relative min-h-screen text-white flex flex-col bg-[#0a0a0a]">
+        <AnimatePresence mode="wait">
+          {isLoading && (
+            <LoadingScreen onComplete={() => setIsLoading(false)} />
+          )}
+        </AnimatePresence>
+
+        <MobileHeroSection />
+        <MobileContentSection />
+      </main>
+    );
+  }
+
+  // ─── DESKTOP (unchanged) ───────────────────────────
   return (
     <main className="relative min-h-screen text-white flex flex-col">
       <CustomCursor />
