@@ -36,17 +36,18 @@ export default function Home() {
       return;
     }
 
-    // Keep desktop guard for non-fine pointers, but allow mobile Lenis touch sync.
+    // Keep desktop guard for non-fine pointers.
     if (!isMobile && !isFinePointer) {
       return;
     }
 
     const lenis = new Lenis({
-      lerp: isMobile ? 0.1 : 0.08,
+      lerp: isMobile ? 0.08 : 0.08,
+      smoothWheel: !isMobile,
       wheelMultiplier: isMobile ? 1 : 0.9,
-      touchMultiplier: isMobile ? 1.1 : 1,
-      syncTouch: isMobile,
-      syncTouchLerp: 0.085,
+      touchMultiplier: 1,
+      // Keep touch scrolling native on mobile; Lenis still handles programmatic scrolls.
+      syncTouch: false,
     });
     setLenisInstance(lenis);
     let rafId: number;
