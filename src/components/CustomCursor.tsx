@@ -7,6 +7,8 @@ export default function CustomCursor() {
     const ringRef = useRef<HTMLDivElement>(null);
     const [isHovering, setIsHovering] = useState(false);
     const [isVisible, setIsVisible] = useState(false);
+    const isVisibleRef = useRef(false);
+    const isHoveringRef = useRef(false);
 
     useEffect(() => {
         const dot = dotRef.current;
@@ -20,15 +22,29 @@ export default function CustomCursor() {
         let dotY = 0;
         let ringX = 0;
         let ringY = 0;
+        let rafId = 0;
 
         const onMouseMove = (e: MouseEvent) => {
             mouseX = e.clientX;
             mouseY = e.clientY;
-            setIsVisible(true);
+            if (!isVisibleRef.current) {
+                isVisibleRef.current = true;
+                setIsVisible(true);
+            }
         };
 
-        const onMouseEnter = () => setIsVisible(true);
-        const onMouseLeave = () => setIsVisible(false);
+        const onMouseEnter = () => {
+            if (!isVisibleRef.current) {
+                isVisibleRef.current = true;
+                setIsVisible(true);
+            }
+        };
+        const onMouseLeave = () => {
+            if (isVisibleRef.current) {
+                isVisibleRef.current = false;
+                setIsVisible(false);
+            }
+        };
 
         // Check if hovering over interactive elements
         const onMouseOver = (e: MouseEvent) => {
@@ -42,7 +58,10 @@ export default function CustomCursor() {
                 getComputedStyle(target).cursor === 'pointer'
             );
 
-            setIsHovering(isInteractive);
+            if (isHoveringRef.current !== isInteractive) {
+                isHoveringRef.current = isInteractive;
+                setIsHovering(isInteractive);
+            }
         };
 
         // Smooth animation loop
@@ -60,7 +79,7 @@ export default function CustomCursor() {
             ring.style.left = `${ringX}px`;
             ring.style.top = `${ringY}px`;
 
-            requestAnimationFrame(animate);
+            rafId = requestAnimationFrame(animate);
         };
 
         window.addEventListener('mousemove', onMouseMove);
@@ -68,14 +87,14 @@ export default function CustomCursor() {
         document.addEventListener('mouseenter', onMouseEnter);
         document.addEventListener('mouseleave', onMouseLeave);
 
-        const animationId = requestAnimationFrame(animate);
+        rafId = requestAnimationFrame(animate);
 
         return () => {
             window.removeEventListener('mousemove', onMouseMove);
             window.removeEventListener('mouseover', onMouseOver);
             document.removeEventListener('mouseenter', onMouseEnter);
             document.removeEventListener('mouseleave', onMouseLeave);
-            cancelAnimationFrame(animationId);
+            cancelAnimationFrame(rafId);
         };
     }, []);
 

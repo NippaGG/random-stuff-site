@@ -10,6 +10,7 @@ import CustomCursor from "@/components/CustomCursor";
 import MobileHeroSection from "@/components/MobileHeroSection";
 import MobileContentSection from "@/components/MobileContentSection";
 import { AnimatePresence } from "framer-motion";
+import { clearLenisInstance, setLenisInstance } from "@/lib/lenis";
 
 export default function Home() {
   const [isLoading, setIsLoading] = useState(true);
@@ -35,7 +36,13 @@ export default function Home() {
       return;
     }
 
-    const lenis = new Lenis();
+    const lenis = new Lenis({
+      lerp: 0.08,
+      wheelMultiplier: 0.9,
+      touchMultiplier: 1,
+      syncTouch: false,
+    });
+    setLenisInstance(lenis);
     let rafId: number;
     function raf(time: number) {
       lenis.raf(time);
@@ -44,6 +51,7 @@ export default function Home() {
     rafId = requestAnimationFrame(raf);
 
     return () => {
+      clearLenisInstance(lenis);
       lenis.destroy();
       cancelAnimationFrame(rafId);
     };

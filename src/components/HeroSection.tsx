@@ -7,6 +7,7 @@ import TextPressure from "./TextPressure";
 import FloatingIcons from "./FloatingIcons";
 import Image from "next/image";
 import { Github, ArrowDown } from "lucide-react";
+import { scrollToY } from "@/lib/lenis";
 
 export default function HeroSection() {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -146,10 +147,7 @@ export default function HeroSection() {
                 const viewportHeight = window.innerHeight;
                 // Match the threshold from ContentSection.tsx
                 const targetScroll = viewportHeight * (isMobile ? 1.75 : 2.2);
-                window.scrollTo({
-                  top: targetScroll + 10, // Small buffer to ensure lock triggers
-                  behavior: "smooth"
-                });
+                scrollToY(targetScroll + 10); // Small buffer to ensure lock triggers
               }}
               whileTap={{ scale: 0.95 }}
               // INCREASED TOUCH TARGET PADDING

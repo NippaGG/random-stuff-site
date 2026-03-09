@@ -131,17 +131,22 @@ const TextPressure: React.FC<TextPressureProps> = ({
 
   // THE MAIN LOOP
   useEffect(() => {
-    let rafId: number;
+    let rafId = 0;
+    let lastTime = 0;
+    const frameInterval = 1000 / 45;
 
     // KILL SWITCH LOGIC
     if (stopAnimation) {
-        // If this log appears, the fix is working!
-        console.log("🛑 TextPressure Frozen"); 
-        if (rafId!) cancelAnimationFrame(rafId);
         return; 
     }
 
-    const animate = () => {
+    const animate = (time: number) => {
+      if (time - lastTime < frameInterval) {
+        rafId = requestAnimationFrame(animate);
+        return;
+      }
+      lastTime = time;
+
       mouseRef.current.x += (cursorRef.current.x - mouseRef.current.x) / 15;
       mouseRef.current.y += (cursorRef.current.y - mouseRef.current.y) / 15;
 
@@ -179,7 +184,7 @@ const TextPressure: React.FC<TextPressureProps> = ({
       rafId = requestAnimationFrame(animate);
     };
 
-    animate();
+    rafId = requestAnimationFrame(animate);
     return () => cancelAnimationFrame(rafId);
   }, [width, weight, italic, alpha, stopAnimation]); 
 

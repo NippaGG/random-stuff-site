@@ -8,6 +8,7 @@ import { Lock, Unlock, X, ArrowUpRight, Globe, Monitor, Terminal, Heart, Search,
 import { FolderHeartIcon, type FolderHeartIconHandle } from "./FolderHeartIcon";
 import DecryptedText from "./DecryptedText";
 import { useFavorites } from "@/hooks/useFavorites";
+import { scrollToY } from "@/lib/lenis";
 
 import { twMerge } from "tailwind-merge";
 
@@ -403,7 +404,7 @@ export default function ContentSection() {
     const viewportHeight = window.innerHeight;
     const lockPosition = viewportHeight * (isMobile ? 1.6 : 1.9);
     lockedScrollYRef.current = lockPosition;
-    window.scrollTo({ top: lockPosition });
+    scrollToY(lockPosition, { immediate: true });
 
     const showHint = () => {
       setShowUnlockHint(true);
@@ -458,7 +459,7 @@ export default function ContentSection() {
       if (lockedY !== null && window.scrollY < lockedY) {
         if (!isResettingScrollRef.current) {
           isResettingScrollRef.current = true;
-          window.scrollTo({ top: lockedY });
+          scrollToY(lockedY, { immediate: true });
           showHint();
           window.requestAnimationFrame(() => {
             isResettingScrollRef.current = false;
@@ -562,7 +563,7 @@ export default function ContentSection() {
                         lockedScrollYRef.current = null;
                         setIsLocked(false);
                         window.requestAnimationFrame(() => {
-                          window.scrollTo({ top: 0, behavior: "smooth" });
+                          scrollToY(0);
                         });
                       } else {
                         setIsLocked(true);
@@ -662,7 +663,7 @@ export default function ContentSection() {
               setTimeout(() => {
                 const viewportHeight = window.innerHeight;
                 const lockPosition = viewportHeight * (isMobile ? 1.6 : 1.9);
-                window.scrollTo({ top: lockPosition, behavior: "smooth" });
+                scrollToY(lockPosition);
               }, 50);
             }}
             tabs={[...TABS]}
@@ -753,7 +754,7 @@ export default function ContentSection() {
                 const viewportHeight = window.innerHeight;
                 const lockPosition = viewportHeight * (isMobile ? 1.6 : 1.9);
                 if (window.scrollY > lockPosition + 50) {
-                  window.scrollTo({ top: lockPosition, behavior: "smooth" });
+                  scrollToY(lockPosition);
                 }
               }}
               className="w-full bg-transparent text-sm text-white placeholder-white/40 pl-9 pr-4 py-2.5 outline-none font-sans"
@@ -795,7 +796,7 @@ export default function ContentSection() {
                           setTimeout(() => {
                             const viewportHeight = window.innerHeight;
                             const lockPosition = viewportHeight * (isMobile ? 1.6 : 1.9);
-                            window.scrollTo({ top: lockPosition, behavior: "smooth" });
+                            scrollToY(lockPosition);
                           }, 50);
                         }}
                         className={`flex items-center justify-between px-3 py-2 text-sm font-sans transition-colors ${activeTag === tag.id
