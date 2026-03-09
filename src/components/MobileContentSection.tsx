@@ -337,7 +337,7 @@ export default function MobileContentSection() {
                             <div className="max-w-md mx-auto flex flex-col gap-2 items-center pointer-events-auto relative">
                                 {/* Floating Search Bar */}
                                 <div className="w-full">
-                                    <div className="flex w-full items-stretch bg-[#111111]/80 backdrop-blur-md border border-white/10 h-12 overflow-hidden shadow-[0_0_15px_rgba(190,242,100,0.15)]">
+                                    <div className="flex w-full items-stretch bg-[#111111]/80 backdrop-blur-md border border-white/10 h-12 shadow-[0_0_15px_rgba(190,242,100,0.15)]">
                                         <div className="text-[#bef264] flex items-center justify-center pl-4">
                                             <Search className="w-5 h-5" />
                                         </div>
@@ -376,7 +376,7 @@ export default function MobileContentSection() {
                                                         animate={{ opacity: 1, y: 0, scale: 1 }}
                                                         exit={{ opacity: 0, y: 10, scale: 0.95 }}
                                                         transition={{ duration: 0.15 }}
-                                                        className="absolute bottom-full right-0 mb-3 w-40 bg-[#111111]/95 backdrop-blur-xl border border-white/10 shadow-2xl overflow-hidden z-[100]"
+                                                        className="absolute bottom-full right-0 mb-3 w-40 bg-[#111111]/95 backdrop-blur-xl border border-white/10 shadow-2xl overflow-hidden z-[300] pointer-events-auto"
                                                     >
                                                         <div className="flex flex-col p-1">
                                                             <div className="px-3 py-2 text-[10px] font-mono text-white/30 uppercase tracking-[0.2em] border-b border-white/5 mb-1">
