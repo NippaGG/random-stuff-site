@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { items as staticItems, type Item } from "@/data/items";
-import { Terminal, Globe, FileCode, Search, X, ArrowUpRight, Heart, Monitor, Menu, Github } from "lucide-react";
+import { Terminal, Globe, FileCode, Search, X, ArrowUpRight, Heart, Monitor, Menu, Github, ListFilter } from "lucide-react";
 import { useFavorites } from "@/hooks/useFavorites";
 import Image from "next/image";
 
@@ -24,7 +24,17 @@ export default function MobileContentSection() {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [showFavorites, setShowFavorites] = useState(false);
     const [isLocked, setIsLocked] = useState(false);
+    const [activeTag, setActiveTag] = useState("all");
+    const [isSortMenuOpen, setIsSortMenuOpen] = useState(false);
     const { isFavorite, toggleFavorite } = useFavorites();
+
+    const tagOptions = [
+        { id: "all", label: "All" },
+        { id: "macos", label: "macOS" },
+        { id: "windows", label: "Windows" },
+        { id: "linux", label: "Linux" },
+        { id: "android", label: "Android" },
+    ];
 
     const sectionRef = useRef<HTMLDivElement>(null);
     const contentTopRef = useRef<HTMLDivElement>(null);
@@ -121,6 +131,14 @@ export default function MobileContentSection() {
     const filteredItems = items
         .filter((item) => {
             if (item.category !== activeTab) return false;
+
+            // Tag filtering
+            if (activeTag !== "all") {
+                if (!item.tags.includes(activeTag) && !item.tags.includes("all")) {
+                    return false;
+                }
+            }
+
             const q = searchQuery.toLowerCase();
             return (
                 item.title.toLowerCase().includes(q) ||
@@ -337,6 +355,53 @@ export default function MobileContentSection() {
                                                 <X className="w-4 h-4" />
                                             </button>
                                         )}
+
+                                        {/* Sort/Filter Button */}
+                                        <div className="relative border-l border-white/10 flex items-center">
+                                            <button
+                                                onClick={() => setIsSortMenuOpen(!isSortMenuOpen)}
+                                                className={`px-3 h-full flex items-center justify-center transition-colors ${isSortMenuOpen || activeTag !== "all"
+                                                    ? "text-[#bef264] bg-[#bef264]/10"
+                                                    : "text-white/40 hover:text-white"
+                                                    }`}
+                                            >
+                                                <ListFilter className="w-5 h-5" />
+                                            </button>
+
+                                            {/* Sort Menu Popup */}
+                                            <AnimatePresence>
+                                                {isSortMenuOpen && (
+                                                    <motion.div
+                                                        initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                                                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                                                        exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                                                        transition={{ duration: 0.15 }}
+                                                        className="absolute bottom-full right-0 mb-3 w-40 bg-[#111111]/95 backdrop-blur-xl border border-white/10 shadow-2xl overflow-hidden z-[100]"
+                                                    >
+                                                        <div className="flex flex-col p-1">
+                                                            <div className="px-3 py-2 text-[10px] font-mono text-white/30 uppercase tracking-[0.2em] border-b border-white/5 mb-1">
+                                                                Filter
+                                                            </div>
+                                                            {tagOptions.map((tag) => (
+                                                                <button
+                                                                    key={tag.id}
+                                                                    onClick={() => {
+                                                                        setActiveTag(tag.id);
+                                                                        setIsSortMenuOpen(false);
+                                                                    }}
+                                                                    className={`px-3 py-2 text-left text-xs transition-colors ${activeTag === tag.id
+                                                                        ? "text-[#bef264] bg-[#bef264]/10"
+                                                                        : "text-slate-400 hover:text-white hover:bg-white/5"
+                                                                        }`}
+                                                                >
+                                                                    {tag.label}
+                                                                </button>
+                                                            ))}
+                                                        </div>
+                                                    </motion.div>
+                                                )}
+                                            </AnimatePresence>
+                                        </div>
                                     </div>
                                 </div>
 
@@ -351,6 +416,7 @@ export default function MobileContentSection() {
                                                 onClick={() => {
                                                     setActiveTab(tab);
                                                     setSearchQuery("");
+                                                    setActiveTag("all");
                                                 }}
                                                 className={`flex flex-1 flex-col items-center justify-center gap-1 py-1 transition-colors ${isActive ? "text-[#bef264]" : "text-slate-500 hover:text-[#bef264]"
                                                     }`}
@@ -626,8 +692,8 @@ export default function MobileContentSection() {
                                 {/* Tags */}
                                 <div className="flex flex-wrap gap-2 mb-6">
                                     {previewItem.tags
-                                        .filter((t) => t !== "all")
-                                        .map((tag) => (
+                                        .filter((t: string) => t !== "all")
+                                        .map((tag: string) => (
                                             <span
                                                 key={tag}
                                                 className="px-2 py-1 text-[10px] uppercase font-bold tracking-wider border border-white/10 bg-white/5 text-white/60"
