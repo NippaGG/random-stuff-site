@@ -5,7 +5,7 @@ import { motion, useAnimation } from "framer-motion";
 import type { HTMLAttributes, MouseEvent } from "react";
 import { forwardRef, useCallback, useImperativeHandle, useRef } from "react";
 
-import { cn } from "@/lib/utils";
+import { twMerge } from "tailwind-merge";
 
 export interface FolderHeartIconHandle {
     startAnimation: () => void;
@@ -66,7 +66,7 @@ const FolderHeartIcon = forwardRef<FolderHeartIconHandle, FolderHeartIconProps>(
 
         return (
             <div
-                className={cn(className, "flex items-center justify-center select-none")}
+                className={twMerge(className, "flex items-center justify-center select-none")}
                 onMouseEnter={handleMouseEnter}
                 onMouseLeave={handleMouseLeave}
                 {...props}
