@@ -41,20 +41,8 @@ export default function MobileContentSection() {
     const contentTopRef = useRef<HTMLDivElement>(null);
     const lockPointRef = useRef<number>(0);
 
-    // Fetch items from MongoDB on mount, fallback to static
-    useEffect(() => {
-        fetch("/api/items")
-            .then((res) => {
-                if (!res.ok) throw new Error(`API returned ${res.status}`);
-                return res.json();
-            })
-            .then((data) => {
-                if (Array.isArray(data) && data.length > 0) {
-                    setItems(data);
-                }
-            })
-            .catch((err) => console.error("Failed to fetch items, using static data:", err));
-    }, []);
+
+
 
     // Lock body scroll when preview/menu/favorites is open
     useEffect(() => {

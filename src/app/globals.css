@@ -24,7 +24,24 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+  /* Hide scrollbar across all browsers */
+  scrollbar-width: none;        /* Firefox */
+  -ms-overflow-style: none;     /* IE / Edge */
 }
+
+body::-webkit-scrollbar {
+  display: none;                /* Chrome / Safari / Opera */
+}
+
+html {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+html::-webkit-scrollbar {
+  display: none;
+}
+
 
 /* Lenis smooth scroll essentials */
 html.lenis,

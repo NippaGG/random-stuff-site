@@ -157,20 +157,7 @@ export default function ContentSection() {
   const [searchQuery, setSearchQuery] = useState("");
   const [isSortMenuOpen, setIsSortMenuOpen] = useState(false);
 
-  // Fetch items from MongoDB on mount, fall back to static data
-  useEffect(() => {
-    fetch("/api/items")
-      .then((res) => {
-        if (!res.ok) throw new Error(`API returned ${res.status}`);
-        return res.json();
-      })
-      .then((data) => {
-        if (Array.isArray(data) && data.length > 0) {
-          setItems(data);
-        }
-      })
-      .catch((err) => console.error("Failed to fetch items, using static data:", err));
-  }, []);
+
   const [showFavorites, setShowFavorites] = useState(false);
   const [selectedFavs, setSelectedFavs] = useState<number[]>([]);
   const [isSelectionMode, setIsSelectionMode] = useState(false);
@@ -190,19 +177,7 @@ export default function ContentSection() {
 
   const { isFavorite, toggleFavorite, clearFavorites, removeFavorites } = useFavorites();
 
-  // Fetch items from the database API
-  useEffect(() => {
-    fetch("/api/items")
-      .then((res) => res.json())
-      .then((data) => {
-        if (Array.isArray(data)) {
-          setItems(data as Item[]);
-        } else {
-          console.error("API did not return an array:", data);
-        }
-      })
-      .catch((err) => console.error("Failed to fetch items:", err));
-  }, []);
+
 
   useEffect(() => {
     const mediaQuery = window.matchMedia("(max-width: 767px)");

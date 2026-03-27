@@ -1,7 +1,30 @@
 import { NextResponse } from "next/server";
-import dbConnect from "@/lib/mongodb";
-import Item from "@/models/Item";
-import Submission from "@/models/Submission";
+import { items } from "@/data/items";
+import fs from "fs";
+import path from "path";
+
+const SUBMISSIONS_PATH = path.join(process.cwd(), "data", "submissions.json");
+
+interface Submission {
+    toolName: string;
+    link: string;
+    category: string;
+    description: string;
+    submittedAt: string;
+}
+
+function readSubmissions(): Submission[] {
+    try {
+        const raw = fs.readFileSync(SUBMISSIONS_PATH, "utf-8");
+        return JSON.parse(raw) as Submission[];
+    } catch {
+        return [];
+    }
+}
+
+function writeSubmissions(submissions: Submission[]): void {
+    fs.writeFileSync(SUBMISSIONS_PATH, JSON.stringify(submissions, null, 2), "utf-8");
+}
 
 // Send a formatted embed to Discord
 async function sendToDiscord(submission: {
@@ -46,26 +69,13 @@ async function sendToDiscord(submission: {
 
 // GET /api/submit → return submission stats
 export async function GET() {
-    try {
-        await dbConnect();
-        const submissionCount = await Submission.countDocuments();
-        return NextResponse.json({
-            submissionCount,
-        });
-    } catch (error) {
-        console.error("Error fetching submission stats:", error);
-        return NextResponse.json(
-            { error: "Failed to fetch stats" },
-            { status: 500 }
-        );
-    }
+    const submissions = readSubmissions();
+    return NextResponse.json({ submissionCount: submissions.length });
 }
 
 // POST /api/submit → create a new submission + notify Discord
 export async function POST(request: Request) {
     try {
-        await dbConnect();
-
         const body = await request.json();
         const { toolName, link, category, description } = body;
 
@@ -76,10 +86,12 @@ export async function POST(request: Request) {
             );
         }
 
+        const trimmedName = toolName.trim();
+
         // Check if tool already exists in the curated items (case-insensitive)
-        const existingItem = await Item.findOne({
-            title: { $regex: new RegExp(`^${toolName.trim()}$`, "i") },
-        });
+        const existingItem = items.find(
+            (item) => item.title.toLowerCase() === trimmedName.toLowerCase()
+        );
 
         if (existingItem) {
             return NextResponse.json(
@@ -89,9 +101,10 @@ export async function POST(request: Request) {
         }
 
         // Check if already submitted (case-insensitive)
-        const existingSubmission = await Submission.findOne({
-            toolName: { $regex: new RegExp(`^${toolName.trim()}$`, "i") },
-        });
+        const submissions = readSubmissions();
+        const existingSubmission = submissions.find(
+            (s) => s.toolName.toLowerCase() === trimmedName.toLowerCase()
+        );
 
         if (existingSubmission) {
             return NextResponse.json(
@@ -100,17 +113,21 @@ export async function POST(request: Request) {
             );
         }
 
-        // Create the submission in MongoDB
-        const submission = await Submission.create({
-            toolName: toolName.trim(),
+        // Save the submission to the local JSON file
+        const newSubmission: Submission = {
+            toolName: trimmedName,
             link: link.trim(),
             category,
             description: description.trim(),
-        });
+            submittedAt: new Date().toISOString(),
+        };
+
+        submissions.push(newSubmission);
+        writeSubmissions(submissions);
 
         // Send Discord notification (non-blocking, don't fail the request)
         const discordSuccess = await sendToDiscord({
-            toolName: toolName.trim(),
+            toolName: trimmedName,
             link: link.trim(),
             category,
             description: description.trim(),
@@ -120,14 +137,11 @@ export async function POST(request: Request) {
             console.warn("Discord notification failed, but submission was saved.");
         }
 
-        // Get updated count
-        const submissionCount = await Submission.countDocuments();
-
         return NextResponse.json(
             {
                 message: "Submission received!",
-                submission,
-                submissionCount,
+                submission: newSubmission,
+                submissionCount: submissions.length,
             },
             { status: 201 }
         );
