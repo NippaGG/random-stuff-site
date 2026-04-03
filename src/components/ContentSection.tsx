@@ -379,7 +379,8 @@ export default function ContentSection() {
     const viewportHeight = window.innerHeight;
     const lockPosition = viewportHeight * (isMobile ? 1.6 : 1.9);
     lockedScrollYRef.current = lockPosition;
-    scrollToY(lockPosition, { immediate: true });
+    // Removed immediate scrollToY to prevent scroll jumping when lock engages
+    // Only lock to prevent scrolling up, don't snap backwards or halt momentum if scrolling down
 
     const showHint = () => {
       setShowUnlockHint(true);
@@ -513,7 +514,13 @@ export default function ContentSection() {
         transition={{ duration: 0.5, ease: "easeInOut" }}
         className="sticky flex flex-col items-center w-full z-40 top-0 pointer-events-none"
       >
-        <div className="pointer-events-auto w-full flex flex-col items-center">
+        {/* Fixed footprint placeholder matching the original STRAIGHT nav height. 
+            This keeps the grid perfectly positioned just below the straightened navbar
+            while totally eliminating any layout shift when the nav transitions from curved. */}
+        <div className="w-full" style={{ height: isMobile ? "60px" : "70px" }} />
+        
+        {/* Added 'absolute top-0' so height transitions don't affect document flow layout and shift content tiles */}
+        <div className="absolute top-0 pointer-events-auto w-full flex flex-col items-center">
           {/* --- LOCK ICON --- */}
           {/* Only appears when locked (isStraight) */}
           <div className="absolute left-3 md:left-20 top-[20px] -translate-y-1/2 z-40">

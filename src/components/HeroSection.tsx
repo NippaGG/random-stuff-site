@@ -146,7 +146,7 @@ export default function HeroSection() {
               onClick={() => {
                 const viewportHeight = window.innerHeight;
                 // Match the threshold from ContentSection.tsx
-                const targetScroll = viewportHeight * (isMobile ? 1.75 : 2.2);
+                const targetScroll = viewportHeight * (isMobile ? 1.6 : 1.9);
                 scrollToY(targetScroll + 10); // Small buffer to ensure lock triggers
               }}
               whileTap={{ scale: 0.95 }}
