@@ -5,7 +5,7 @@ import { useState, useEffect, useCallback } from "react";
 const STORAGE_KEY = "random-stuff-favorites";
 
 export function useFavorites() {
-    const [favorites, setFavorites] = useState<number[]>([]);
+    const [favorites, setFavorites] = useState<string[]>([]);
     const [isLoaded, setIsLoaded] = useState(false);
 
     // Load favorites from localStorage on mount
@@ -32,22 +32,22 @@ export function useFavorites() {
         }
     }, [favorites, isLoaded]);
 
-    const addFavorite = useCallback((id: number) => {
+    const addFavorite = useCallback((id: string) => {
         setFavorites((prev) => {
             if (prev.includes(id)) return prev;
             return [...prev, id];
         });
     }, []);
 
-    const removeFavorite = useCallback((id: number) => {
+    const removeFavorite = useCallback((id: string) => {
         setFavorites((prev) => prev.filter((fav) => fav !== id));
     }, []);
 
-    const removeFavorites = useCallback((ids: number[]) => {
+    const removeFavorites = useCallback((ids: string[]) => {
         setFavorites((prev) => prev.filter((fav) => !ids.includes(fav)));
     }, []);
 
-    const toggleFavorite = useCallback((id: number) => {
+    const toggleFavorite = useCallback((id: string) => {
         setFavorites((prev) => {
             if (prev.includes(id)) {
                 return prev.filter((fav) => fav !== id);
@@ -57,7 +57,7 @@ export function useFavorites() {
     }, []);
 
     const isFavorite = useCallback(
-        (id: number) => favorites.includes(id),
+        (id: string) => favorites.includes(id),
         [favorites]
     );
 

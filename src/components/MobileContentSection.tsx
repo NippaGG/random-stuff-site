@@ -725,16 +725,31 @@ export default function MobileContentSection() {
                                 </div>
 
                                 {/* Action buttons */}
-                                <div className="flex gap-3">
-                                    <a
-                                        href={previewItem.link}
-                                        target="_blank"
-                                        rel="noreferrer"
-                                        className="flex-1 flex items-center justify-center gap-2 px-4 py-3.5 bg-[#bef264] text-black font-bold text-sm hover:bg-white transition-colors"
-                                    >
-                                        Open Link
-                                        <ArrowUpRight className="w-4 h-4" />
-                                    </a>
+                                <div className="flex gap-3 w-full">
+                                    {previewItem.website && (
+                                        <a
+                                            href={previewItem.website}
+                                            target="_blank"
+                                            rel="noreferrer"
+                                            className="flex-1 flex items-center justify-center gap-2 px-4 py-3.5 bg-[#bef264] text-black font-bold text-[13px] hover:bg-white transition-colors"
+                                        >
+                                            Website
+                                            <ArrowUpRight className="w-4 h-4" />
+                                        </a>
+                                    )}
+                                    {previewItem.github && (
+                                        <a
+                                            href={previewItem.github}
+                                            target="_blank"
+                                            rel="noreferrer"
+                                            className={`max-w-[50%] flex-1 flex items-center justify-center gap-2 px-4 py-3.5 transition-colors border ${previewItem.website 
+                                                ? "bg-white/5 border-white/10 text-white hover:bg-white/10 text-[13px]" 
+                                                : "bg-[#bef264] border-[#bef264] text-black font-bold hover:bg-white text-[13px]"}`}
+                                        >
+                                            <Github className="w-4 h-4" />
+                                            GitHub
+                                        </a>
+                                    )}
                                     <button
                                         onClick={(e) => {
                                             e.stopPropagation();

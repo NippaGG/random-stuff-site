@@ -29,11 +29,11 @@ const ScrollBlurCard = ({
   onClick: (e: React.MouseEvent<HTMLAnchorElement>, item: Item) => void;
   variants: any;
   isFavorite: boolean;
-  onToggle: (id: number) => void;
+  onToggle: (id: string) => void;
   disableAnimations?: boolean;
   className?: string;
   isSelected?: boolean;
-  onSelect?: (id: number) => void;
+  onSelect?: (id: string) => void;
 }) => {
   const ref = useRef(null);
 
@@ -57,7 +57,7 @@ const ScrollBlurCard = ({
   return (
     <motion.a
       ref={ref}
-      href={item.link}
+      href={item.website || item.github}
       target="_blank"
       rel="noreferrer"
       onClick={(event) => onClick(event, item)}
@@ -159,7 +159,7 @@ export default function ContentSection() {
 
 
   const [showFavorites, setShowFavorites] = useState(false);
-  const [selectedFavs, setSelectedFavs] = useState<number[]>([]);
+  const [selectedFavs, setSelectedFavs] = useState<string[]>([]);
   const [isSelectionMode, setIsSelectionMode] = useState(false);
   const [isMobile, setIsMobile] = useState(
     () => (typeof window !== "undefined" ? window.matchMedia("(max-width: 767px)").matches : false)
@@ -194,7 +194,7 @@ export default function ContentSection() {
     return () => mediaQuery.removeListener(onChange);
   }, []);
 
-  const handleSelectFav = (id: number) => {
+  const handleSelectFav = (id: string) => {
     setSelectedFavs(prev =>
       prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]
     );
@@ -214,7 +214,7 @@ export default function ContentSection() {
     [...selectedItems].reverse().forEach((item, index) => {
       // Small timeout to help with some browser blocking, though not guaranteed
       setTimeout(() => {
-        window.open(item.link, '_blank');
+        window.open(item.website || item.github, '_blank');
       }, index * 100);
     });
   };
@@ -981,17 +981,18 @@ function PreviewContent({ item, onClose }: { item: Item; onClose: () => void }) 
   useEffect(() => {
     let isMounted = true;
     const fetchMetadata = async () => {
-      if (!item.link) {
+      const primaryUrl = item.github || item.website;
+      if (!primaryUrl) {
         if (isMounted) setLoading(false);
         return;
       }
 
       // 1. Check Cache
-      if (metadataCache.has(item.link)) {
+      if (metadataCache.has(primaryUrl)) {
         // Move to end (most recently used)
-        const data = metadataCache.get(item.link);
-        metadataCache.delete(item.link);
-        metadataCache.set(item.link, data);
+        const data = metadataCache.get(primaryUrl);
+        metadataCache.delete(primaryUrl);
+        metadataCache.set(primaryUrl, data);
 
         if (isMounted) {
           setMetadata(data);
@@ -1002,7 +1003,7 @@ function PreviewContent({ item, onClose }: { item: Item; onClose: () => void }) 
 
       setLoading(true);
       try {
-        const res = await fetch(`/api/metadata?url=${encodeURIComponent(item.link)}`);
+        const res = await fetch(`/api/metadata?url=${encodeURIComponent(primaryUrl)}`);
         if (res.ok) {
           const data = await res.json();
           if (isMounted) {
@@ -1013,7 +1014,7 @@ function PreviewContent({ item, onClose }: { item: Item; onClose: () => void }) 
               const firstKey = metadataCache.keys().next().value;
               if (firstKey) metadataCache.delete(firstKey);
             }
-            metadataCache.set(item.link, data);
+            metadataCache.set(primaryUrl, data);
 
             setMetadata(data);
           }
@@ -1029,7 +1030,7 @@ function PreviewContent({ item, onClose }: { item: Item; onClose: () => void }) 
     return () => {
       isMounted = false;
     };
-  }, [item.link]);
+  }, [item.website, item.github]);
 
   return (
     <>
@@ -1154,7 +1155,7 @@ function PreviewContent({ item, onClose }: { item: Item; onClose: () => void }) 
             <span className="px-2 py-1 rounded-none bg-white/5 border border-white/10 text-[10px] md:text-xs font-mono text-[#a3e635] uppercase tracking-wider">
               {item.category}
             </span>
-            {metadata?.isGitHub && (
+            {item.github && (
               <span className="flex items-center gap-1 px-2 py-1 rounded-none bg-[#24292e] border border-white/10 text-[10px] md:text-xs font-mono text-white/80">
                 GitHub
               </span>
@@ -1246,11 +1247,11 @@ function PreviewContent({ item, onClose }: { item: Item; onClose: () => void }) 
         >
           <AnimatePresence mode="popLayout" initial={false}>
             {/* Primary Button: Website */}
-            {(metadata?.website || (!metadata?.isGitHub && item.link)) && (
+            {item.website && (
               <motion.a
                 layout
                 key="website-btn"
-                href={metadata?.website || item.link}
+                href={item.website}
                 target="_blank"
                 rel="noreferrer"
                 transition={{ type: "spring", stiffness: 300, damping: 30 }}
@@ -1264,24 +1265,24 @@ function PreviewContent({ item, onClose }: { item: Item; onClose: () => void }) 
             )}
 
             {/* Secondary Button: GitHub */}
-            {metadata?.isGitHub && (
+            {item.github && (
               <motion.a
                 layout
                 key="github-btn"
-                href={item.link} // item.link is the GitHub URL for GitHub items
+                href={item.github}
                 target="_blank"
                 rel="noreferrer"
                 initial={{ opacity: 0, scale: 0.8 }}
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.8 }}
                 transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                className={`flex-1 group flex items-center justify-center px-6 py-3 md:py-4 rounded-none font-medium text-base md:text-lg transition-colors border whitespace-nowrap overflow-hidden order-2 ${metadata?.website
+                className={`flex-1 group flex items-center justify-center px-6 py-3 md:py-4 rounded-none font-medium text-base md:text-lg transition-colors border whitespace-nowrap overflow-hidden order-2 ${item.website
                   ? "bg-white/5 hover:bg-white/10 text-white border-white/10" // Secondary style if website exists
                   : "bg-[#a3e635] text-black border-[#a3e635] hover:shadow-[0_0_20px_rgba(163,230,53,0.3)] font-bold" // Primary style if ONLY GitHub
                   }`}
               >
                 <motion.span layout="position" className="flex items-center gap-2">
-                  <Terminal className={`w-5 h-5 transition-colors ${metadata?.website ? "text-gray-400 group-hover:text-white" : "text-black"}`} />
+                  <Terminal className={`w-5 h-5 transition-colors ${item.website ? "text-gray-400 group-hover:text-white" : "text-black"}`} />
                   GitHub
                 </motion.span>
               </motion.a>
