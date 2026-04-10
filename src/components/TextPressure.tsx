@@ -133,7 +133,7 @@ const TextPressure: React.FC<TextPressureProps> = ({
   useEffect(() => {
     let rafId = 0;
     let lastTime = 0;
-    const frameInterval = 1000 / 45;
+    const frameInterval = 1000 / 60;
 
     // KILL SWITCH LOGIC
     if (stopAnimation) {
