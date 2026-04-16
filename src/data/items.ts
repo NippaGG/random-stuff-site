@@ -9,7 +9,11 @@ export interface Item {
   image?: string;
 }
 
-export const items: Item[] = [
+type RawItem = Omit<Item, "id"> & {
+  id?: string;
+};
+
+const rawItems: RawItem[] = [
   {
     "id": "wbNaN",
     "title": "React Bits",
@@ -1026,3 +1030,24 @@ export const items: Item[] = [
     "image": "https://github.com/nicobailon.png"
   }
 ];
+
+function slugify(value: string) {
+  return value
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
+
+const idCounts = new Map<string, number>();
+
+export const items: Item[] = rawItems.map((item) => {
+  const baseId = `${slugify(item.category) || "category"}-${slugify(item.title) || "item"}`;
+  const count = idCounts.get(baseId) ?? 0;
+  idCounts.set(baseId, count + 1);
+
+  return {
+    ...item,
+    id: count === 0 ? baseId : `${baseId}-${count + 1}`,
+  };
+});

@@ -4,6 +4,7 @@ import fs from "fs";
 import path from "path";
 
 const SUBMISSIONS_PATH = path.join(process.cwd(), "data", "submissions.json");
+const SUBMISSIONS_DIR = path.dirname(SUBMISSIONS_PATH);
 
 interface Submission {
     toolName: string;
@@ -13,7 +14,17 @@ interface Submission {
     submittedAt: string;
 }
 
+function ensureSubmissionsStorage(): void {
+    fs.mkdirSync(SUBMISSIONS_DIR, { recursive: true });
+
+    if (!fs.existsSync(SUBMISSIONS_PATH)) {
+        fs.writeFileSync(SUBMISSIONS_PATH, "[]\n", "utf-8");
+    }
+}
+
 function readSubmissions(): Submission[] {
+    ensureSubmissionsStorage();
+
     try {
         const raw = fs.readFileSync(SUBMISSIONS_PATH, "utf-8");
         return JSON.parse(raw) as Submission[];
@@ -23,6 +34,7 @@ function readSubmissions(): Submission[] {
 }
 
 function writeSubmissions(submissions: Submission[]): void {
+    ensureSubmissionsStorage();
     fs.writeFileSync(SUBMISSIONS_PATH, JSON.stringify(submissions, null, 2), "utf-8");
 }
 
