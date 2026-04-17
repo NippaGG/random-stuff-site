@@ -11,9 +11,10 @@ type CircularNavProps = {
   tabs: string[];
   isStraight?: boolean;
   isMobile?: boolean;
+  itemCounts?: Record<string, number>;
 };
 
-export default function CircularNav({ activeTab, setActiveTab, tabs, isStraight = false, isMobile = false }: CircularNavProps) {
+export default function CircularNav({ activeTab, setActiveTab, tabs, isStraight = false, isMobile = false, itemCounts }: CircularNavProps) {
 
   const prevIsStraightRef = useRef(isStraight);
   const isLayoutChange = prevIsStraightRef.current !== isStraight;
@@ -54,6 +55,11 @@ export default function CircularNav({ activeTab, setActiveTab, tabs, isStraight 
                   </div>
                   <span className="text-[11px] font-semibold tracking-wide">
                     {tab}
+                    {itemCounts && itemCounts[tab] !== undefined && (
+                      <span className="ml-1 text-[9px] opacity-60">
+                        {itemCounts[tab]}
+                      </span>
+                    )}
                   </span>
                 </button>
               );
@@ -159,6 +165,14 @@ export default function CircularNav({ activeTab, setActiveTab, tabs, isStraight 
               speed={30}
               className="relative z-10"
             />
+            {isStraight && itemCounts && itemCounts[tab] !== undefined && (
+              <DecryptedText
+                text={` ${itemCounts[tab]}`}
+                parentTrigger={activeTab}
+                speed={30}
+                className="relative z-10 text-[10px] font-mono opacity-50"
+              />
+            )}
 
             <motion.div
               animate={{

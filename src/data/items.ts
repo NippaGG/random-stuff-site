@@ -7,9 +7,21 @@ export interface Item {
   category: string;
   tags: string[];
   image?: string;
+  isNew?: boolean;
 }
 
 type RawItem = Omit<Item, "id">;
+
+/** Extract a favicon URL from a website URL */
+function getFaviconUrl(url?: string): string | undefined {
+  if (!url || url === "#") return undefined;
+  try {
+    const domain = new URL(url).hostname;
+    return `https://www.google.com/s2/favicons?domain=${domain}&sz=64`;
+  } catch {
+    return undefined;
+  }
+}
 
 const rawItems: RawItem[] = [
   {
@@ -40,7 +52,7 @@ const rawItems: RawItem[] = [
     "category": "Softwares",
     "tags": [
       "macos"
-    ]
+    ],
   },
   {
     "title": "Ffmpeg Script",
@@ -81,7 +93,7 @@ const rawItems: RawItem[] = [
     "category": "Websites",
     "tags": [
       "all"
-    ]
+    ],
   },
   {
     "title": "Github Store",
@@ -135,7 +147,7 @@ const rawItems: RawItem[] = [
     "category": "Websites",
     "tags": [
       "all"
-    ]
+    ],
   },
   {
     "title": "Mole",
@@ -952,13 +964,31 @@ function slugify(value: string) {
 
 const idCounts = new Map<string, number>();
 
+// Mark the last 5 items in the raw array as "new"
+const NEW_ITEM_COUNT = 5;
+const newItemTitles = new Set(
+  rawItems.slice(-NEW_ITEM_COUNT).map(i => i.title)
+);
+
 export const items: Item[] = rawItems.map((item) => {
   const baseId = `${slugify(item.category) || "category"}-${slugify(item.title) || "item"}`;
   const count = idCounts.get(baseId) ?? 0;
   idCounts.set(baseId, count + 1);
 
+  // Auto-populate image from website favicon if missing
+  const image = item.image || getFaviconUrl(item.website) || getFaviconUrl(item.github);
+
   return {
     ...item,
+    image,
+    isNew: newItemTitles.has(item.title),
     id: count === 0 ? baseId : `${baseId}-${count + 1}`,
   };
 });
+
+/** Helper to get category accent color */
+export const CATEGORY_COLORS: Record<string, { accent: string; accentBg: string; accentBorder: string }> = {
+  Websites: { accent: "#a3e635", accentBg: "rgba(163,230,53,0.08)", accentBorder: "rgba(163,230,53,0.3)" },
+  Softwares: { accent: "#38bdf8", accentBg: "rgba(56,189,248,0.08)", accentBorder: "rgba(56,189,248,0.3)" },
+  Scripts: { accent: "#fbbf24", accentBg: "rgba(251,191,36,0.08)", accentBorder: "rgba(251,191,36,0.3)" },
+};

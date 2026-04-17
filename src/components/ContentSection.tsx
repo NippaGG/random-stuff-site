@@ -2,9 +2,9 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence, useScroll, useMotionValueEvent, LayoutGroup, useTransform, useMotionTemplate } from "framer-motion";
-import { items as staticItems, type Item } from "@/data/items";
+import { items as staticItems, type Item, CATEGORY_COLORS } from "@/data/items";
 import CircularNav from "./CircularNav";
-import { Lock, Unlock, X, ArrowUpRight, Globe, Monitor, Terminal, Heart, Search, ListFilter } from "lucide-react";
+import { Lock, Unlock, X, ArrowUpRight, Globe, Monitor, Terminal, Heart, Search, ListFilter, Sparkles } from "lucide-react";
 import { FolderHeartIcon, type FolderHeartIconHandle } from "./FolderHeartIcon";
 import DecryptedText from "./DecryptedText";
 import { useFavorites } from "@/hooks/useFavorites";
@@ -54,6 +54,9 @@ const ScrollBlurCard = ({
     ? {}
     : { opacity, filter, scale, willChange: "transform, opacity, filter", transformOrigin: "top center" };
 
+  const colors = CATEGORY_COLORS[item.category] || CATEGORY_COLORS.Websites;
+  const visibleTags = item.tags.filter(t => t !== "all");
+
   return (
     <motion.a
       ref={ref}
@@ -63,15 +66,45 @@ const ScrollBlurCard = ({
       onClick={(event) => onClick(event, item)}
       variants={variants}
       style={style}
-      className={twMerge("group relative flex justify-between items-start gap-3 md:gap-4 bg-white/5 border border-white/10 p-5 md:p-6 rounded-none hover:bg-white/10 hover:border-[#a3e635]/70 transition-colors overflow-hidden backdrop-blur-sm cursor-pointer h-full", className)}
+      className={twMerge(
+        "group relative flex justify-between items-start gap-3 md:gap-4 bg-white/5 border border-white/10 p-5 md:p-6 rounded-none hover:bg-white/10 transition-colors overflow-hidden backdrop-blur-sm cursor-pointer h-full",
+        className
+      )}
     >
+      {/* New badge */}
+      {item.isNew && (
+        <div className="absolute top-2.5 left-3 z-10">
+          <span className="flex items-center gap-1 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider rounded-sm bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+            <Sparkles className="w-2.5 h-2.5" />
+            New
+          </span>
+        </div>
+      )}
+
       <div className="flex flex-col z-10 pr-12">
-        <h3 className="text-lg md:text-xl font-bold text-white mb-2 group-hover:text-[#a3e635] transition-colors font-mono">
+        <h3 className={twMerge(
+          "text-lg md:text-xl font-bold text-white mb-2 group-hover:text-[#a3e635] transition-colors font-mono",
+          item.isNew && "mt-5"
+        )}>
           {item.title}
         </h3>
-        <p className="line-clamp-3 text-gray-400 text-sm font-sans leading-relaxed mb-4 md:mb-6">
+        <p className="line-clamp-3 text-gray-400 text-sm font-sans leading-relaxed mb-3">
           {item.description}
         </p>
+
+        {/* Platform tag pills */}
+        {visibleTags.length > 0 && (
+          <div className="flex flex-wrap gap-1.5 mt-auto">
+            {visibleTags.map(tag => (
+              <span
+                key={tag}
+                className="px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider bg-white/5 border border-white/10 text-white/40 rounded-sm"
+              >
+                {tag}
+              </span>
+            ))}
+          </div>
+        )}
       </div>
 
 
@@ -117,6 +150,10 @@ const ScrollBlurCard = ({
       {
         item.image && (
           <div className="relative shrink-0 w-10 h-10 md:w-12 md:h-12 rounded-none bg-black/50 border border-white/10 overflow-hidden flex items-center justify-center group-hover:border-[#a3e635]/50 transition-colors">
+            {/* Letter avatar fallback (visible when img fails) */}
+            <span className="absolute inset-0 flex items-center justify-center text-white/30 text-sm font-bold font-mono select-none">
+              {item.title.charAt(0).toUpperCase()}
+            </span>
             <img
               src={item.image}
               alt={item.title}
@@ -125,15 +162,29 @@ const ScrollBlurCard = ({
               onError={(event) => {
                 const target = event.currentTarget;
                 target.onerror = null;
-                target.src = "/icon.png";
+                target.style.display = "none";
               }}
-              className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity"
+              className="relative z-10 w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity"
             />
           </div>
         )
       }
 
-      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 z-0" />
+      {/* Hover shimmer effect */}
+      <div
+        className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 z-0"
+        style={{
+          background: `linear-gradient(to right, transparent, ${colors.accentBg}, transparent)`,
+        }}
+      />
+
+      {/* Category accent glow on hover */}
+      <div
+        className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-0 pointer-events-none"
+        style={{
+          boxShadow: `inset 0 0 30px ${colors.accentBg}`,
+        }}
+      />
     </motion.a >
   );
 };
@@ -572,7 +623,7 @@ export default function ContentSection() {
                         transition={{ duration: 0.2 }}
                         className="absolute left-full ml-3 top-1/2 -translate-y-1/2 z-50"
                       >
-                        <div className="px-4 py-3 rounded-xl bg-black/70 border border-[#a3e635]/30 text-sm text-[#d9f99d] shadow-lg backdrop-blur-md whitespace-nowrap">
+                        <div className="px-4 py-3 rounded-none bg-black/70 border border-[#a3e635]/30 text-sm text-[#d9f99d] shadow-lg backdrop-blur-md whitespace-nowrap">
                           Unlock the site to scroll up.
                         </div>
                       </motion.div>
@@ -651,6 +702,11 @@ export default function ContentSection() {
             tabs={[...TABS]}
             isStraight={isStraight}
             isMobile={isMobile}
+            itemCounts={{
+              Softwares: items.filter(i => i.category === "Softwares").length,
+              Websites: items.filter(i => i.category === "Websites").length,
+              Scripts: items.filter(i => i.category === "Scripts").length,
+            }}
           />
 
           <motion.div
@@ -700,16 +756,29 @@ export default function ContentSection() {
                 exit="hidden"
                 className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 w-full"
               >
-                {filteredItems.map((item) => (
-                  <ScrollBlurCard
-                    key={item.id}
-                    item={item}
-                    onClick={handleItemClick}
-                    variants={cardVariants}
-                    isFavorite={isFavorite(item.id)}
-                    onToggle={toggleFavorite}
-                  />
-                ))}
+                {filteredItems.length === 0 ? (
+                  <div className="col-span-full flex flex-col items-center justify-center py-20 text-white/30 gap-4">
+                    <Search className="w-12 h-12" />
+                    <p className="text-lg font-mono">No results found.</p>
+                    <button
+                      onClick={() => { setSearchQuery(""); setActiveTag("all"); }}
+                      className="px-4 py-2 text-sm font-mono bg-white/5 hover:bg-white/10 border border-white/10 text-white/60 hover:text-white transition-colors"
+                    >
+                      Clear filters
+                    </button>
+                  </div>
+                ) : (
+                  filteredItems.map((item) => (
+                    <ScrollBlurCard
+                      key={item.id}
+                      item={item}
+                      onClick={handleItemClick}
+                      variants={cardVariants}
+                      isFavorite={isFavorite(item.id)}
+                      onToggle={toggleFavorite}
+                    />
+                  ))
+                )}
               </motion.div>
             )}
           </AnimatePresence>

@@ -2,8 +2,8 @@
 
 import React, { useState, useEffect, useRef, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { items as staticItems, type Item } from "@/data/items";
-import { Terminal, Globe, FileCode, Search, X, ArrowUpRight, Heart, Monitor, Menu, Github, ListFilter } from "lucide-react";
+import { items as staticItems, type Item, CATEGORY_COLORS } from "@/data/items";
+import { Terminal, Globe, FileCode, Search, X, ArrowUpRight, Heart, Monitor, Menu, Github, ListFilter, Sparkles } from "lucide-react";
 import { useFavorites } from "@/hooks/useFavorites";
 import Image from "next/image";
 import { scrollToY } from "@/lib/lenis";
@@ -280,26 +280,34 @@ export default function MobileContentSection() {
                                         <p className="text-base">No results found.</p>
                                     </div>
                                 ) : (
-                                    filteredItems.map((item) => (
+                                    filteredItems.map((item) => {
+                                        const colors = CATEGORY_COLORS[item.category] || CATEGORY_COLORS.Websites;
+                                        const visibleTags = item.tags.filter(t => t !== "all");
+                                        return (
                                         <motion.div
                                             key={item.id}
                                             onClick={() => setPreviewItem(item)}
                                             initial={{ opacity: 0, y: 10 }}
                                             animate={{ opacity: 1, y: 0 }}
-                                            className="bg-white/5 border border-white/10 p-2 flex gap-3 items-center hover:border-[#bef264]/50 group text-left w-full cursor-pointer"
+                                            className="bg-white/5 border border-white/10 p-2 flex gap-3 items-center hover:border-[#bef264]/50 group text-left w-full cursor-pointer relative overflow-hidden"
                                         >
                                             {/* Image Thumbnail */}
                                             <div className="size-10 shrink-0 bg-slate-800 relative overflow-hidden border border-white/10">
                                                 {item.image ? (
+                                                    <>
+                                                    <span className="absolute inset-0 flex items-center justify-center text-white/30 text-sm font-bold font-mono select-none">
+                                                        {item.title.charAt(0).toUpperCase()}
+                                                    </span>
                                                     <img
                                                         alt={item.title}
-                                                        className="w-full h-full object-cover opacity-60"
+                                                        className="relative z-10 w-full h-full object-cover opacity-60"
                                                         src={item.image}
                                                         loading="lazy"
                                                         onError={(e) => {
-                                                            (e.target as HTMLImageElement).src = "/icon.png";
+                                                            (e.target as HTMLImageElement).style.display = "none";
                                                         }}
                                                     />
+                                                    </>
                                                 ) : (
                                                     <div className="w-full h-full flex items-center justify-center text-white/20">
                                                         {activeTab === "Websites" && <Globe className="w-5 h-5" />}
@@ -311,12 +319,31 @@ export default function MobileContentSection() {
 
                                             {/* Text */}
                                             <div className="flex-1 min-w-0">
-                                                <p className="text-[#bef264] text-sm font-bold truncate">
-                                                    {item.title}
-                                                </p>
+                                                <div className="flex items-center gap-1.5 mb-0.5">
+                                                    <p className="text-[#bef264] text-sm font-bold truncate">
+                                                        {item.title}
+                                                    </p>
+                                                    {item.isNew && (
+                                                        <span className="shrink-0 px-1 py-0 text-[8px] font-bold uppercase bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-sm">
+                                                            New
+                                                        </span>
+                                                    )}
+                                                </div>
                                                 <p className="text-slate-400 text-[10px] font-normal truncate">
                                                     {item.description}
                                                 </p>
+                                                {visibleTags.length > 0 && (
+                                                    <div className="flex gap-1 mt-1">
+                                                        {visibleTags.slice(0, 3).map(tag => (
+                                                            <span key={tag} className="text-[8px] font-bold uppercase text-white/30 bg-white/5 px-1 py-0 rounded-sm">
+                                                                {tag}
+                                                            </span>
+                                                        ))}
+                                                        {visibleTags.length > 3 && (
+                                                            <span className="text-[8px] text-white/20">+{visibleTags.length - 3}</span>
+                                                        )}
+                                                    </div>
+                                                )}
                                             </div>
 
                                             {/* Heart/Favorite Button */}
@@ -335,7 +362,7 @@ export default function MobileContentSection() {
                                                 />
                                             </button>
                                         </motion.div>
-                                    ))
+                                    )})
                                 )}
                             </div>
                         </motion.div>
@@ -445,6 +472,9 @@ export default function MobileContentSection() {
                                                 <Icon className="w-6 h-6" />
                                                 <p className="text-[10px] font-bold tracking-tighter uppercase">
                                                     {tab}
+                                                    <span className="ml-0.5 text-[8px] opacity-50">
+                                                        {items.filter(i => i.category === tab).length}
+                                                    </span>
                                                 </p>
                                             </button>
                                         );
