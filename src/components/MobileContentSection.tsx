@@ -2,8 +2,8 @@
 
 import React, { useState, useEffect, useRef, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { items as staticItems, type Item, CATEGORY_COLORS } from "@/data/items";
-import { Terminal, Globe, FileCode, Search, X, ArrowUpRight, Heart, Monitor, Menu, Github, ListFilter, Sparkles } from "lucide-react";
+import { items as staticItems, type Item } from "@/data/items";
+import { Terminal, Globe, FileCode, Search, X, ArrowUpRight, Heart, Monitor, Github, ListFilter } from "lucide-react";
 import { useFavorites } from "@/hooks/useFavorites";
 import Image from "next/image";
 import { scrollToY } from "@/lib/lenis";
@@ -18,7 +18,7 @@ const TAB_ICONS: Record<TabType, React.ElementType> = {
 };
 
 export default function MobileContentSection() {
-    const [items, setItems] = useState<Item[]>(staticItems);
+    const items = staticItems;
     const [activeTab, setActiveTab] = useState<TabType>("Softwares");
     const [searchQuery, setSearchQuery] = useState("");
     const [previewItem, setPreviewItem] = useState<Item | null>(null);
@@ -186,7 +186,9 @@ export default function MobileContentSection() {
                 <div className="flex items-center bg-[#0a0a0a]/80 backdrop-blur-md p-4 sticky top-0 z-[250] border-b border-white/10 justify-between">
                     {/* Left: Animated Hamburger / Close */}
                     <button
+                        type="button"
                         onClick={() => setIsMenuOpen(!isMenuOpen)}
+                        aria-label={isMenuOpen ? "Close menu" : "Open menu"}
                         className="flex size-10 shrink-0 items-center justify-center text-[#bef264] relative"
                     >
                         <div className="w-6 h-5 relative flex flex-col justify-between items-center">
@@ -219,7 +221,9 @@ export default function MobileContentSection() {
 
                     {/* Center: Random Stuff — tap to unlock */}
                     <button
+                        type="button"
                         onClick={handleUnlock}
+                        aria-label={isLocked ? "Unlock the section" : "Scroll to the top"}
                         className={`text-lg font-bold leading-tight tracking-tight flex-1 text-center uppercase transition-colors ${isLocked ? "text-[#bef264]" : "text-slate-100 active:text-[#bef264]"
                             }`}
                     >
@@ -228,7 +232,9 @@ export default function MobileContentSection() {
 
                     {/* Right: Cross-fading Favorites / Close */}
                     <button
+                        type="button"
                         onClick={() => setShowFavorites(!showFavorites)}
+                        aria-label={showFavorites ? "Close favorites" : "Open favorites"}
                         className="flex size-10 shrink-0 items-center justify-center text-[#bef264] relative z-[210]"
                     >
                         <AnimatePresence mode="wait">
@@ -281,7 +287,6 @@ export default function MobileContentSection() {
                                     </div>
                                 ) : (
                                     filteredItems.map((item) => {
-                                        const colors = CATEGORY_COLORS[item.category] || CATEGORY_COLORS.Websites;
                                         const visibleTags = item.tags.filter(t => t !== "all");
                                         return (
                                         <motion.div
@@ -348,10 +353,13 @@ export default function MobileContentSection() {
 
                                             {/* Heart/Favorite Button */}
                                             <button
+                                                type="button"
                                                 onClick={(e) => {
                                                     e.stopPropagation();
                                                     toggleFavorite(item.id);
                                                 }}
+                                                aria-label={isFavorite(item.id) ? `Remove ${item.title} from favorites` : `Add ${item.title} to favorites`}
+                                                aria-pressed={isFavorite(item.id)}
                                                 className="p-2 shrink-0 transition-colors"
                                             >
                                                 <Heart
@@ -394,10 +402,13 @@ export default function MobileContentSection() {
                                             placeholder={`Search ${activeTab.toLowerCase()}...`}
                                             value={searchQuery}
                                             onChange={(e) => setSearchQuery(e.target.value)}
+                                            aria-label={`Search ${activeTab.toLowerCase()}`}
                                         />
                                         {searchQuery && (
                                             <button
+                                                type="button"
                                                 onClick={() => setSearchQuery("")}
+                                                aria-label="Clear search"
                                                 className="px-3 text-white/40 hover:text-white transition-colors"
                                             >
                                                 <X className="w-4 h-4" />
@@ -407,7 +418,10 @@ export default function MobileContentSection() {
                                         {/* Sort/Filter Button */}
                                         <div className="relative border-l border-white/10 flex items-center">
                                             <button
+                                                type="button"
                                                 onClick={() => setIsSortMenuOpen(!isSortMenuOpen)}
+                                                aria-label="Filter by platform"
+                                                aria-expanded={isSortMenuOpen}
                                                 className={`px-3 h-full flex items-center justify-center transition-colors ${isSortMenuOpen || activeTag !== "all"
                                                     ? "text-[#bef264] bg-[#bef264]/10"
                                                     : "text-white/40 hover:text-white"
@@ -432,6 +446,7 @@ export default function MobileContentSection() {
                                                             </div>
                                                             {tagOptions.map((tag) => (
                                                                 <button
+                                                                    type="button"
                                                                     key={tag.id}
                                                                     onClick={() => {
                                                                         setActiveTag(tag.id);
@@ -460,6 +475,7 @@ export default function MobileContentSection() {
                                         const isActive = activeTab === tab;
                                         return (
                                             <button
+                                                type="button"
                                                 key={tab}
                                                 onClick={() => {
                                                     setActiveTab(tab);
@@ -617,12 +633,21 @@ export default function MobileContentSection() {
                                 ) : (
                                     <div className="flex flex-col gap-3">
                                         {favoriteItems.map((item) => (
-                                            <button
+                                            <div
                                                 key={item.id}
                                                 onClick={() => {
                                                     setShowFavorites(false);
                                                     setPreviewItem(item);
                                                 }}
+                                                onKeyDown={(event) => {
+                                                    if (event.key === "Enter" || event.key === " ") {
+                                                        event.preventDefault();
+                                                        setShowFavorites(false);
+                                                        setPreviewItem(item);
+                                                    }
+                                                }}
+                                                role="button"
+                                                tabIndex={0}
                                                 className="bg-white/5 border border-white/10 p-2 flex gap-3 items-center text-left w-full hover:border-[#bef264]/50 transition-colors"
                                             >
                                                 <div className="size-10 shrink-0 bg-slate-800 relative overflow-hidden border border-white/10 flex items-center justify-center">
@@ -641,16 +666,18 @@ export default function MobileContentSection() {
                                                     <p className="text-[#bef264] text-sm font-bold truncate">{item.title}</p>
                                                     <p className="text-slate-400 text-[10px] truncate">{item.description}</p>
                                                 </div>
-                                                <div
+                                                <button
+                                                    type="button"
                                                     onClick={(e) => {
                                                         e.stopPropagation();
                                                         toggleFavorite(item.id);
                                                     }}
+                                                    aria-label={`Remove ${item.title} from favorites`}
                                                     className="p-2 shrink-0 relative z-10"
                                                 >
                                                     <Heart className="w-4 h-4 fill-[#bef264] text-[#bef264]" />
-                                                </div>
-                                            </button>
+                                                </button>
+                                            </div>
                                         ))}
                                     </div>
                                 )}
@@ -694,7 +721,9 @@ export default function MobileContentSection() {
 
                             {/* Close button */}
                             <button
+                                type="button"
                                 onClick={() => setPreviewItem(null)}
+                                aria-label="Close preview"
                                 className="absolute top-4 right-4 p-2 bg-white/5 hover:bg-white/10 rounded-full transition-colors z-20"
                             >
                                 <X className="w-5 h-5 text-white/70" />
@@ -781,10 +810,13 @@ export default function MobileContentSection() {
                                         </a>
                                     )}
                                     <button
+                                        type="button"
                                         onClick={(e) => {
                                             e.stopPropagation();
                                             toggleFavorite(previewItem.id);
                                         }}
+                                        aria-label={isFavorite(previewItem.id) ? `Remove ${previewItem.title} from favorites` : `Add ${previewItem.title} to favorites`}
+                                        aria-pressed={isFavorite(previewItem.id)}
                                         className={`px-4 py-3.5 border transition-colors ${isFavorite(previewItem.id)
                                             ? "bg-[#bef264]/20 border-[#bef264]/50 text-[#bef264]"
                                             : "bg-white/5 border-white/10 text-white/70"

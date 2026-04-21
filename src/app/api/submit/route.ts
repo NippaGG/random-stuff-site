@@ -1,10 +1,13 @@
-import { NextResponse } from "next/server";
-import { items } from "@/data/items";
 import fs from "fs";
 import path from "path";
 
+import { items } from "@/data/items";
+import { NextResponse } from "next/server";
+
 const SUBMISSIONS_PATH = path.join(process.cwd(), "data", "submissions.json");
 const SUBMISSIONS_DIR = path.dirname(SUBMISSIONS_PATH);
+
+let submissionMutationQueue: Promise<void> = Promise.resolve();
 
 interface Submission {
     toolName: string;
@@ -35,10 +38,30 @@ function readSubmissions(): Submission[] {
 
 function writeSubmissions(submissions: Submission[]): void {
     ensureSubmissionsStorage();
-    fs.writeFileSync(SUBMISSIONS_PATH, JSON.stringify(submissions, null, 2), "utf-8");
+    fs.writeFileSync(
+        SUBMISSIONS_PATH,
+        JSON.stringify(submissions, null, 2),
+        "utf-8"
+    );
 }
 
-// Send a formatted embed to Discord
+async function withSubmissionLock<T>(task: () => Promise<T> | T): Promise<T> {
+    const previous = submissionMutationQueue;
+    let release = () => {};
+
+    submissionMutationQueue = new Promise<void>((resolve) => {
+        release = resolve;
+    });
+
+    await previous;
+
+    try {
+        return await task();
+    } finally {
+        release();
+    }
+}
+
 async function sendToDiscord(submission: {
     toolName: string;
     link: string;
@@ -53,8 +76,8 @@ async function sendToDiscord(submission: {
     }
 
     const embed = {
-        title: "📬 New Tool Submission",
-        color: 0xa3e635, // lime green to match site theme
+        title: "New Tool Submission",
+        color: 0xa3e635,
         fields: [
             { name: "Tool Name", value: submission.toolName, inline: true },
             { name: "Category", value: submission.category, inline: true },
@@ -62,45 +85,63 @@ async function sendToDiscord(submission: {
             { name: "Description", value: submission.description },
         ],
         timestamp: new Date().toISOString(),
-        footer: { text: "Random Stuff Site • Tool Submission" },
+        footer: { text: "Random Stuff Site | Tool Submission" },
     };
 
     try {
-        const res = await fetch(webhookUrl, {
+        const response = await fetch(webhookUrl, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ embeds: [embed] }),
         });
 
-        return res.ok;
+        return response.ok;
     } catch (error) {
         console.error("Discord webhook error:", error);
         return false;
     }
 }
 
-// GET /api/submit → return submission stats
 export async function GET() {
     const submissions = readSubmissions();
     return NextResponse.json({ submissionCount: submissions.length });
 }
 
-// POST /api/submit → create a new submission + notify Discord
 export async function POST(request: Request) {
     try {
         const body = await request.json();
         const { toolName, link, category, description } = body;
 
-        if (!toolName || !link || !category || !description) {
+        const trimmedName = typeof toolName === "string" ? toolName.trim() : "";
+        const trimmedLink = typeof link === "string" ? link.trim() : "";
+        const trimmedCategory = typeof category === "string" ? category.trim() : "";
+        const trimmedDescription =
+            typeof description === "string" ? description.trim() : "";
+
+        if (!trimmedName || !trimmedLink || !trimmedCategory || !trimmedDescription) {
             return NextResponse.json(
                 { error: "All fields are required" },
                 { status: 400 }
             );
         }
 
-        const trimmedName = toolName.trim();
+        let parsedLink: URL;
+        try {
+            parsedLink = new URL(trimmedLink);
+        } catch {
+            return NextResponse.json(
+                { error: "Please enter a valid URL." },
+                { status: 400 }
+            );
+        }
 
-        // Check if tool already exists in the curated items (case-insensitive)
+        if (!["http:", "https:"].includes(parsedLink.protocol)) {
+            return NextResponse.json(
+                { error: "Only HTTP(S) URLs are allowed." },
+                { status: 400 }
+            );
+        }
+
         const existingItem = items.find(
             (item) => item.title.toLowerCase() === trimmedName.toLowerCase()
         );
@@ -112,37 +153,51 @@ export async function POST(request: Request) {
             );
         }
 
-        // Check if already submitted (case-insensitive)
-        const submissions = readSubmissions();
-        const existingSubmission = submissions.find(
-            (s) => s.toolName.toLowerCase() === trimmedName.toLowerCase()
-        );
+        const result = await withSubmissionLock(() => {
+            const submissions = readSubmissions();
+            const existingSubmission = submissions.find(
+                (submission) =>
+                    submission.toolName.toLowerCase() === trimmedName.toLowerCase()
+            );
 
-        if (existingSubmission) {
+            if (existingSubmission) {
+                return {
+                    ok: false as const,
+                    error: "This tool has already been submitted!",
+                    status: 409,
+                };
+            }
+
+            const newSubmission: Submission = {
+                toolName: trimmedName,
+                link: parsedLink.toString(),
+                category: trimmedCategory,
+                description: trimmedDescription,
+                submittedAt: new Date().toISOString(),
+            };
+
+            submissions.push(newSubmission);
+            writeSubmissions(submissions);
+
+            return {
+                ok: true as const,
+                submission: newSubmission,
+                submissionCount: submissions.length,
+            };
+        });
+
+        if (!result.ok) {
             return NextResponse.json(
-                { error: "This tool has already been submitted!" },
-                { status: 409 }
+                { error: result.error },
+                { status: result.status }
             );
         }
 
-        // Save the submission to the local JSON file
-        const newSubmission: Submission = {
-            toolName: trimmedName,
-            link: link.trim(),
-            category,
-            description: description.trim(),
-            submittedAt: new Date().toISOString(),
-        };
-
-        submissions.push(newSubmission);
-        writeSubmissions(submissions);
-
-        // Send Discord notification (non-blocking, don't fail the request)
         const discordSuccess = await sendToDiscord({
-            toolName: trimmedName,
-            link: link.trim(),
-            category,
-            description: description.trim(),
+            toolName: result.submission.toolName,
+            link: result.submission.link,
+            category: result.submission.category,
+            description: result.submission.description,
         });
 
         if (!discordSuccess) {
@@ -152,8 +207,8 @@ export async function POST(request: Request) {
         return NextResponse.json(
             {
                 message: "Submission received!",
-                submission: newSubmission,
-                submissionCount: submissions.length,
+                submission: result.submission,
+                submissionCount: result.submissionCount,
             },
             { status: 201 }
         );

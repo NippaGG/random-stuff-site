@@ -14,6 +14,8 @@ type CircularNavProps = {
   itemCounts?: Record<string, number>;
 };
 
+type NavPosition = "left" | "center" | "right";
+
 export default function CircularNav({ activeTab, setActiveTab, tabs, isStraight = false, isMobile = false, itemCounts }: CircularNavProps) {
 
   const prevIsStraightRef = useRef(isStraight);
@@ -70,7 +72,7 @@ export default function CircularNav({ activeTab, setActiveTab, tabs, isStraight 
     );
   }
 
-  const getPosition = (tab: string) => {
+  const getPosition = (tab: string): NavPosition => {
     const currentIndex = tabs.indexOf(activeTab);
     const tabIndex = tabs.indexOf(tab);
     const diff = (tabIndex - currentIndex + tabs.length) % tabs.length;
@@ -134,8 +136,7 @@ export default function CircularNav({ activeTab, setActiveTab, tabs, isStraight 
 
       {tabs.map((tab) => {
         const pos = getPosition(tab);
-        // @ts-ignore
-        const slot = slots[pos as keyof typeof slots];
+        const slot = slots[pos];
         const isActive = pos === "center";
 
         return (

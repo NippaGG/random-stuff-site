@@ -166,6 +166,7 @@ export default function SubmitPage() {
                             <motion.div
                                 initial={{ opacity: 0, y: -10 }}
                                 animate={{ opacity: 1, y: 0 }}
+                                aria-live="polite"
                                 className="py-2.5 px-4 border border-red-500/30 bg-red-500/10 text-red-400 text-sm font-mono rounded-none"
                             >
                                 {errorMessage}
@@ -178,6 +179,8 @@ export default function SubmitPage() {
                                 ref={nameRef}
                                 id="name"
                                 type="text"
+                                name="toolName"
+                                autoComplete="off"
                                 required
                                 placeholder="e.g. Raycast"
                                 className="w-full px-4 py-2.5 rounded-none bg-white/5 border border-white/10 focus:border-[#a3e635]/50 focus:ring-1 focus:ring-[#a3e635]/50 outline-none transition-all placeholder:text-gray-600 focus:bg-white/10 font-mono text-sm"
@@ -190,8 +193,11 @@ export default function SubmitPage() {
                                 ref={linkRef}
                                 id="link"
                                 type="url"
+                                name="link"
+                                autoComplete="url"
+                                spellCheck={false}
                                 required
-                                placeholder="https://..."
+                                placeholder="https://example.com..."
                                 className="w-full px-4 py-2.5 rounded-none bg-white/5 border border-white/10 focus:border-[#a3e635]/50 focus:ring-1 focus:ring-[#a3e635]/50 outline-none transition-all placeholder:text-gray-600 focus:bg-white/10 font-mono text-sm"
                             />
                         </div>
@@ -202,6 +208,7 @@ export default function SubmitPage() {
                                 <select
                                     ref={categoryRef}
                                     id="category"
+                                    name="category"
                                     required
                                     defaultValue=""
                                     className="w-full px-4 py-2.5 rounded-none bg-white/5 border border-white/10 focus:border-[#a3e635]/50 focus:ring-1 focus:ring-[#a3e635]/50 outline-none transition-all text-white appearance-none cursor-pointer focus:bg-white/10 font-mono text-sm"
@@ -224,9 +231,11 @@ export default function SubmitPage() {
                             <textarea
                                 ref={descriptionRef}
                                 id="description"
+                                name="description"
+                                autoComplete="off"
                                 required
                                 rows={3}
-                                placeholder="What does it do? Why is it cool?"
+                                placeholder="What does it do? Why is it cool?..."
                                 className="w-full px-4 py-3 rounded-none bg-white/5 border border-white/10 focus:border-[#a3e635]/50 focus:ring-1 focus:ring-[#a3e635]/50 outline-none transition-all placeholder:text-gray-600 resize-none focus:bg-white/10 font-mono text-sm"
                             />
                         </div>

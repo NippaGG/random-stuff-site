@@ -56,6 +56,7 @@ const TextPressure: React.FC<TextPressureProps> = ({
 
   const mouseRef = useRef({ x: 0, y: 0 });
   const cursorRef = useRef({ x: 0, y: 0 });
+  const lastAppliedRef = useRef({ x: Number.NaN, y: Number.NaN });
 
   const [fontSize, setFontSize] = useState(minFontSize);
   const [scaleY, setScaleY] = useState(1);
@@ -150,6 +151,17 @@ const TextPressure: React.FC<TextPressureProps> = ({
       mouseRef.current.x += (cursorRef.current.x - mouseRef.current.x) / 15;
       mouseRef.current.y += (cursorRef.current.y - mouseRef.current.y) / 15;
 
+      const pointerSettled =
+        Math.abs(cursorRef.current.x - mouseRef.current.x) < 0.1 &&
+        Math.abs(cursorRef.current.y - mouseRef.current.y) < 0.1 &&
+        Math.abs(lastAppliedRef.current.x - mouseRef.current.x) < 0.1 &&
+        Math.abs(lastAppliedRef.current.y - mouseRef.current.y) < 0.1;
+
+      if (pointerSettled) {
+        rafId = requestAnimationFrame(animate);
+        return;
+      }
+
       if (titleRef.current) {
         const titleRect = titleRef.current.getBoundingClientRect();
         const maxDist = titleRect.width / 2;
@@ -179,6 +191,11 @@ const TextPressure: React.FC<TextPressureProps> = ({
             span.style.opacity = alphaVal.toString();
           }
         });
+
+        lastAppliedRef.current = {
+          x: mouseRef.current.x,
+          y: mouseRef.current.y,
+        };
       }
 
       rafId = requestAnimationFrame(animate);

@@ -64,8 +64,20 @@ export default function Home() {
     };
   }, [isMobile]);
 
-  // Don't render until we know the viewport size
-  if (isMobile === null) return null;
+  if (isMobile === null) {
+    return (
+      <main className="relative min-h-screen overflow-hidden bg-[#0a0a0a] text-white">
+        <div className="fixed inset-0 z-[-1]">
+          <GridBackground />
+        </div>
+        <LoadingScreen onComplete={() => setIsLoading(false)} />
+        <div className="sr-only">
+          <h1>Random Stuff</h1>
+          <p>A curated collection of websites, tools, and scripts.</p>
+        </div>
+      </main>
+    );
+  }
 
   // ─── MOBILE ─────────────────────────────────────────
   if (isMobile) {

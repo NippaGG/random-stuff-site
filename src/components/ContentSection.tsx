@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useRef, useState } from "react";
-import { motion, AnimatePresence, useScroll, useMotionValueEvent, LayoutGroup, useTransform, useMotionTemplate } from "framer-motion";
+import { motion, AnimatePresence, useScroll, useMotionValueEvent, useTransform, useMotionTemplate } from "framer-motion";
 import { items as staticItems, type Item, CATEGORY_COLORS } from "@/data/items";
 import CircularNav from "./CircularNav";
 import { Lock, Unlock, X, ArrowUpRight, Globe, Monitor, Terminal, Heart, Search, ListFilter, Sparkles } from "lucide-react";
@@ -111,11 +111,14 @@ const ScrollBlurCard = ({
       <div className="flex flex-col gap-2 z-20 absolute bottom-2 md:bottom-3 right-2 md:right-3">
         {onSelect && (
           <button
+            type="button"
             onClick={(e) => {
               e.preventDefault();
               e.stopPropagation();
               onSelect(item.id);
             }}
+            aria-label={isSelected ? `Deselect ${item.title}` : `Select ${item.title}`}
+            aria-pressed={isSelected}
             className={`p-1.5 md:p-2 rounded-full transition-colors ${isSelected
               ? "bg-[#a3e635] text-black"
               : "bg-white/10 text-white/40 hover:text-white"}`}
@@ -131,11 +134,14 @@ const ScrollBlurCard = ({
         )}
 
         <button
+          type="button"
           onClick={(e) => {
             e.preventDefault();
             e.stopPropagation();
             onToggle(item.id);
           }}
+          aria-label={isFavorite ? `Remove ${item.title} from favorites` : `Add ${item.title} to favorites`}
+          aria-pressed={isFavorite}
           className="p-1.5 md:p-2 rounded-full hover:bg-white/10 transition-colors group/btn"
         >
           <Heart
@@ -195,14 +201,12 @@ export default function ContentSection() {
   const sectionRef = useRef(null);
   const contentGridRef = useRef<HTMLDivElement>(null);
 
-  const [items, setItems] = useState<Item[]>(staticItems);
+  const items = staticItems;
   const [activeTab, setActiveTab] = useState("Websites");
   const [isStraight, setIsStraight] = useState(false);
   const [isLocked, setIsLocked] = useState(false);
   const [showUnlockHint, setShowUnlockHint] = useState(false);
   const [activeTag, setActiveTag] = useState("all");
-  const [tagMode, setTagMode] = useState<"labels" | "dots">("labels");
-  const [dotsAnimate, setDotsAnimate] = useState(false);
   const [previewItem, setPreviewItem] = useState<Item | null>(null);
   const [isGridLoading, setIsGridLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
@@ -223,7 +227,6 @@ export default function ContentSection() {
   const isResettingScrollRef = useRef(false);
   const clampRafRef = useRef<number | null>(null);
   const gridLoadingTimeoutRef = useRef<number | null>(null);
-  const dotsAnimateTimeoutRef = useRef<number | null>(null);
   const folderHeartRef = useRef<FolderHeartIconHandle>(null);
 
   const { isFavorite, toggleFavorite, clearFavorites, removeFavorites } = useFavorites();
@@ -345,31 +348,6 @@ export default function ContentSection() {
       new CustomEvent("site-lock-change", { detail: { locked: isLocked } })
     );
   }, [isLocked]);
-
-  useEffect(() => {
-    setTagMode(activeTab === "Websites" ? "dots" : "labels");
-  }, [activeTab]);
-
-  useEffect(() => {
-    if (dotsAnimateTimeoutRef.current) {
-      window.clearTimeout(dotsAnimateTimeoutRef.current);
-      dotsAnimateTimeoutRef.current = null;
-    }
-    if (tagMode === "dots") {
-      setDotsAnimate(false);
-      dotsAnimateTimeoutRef.current = window.setTimeout(() => {
-        setDotsAnimate(true);
-      }, 250);
-    } else {
-      setDotsAnimate(false);
-    }
-    return () => {
-      if (dotsAnimateTimeoutRef.current) {
-        window.clearTimeout(dotsAnimateTimeoutRef.current);
-        dotsAnimateTimeoutRef.current = null;
-      }
-    };
-  }, [tagMode]);
 
   useEffect(() => {
     setIsGridLoading(true);
@@ -643,11 +621,13 @@ export default function ContentSection() {
                 <>
                   <motion.button
                     key="lucky-btn"
+                    type="button"
                     initial={{ opacity: 0, scale: 0.5, x: 20 }}
                     animate={{ opacity: 1, scale: 1, x: 0 }}
                     exit={{ opacity: 0, scale: 0.5, x: 20 }}
                     transition={{ duration: 0.3, delay: 0.1 }}
                     onClick={handleRandomItem}
+                    aria-label="Pick a random item"
                     className="group relative flex items-center justify-center h-10 md:h-12 px-4 md:px-5 bg-[#a3e635] rounded-none border border-[#a3e635] hover:-translate-y-1 hover:-translate-x-1 hover:shadow-[4px_4px_0px_#a3e635] transition-all overflow-hidden"
                     title="I'm Feeling Lucky (Press 'R')"
                   >
@@ -674,6 +654,7 @@ export default function ContentSection() {
                       onClick={() => setShowFavorites(true)}
                       onMouseEnter={() => folderHeartRef.current?.startAnimation()}
                       onMouseLeave={() => folderHeartRef.current?.stopAnimation()}
+                      aria-label="Open favorites"
                       // LARGER MOBILE TOUCH BOX PADDING
                       className="group/folder-heart flex items-center justify-center w-10 h-10 md:w-12 md:h-12 bg-[#a3e635]/10 rounded-none border border-[#a3e635]/20 backdrop-blur-md hover:bg-[#a3e635]/20 hover:-translate-y-1 hover:-translate-x-1 hover:shadow-[4px_4px_0px_#a3e635] transition-all"
                       title="Favorites"
@@ -801,6 +782,7 @@ export default function ContentSection() {
               placeholder={`Search ${activeTab}...`}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
+              aria-label={`Search ${activeTab}`}
               onFocus={() => {
                 const viewportHeight = window.innerHeight;
                 const lockPosition = viewportHeight * (isMobile ? 1.6 : 1.9);
@@ -815,7 +797,10 @@ export default function ContentSection() {
           {/* Sort Button */}
           <div className="relative">
             <button
+              type="button"
               onClick={() => setIsSortMenuOpen(!isSortMenuOpen)}
+              aria-label="Filter by platform"
+              aria-expanded={isSortMenuOpen}
               className={`flex items-center justify-center p-2.5 border transition-all ${isSortMenuOpen || activeTag !== "all"
                 ? "bg-[#a3e635]/20 border-[#a3e635]/50 text-[#d9f99d]"
                 : "bg-white/5 border-white/10 text-white/70 hover:text-white"
@@ -897,7 +882,12 @@ export default function ContentSection() {
               className="relative w-full max-w-5xl bg-[#0a0a0a] border border-white/10 rounded-none overflow-hidden shadow-2xl flex flex-col md:flex-row max-h-[90vh] md:max-h-[600px] z-10"
               onClick={(e) => e.stopPropagation()}
             >
-              <PreviewContent item={previewItem} onClose={() => setPreviewItem(null)} />
+              <PreviewContent
+                item={previewItem}
+                onClose={() => setPreviewItem(null)}
+                isFavorite={isFavorite(previewItem.id)}
+                onToggleFavorite={() => toggleFavorite(previewItem.id)}
+              />
             </motion.div>
           </motion.div>
         )}
@@ -940,6 +930,7 @@ export default function ContentSection() {
                       {isSelectionMode ? (
                         <>
                           <button
+                            type="button"
                             onClick={handleOpenSelected}
                             disabled={selectedFavs.length === 0}
                             className={`px-2.5 md:px-3 py-1.5 rounded-none text-[11px] md:text-xs font-bold transition-all border ${selectedFavs.length > 0
@@ -950,6 +941,7 @@ export default function ContentSection() {
                             Open ({selectedFavs.length})
                           </button>
                           <button
+                            type="button"
                             onClick={handleSelectAll}
                             className="px-2.5 md:px-3 py-1.5 rounded-none text-[11px] md:text-xs font-bold bg-white/10 text-white hover:bg-white/20 border border-white/10 transition-colors"
                           >
@@ -957,6 +949,7 @@ export default function ContentSection() {
                             {items.filter(item => isFavorite(item.id)).length === selectedFavs.length ? "Deselect All" : "Select All"}
                           </button>
                           <button
+                            type="button"
                             onClick={() => {
                               setIsSelectionMode(false);
                               setSelectedFavs([]);
@@ -968,6 +961,7 @@ export default function ContentSection() {
                         </>
                       ) : (
                         <button
+                          type="button"
                           onClick={() => setIsSelectionMode(true)}
                           className="px-2.5 md:px-3 py-1.5 rounded-none text-[11px] md:text-xs font-bold bg-white/5 text-white/70 hover:text-white border border-white/10 hover:border-white/20 transition-colors"
                         >
@@ -977,6 +971,7 @@ export default function ContentSection() {
 
                       {isSelectionMode && (
                         <button
+                          type="button"
                           onClick={handleRemove}
                           className="px-2.5 md:px-3 py-1.5 rounded-none text-[11px] md:text-xs font-bold bg-red-500/10 text-red-400 border border-red-500/20 hover:bg-red-500/20 transition-colors"
                         >
@@ -986,7 +981,9 @@ export default function ContentSection() {
                     </>
                   )}
                   <button
+                    type="button"
                     onClick={() => setShowFavorites(false)}
+                    aria-label="Close favorites"
                     className="p-1.5 md:p-2 bg-white/5 hover:bg-white/10 rounded-none transition-colors md:ml-2"
                   >
                     <X className="w-4 h-4 md:w-5 md:h-5 text-white/70" />
@@ -1042,10 +1039,19 @@ export default function ContentSection() {
 const metadataCache = new Map<string, any>();
 const CACHE_LIMIT = 2;
 
-function PreviewContent({ item, onClose }: { item: Item; onClose: () => void }) {
+function PreviewContent({
+  item,
+  onClose,
+  isFavorite,
+  onToggleFavorite,
+}: {
+  item: Item;
+  onClose: () => void;
+  isFavorite: boolean;
+  onToggleFavorite: () => void;
+}) {
   const [metadata, setMetadata] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const { isFavorite, toggleFavorite } = useFavorites();
 
   useEffect(() => {
     let isMounted = true;
@@ -1104,18 +1110,20 @@ function PreviewContent({ item, onClose }: { item: Item; onClose: () => void }) 
   return (
     <>
       {/* Close Button & Fav Button (Added padding for bigger hit targets on mobile) */}
-      <div className="absolute top-4 md:top-4 right-4 md:right-4 z-20 flex items-center gap-3">
+      <div className="absolute top-4 md:top-4 right-4 md:right-4 z-30 flex items-center gap-3 pointer-events-auto">
         <button
           type="button"
           onClick={(e) => {
             e.stopPropagation();
-            toggleFavorite(item.id);
+            onToggleFavorite();
           }}
+          aria-label={isFavorite ? `Remove ${item.title} from favorites` : `Add ${item.title} to favorites`}
+          aria-pressed={isFavorite}
           // INCREASED PADDING
           className="p-2.5 md:p-2 bg-black/50 hover:bg-black/70 rounded-none transition-colors backdrop-blur-md border border-white/5 group/fav"
         >
           <Heart
-            className={`w-5 h-5 transition-colors ${isFavorite(item.id)
+            className={`w-5 h-5 transition-colors ${isFavorite
               ? "fill-[#a3e635] text-[#a3e635]"
               : "text-white/70 group-hover/fav:text-white"
               }`}
@@ -1124,6 +1132,7 @@ function PreviewContent({ item, onClose }: { item: Item; onClose: () => void }) 
         <button
           type="button"
           onClick={onClose}
+          aria-label="Close preview"
           // INCREASED PADDING
           className="p-2.5 md:p-2 bg-black/50 hover:bg-black/70 text-white/70 hover:text-white rounded-none transition-colors backdrop-blur-md border border-white/5"
         >
@@ -1211,7 +1220,7 @@ function PreviewContent({ item, onClose }: { item: Item; onClose: () => void }) 
       </div>
 
       {/* Right Side: Content */}
-      <div className="relative flex flex-col p-5 md:p-8 w-full md:w-7/12 bg-[#0a0a0a] z-20">
+      <div className="relative flex flex-col p-5 md:p-8 w-full md:w-7/12 bg-[#0a0a0a] z-10">
         <div className="flex-1 overflow-y-auto pr-0 md:pr-2 custom-scrollbar">
 
           {/* Header / Badges */}

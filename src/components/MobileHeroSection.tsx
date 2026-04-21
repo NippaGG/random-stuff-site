@@ -75,18 +75,15 @@ export default function MobileHeroSection() {
     }, []);
 
     useEffect(() => {
-        // Fetch the last commit date from the GitHub repo
-        fetch("https://api.github.com/repos/NippaGG/random-stuff-site/commits?per_page=1")
-            .then((res) => res.json())
-            .then((data) => {
-                if (data && data.length > 0 && data[0].commit?.author?.date) {
-                    const date = new Date(data[0].commit.author.date);
-                    // Format as YYYY.MM.DD
-                    const formatted = `${date.getFullYear()}.${String(date.getMonth() + 1).padStart(2, "0")}.${String(date.getDate()).padStart(2, "0")}`;
-                    setLastUpdated(formatted);
-                }
-            })
-            .catch(() => setLastUpdated("Unknown"));
+        const date = new Date(document.lastModified);
+
+        if (Number.isNaN(date.getTime())) {
+            setLastUpdated("Unknown");
+            return;
+        }
+
+        const formatted = `${date.getFullYear()}.${String(date.getMonth() + 1).padStart(2, "0")}.${String(date.getDate()).padStart(2, "0")}`;
+        setLastUpdated(formatted);
     }, []);
     return (
         <section className="bg-[#050505] text-white min-h-screen antialiased flex flex-col relative z-0">
@@ -104,7 +101,11 @@ export default function MobileHeroSection() {
                 {/* Noise Overlay */}
                 <div
                     className="absolute inset-0 opacity-[0.03] pointer-events-none"
-                    style={{ backgroundImage: "url(https://lh3.googleusercontent.com/aida-public/AB6AXuCDBGbi0sEacXq7MacPOxDN0XiaZFcIW2HD3JNBiCFWsJHNnlI4CniMiGdqPeCh41iz6TaMeqw2iWuEQuiDcsHPAHj9t955F3a3jmUSVckhiq1igPBrk9kI3HZFJz324q9ni8ijCcJLZ-hDIHmzewrfcOtOG9JP1Liip4FX9oiwcyi31cOlLSmCj30YtYJJfC7nd_w4du52HIpLcG6PP6SkC6X_daCItFrd63DUqAxY_YDSsB7gLogI-c3hfgKsujsFbytXi5YCE3w)" }}
+                    style={{
+                        backgroundImage:
+                            "radial-gradient(circle at 1px 1px, rgba(255,255,255,0.7) 1px, transparent 0)",
+                        backgroundSize: "12px 12px",
+                    }}
                 />
 
                 {/* Gradient fade to dark background */}
@@ -158,6 +159,7 @@ export default function MobileHeroSection() {
 
                 <div className="flex flex-col sm:flex-row gap-4 w-full md:w-auto mt-4">
                     <button
+                        type="button"
                         onClick={() => {
                             const anchor = document.getElementById('mobile-content-anchor');
                             if (anchor) {
@@ -165,6 +167,7 @@ export default function MobileHeroSection() {
                                 scrollToY(window.scrollY + rect.top);
                             }
                         }}
+                        aria-label="Scroll to the mobile directory"
                         className="group relative flex items-center justify-between px-8 py-5 bg-[#bef264] text-[#0a0a0a] font-bold uppercase tracking-widest text-[14px] overflow-hidden transition-all hover:pr-12"
                     >
                         <span>Launch</span>

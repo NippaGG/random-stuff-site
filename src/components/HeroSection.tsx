@@ -117,7 +117,9 @@ export default function HeroSection() {
             <motion.a
               href="https://github.com/NippaGG/random-stuff-site"
               target="_blank"
+              rel="noreferrer"
               whileTap={{ scale: 0.95 }}
+              aria-label="Open the Random Stuff GitHub repository"
               className="flex items-center justify-center w-10 h-10 md:w-12 md:h-12 rounded-none bg-[#a3e635]/10 border border-[#a3e635]/20 backdrop-blur-md text-[#a3e635] hover:bg-[#a3e635]/20 hover:-translate-y-1 hover:-translate-x-1 hover:shadow-[4px_4px_0px_#a3e635] transition-all"
             >
               <Github size={24} />
@@ -128,7 +130,10 @@ export default function HeroSection() {
           <div className="hidden md:block absolute top-8 right-8 z-[150] pointer-events-auto">
             <motion.a
               href="https://shockagg.vercel.app/"
+              target="_blank"
+              rel="noreferrer"
               whileTap={{ scale: 0.95 }}
+              aria-label="Open ShockaGG portfolio"
               className="block relative w-10 h-10 md:w-12 md:h-12 rounded-none overflow-hidden bg-[#a3e635]/10 border border-[#a3e635]/20 backdrop-blur-md hover:bg-[#a3e635]/20 hover:-translate-y-1 hover:-translate-x-1 hover:shadow-[4px_4px_0px_#a3e635] transition-all"
             >
               <Image
@@ -143,6 +148,7 @@ export default function HeroSection() {
           {/* SCROLL DOWN BUTTON - Bottom Right */}
           <div className="absolute bottom-8 right-8 z-[150] pointer-events-auto">
             <motion.button
+              type="button"
               onClick={() => {
                 const viewportHeight = window.innerHeight;
                 // Match the threshold from ContentSection.tsx
@@ -150,6 +156,7 @@ export default function HeroSection() {
                 scrollToY(targetScroll + 10); // Small buffer to ensure lock triggers
               }}
               whileTap={{ scale: 0.95 }}
+              aria-label="Scroll to the directory"
               // INCREASED TOUCH TARGET PADDING
               className="flex items-center justify-center p-3 w-12 h-12 md:w-12 md:h-12 rounded-none bg-[#a3e635]/10 border border-[#a3e635]/20 backdrop-blur-md text-[#a3e635] hover:bg-[#a3e635]/20 hover:-translate-y-1 hover:-translate-x-1 hover:shadow-[4px_4px_0px_#a3e635] transition-all"
             >

@@ -12,6 +12,9 @@ export const metadata: Metadata = {
   description: "Curated by ShockaGG",
 };
 
+const shouldRenderVercelInsights =
+  process.env.NODE_ENV === "production" && process.env.VERCEL === "1";
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -22,8 +25,8 @@ export default function RootLayout({
       <body className={mono.className}>
         {children}
 
-        <SpeedInsights />
-        <Analytics />
+        {shouldRenderVercelInsights ? <SpeedInsights /> : null}
+        {shouldRenderVercelInsights ? <Analytics /> : null}
       </body>
     </html>
   );
