@@ -35,37 +35,16 @@ const ScrollBlurCard = ({
   isSelected?: boolean;
   onSelect?: (id: string) => void;
 }) => {
-  const ref = useRef(null);
-
-  // Track this specific card's position relative to the viewport
-  const { scrollYProgress } = useScroll({
-    target: ref,
-    // Start fading when top is 18vh from top (was 22vh)
-    // Finish fading when top is 6vh from top (under header)
-    offset: ["start 18vh", "start 6vh"]
-  });
-
-  const opacity = useTransform(scrollYProgress, [0, 1], [1, 0]);
-  const blurValue = useTransform(scrollYProgress, [0, 1], ["0px", "8px"]);
-  const scale = useTransform(scrollYProgress, [0, 1], [1, 0.95]);
-  const filter = useMotionTemplate`blur(${blurValue})`;
-
-  const style = disableAnimations
-    ? {}
-    : { opacity, filter, scale, willChange: "transform, opacity, filter", transformOrigin: "top center" };
-
   const colors = CATEGORY_COLORS[item.category] || CATEGORY_COLORS.Websites;
   const visibleTags = item.tags.filter(t => t !== "all");
 
   return (
     <motion.a
-      ref={ref}
       href={item.website || item.github}
       target="_blank"
       rel="noreferrer"
       onClick={(event) => onClick(event, item)}
       variants={variants}
-      style={style}
       className={twMerge(
         "group relative flex justify-between items-start gap-3 md:gap-4 bg-white/5 border border-white/10 p-5 md:p-6 rounded-none hover:bg-white/10 transition-colors overflow-hidden backdrop-blur-sm cursor-pointer h-full",
         className
@@ -558,6 +537,21 @@ export default function ContentSection() {
       ref={sectionRef}
       className={`min-h-[250vh] md:min-h-[300vh] w-full relative ${isStraight ? "z-[200]" : "z-20"}`}
     >
+      {/* Dissolve Gradient Overlay for tiles (Absolute wrapper prevents layout shift) */}
+      <div className="absolute inset-0 pointer-events-none z-30">
+        <AnimatePresence>
+          {isStraight && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.3 }}
+              className="sticky top-0 left-0 w-full h-[15vh] md:h-[18vh] bg-gradient-to-b from-[#0a0a0a] via-[#0a0a0a]/80 to-transparent"
+            />
+          )}
+        </AnimatePresence>
+      </div>
+
       <motion.div
         animate={{
           top: isStraight ? (isMobile ? "1.5vh" : "2vh") : (isMobile ? "16vh" : "20vh")
