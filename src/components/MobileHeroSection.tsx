@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import { ArrowDown } from "lucide-react";
-import { items } from "@/data/items";
+import { items as fallbackItems, type Item } from "@/data/items";
 import { scrollToY } from "@/lib/lenis";
 
 const SYMBOLS = ["!", "@", "#", "$", "%", "&", "*", "(", ")", "_", "[", "]", "{", "}", "|", "<", ">", "?", ":", ";"];
@@ -11,6 +11,7 @@ const FINAL_TEXT = "RANDOM \nSTUFF.";
 
 export default function MobileHeroSection() {
     const [lastUpdated, setLastUpdated] = useState<string>("...");
+    const [itemCount, setItemCount] = useState(fallbackItems.length);
     const [scrambledText, setScrambledText] = useState<string>("####### \n######*");
     const phaseRef = useRef(0);
 
@@ -85,6 +86,31 @@ export default function MobileHeroSection() {
         const formatted = `${date.getFullYear()}.${String(date.getMonth() + 1).padStart(2, "0")}.${String(date.getDate()).padStart(2, "0")}`;
         setLastUpdated(formatted);
     }, []);
+
+    useEffect(() => {
+        let isMounted = true;
+
+        fetch("/api/items")
+            .then((response) => {
+                if (!response.ok) {
+                    throw new Error(`Items request failed: ${response.status}`);
+                }
+                return response.json() as Promise<Item[]>;
+            })
+            .then((nextItems) => {
+                if (isMounted && nextItems.length > 0) {
+                    setItemCount(nextItems.length);
+                }
+            })
+            .catch((error) => {
+                console.error("Failed to load database item count:", error);
+            });
+
+        return () => {
+            isMounted = false;
+        };
+    }, []);
+
     return (
         <section className="bg-[#050505] text-white min-h-screen antialiased flex flex-col relative z-0">
             {/* Image Hero Area */}
@@ -122,7 +148,7 @@ export default function MobileHeroSection() {
                         transition={{ delay: 0.5, duration: 0.8 }}
                         className="mix-blend-difference text-white/80 font-mono text-[10px] tracking-[0.3em] uppercase"
                     >
-                        COLLECTION {String(items.length).padStart(3, "0")}
+                        COLLECTION {String(itemCount).padStart(3, "0")}
                     </motion.div>
                 </div>
 

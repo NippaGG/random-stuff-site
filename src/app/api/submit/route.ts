@@ -1,5 +1,5 @@
-import { items } from "@/data/items";
 import { NextResponse } from "next/server";
+import { getItems } from "@/lib/items-server";
 
 const ALLOWED_CATEGORIES = ["Websites", "Softwares", "Scripts"] as const;
 const TOOL_NAME_MAX_LENGTH = 80;
@@ -111,7 +111,9 @@ function isAllowedCategory(value: string): value is Submission["category"] {
     return ALLOWED_CATEGORIES.includes(value as Submission["category"]);
 }
 
-function findExistingDuplicate(normalizedName: string, normalizedUrl: string) {
+async function findExistingDuplicate(normalizedName: string, normalizedUrl: string) {
+    const items = await getItems();
+
     return items.find((item) => {
         const titleMatches = normalizeName(item.title) === normalizedName;
         const urls = [item.website, item.github].filter(Boolean) as string[];
@@ -270,7 +272,7 @@ export async function POST(request: Request) {
 
         const normalizedName = normalizeName(trimmedName);
         const normalizedUrl = normalizeUrlForDuplicateCheck(parsedLink.toString());
-        const existingItem = findExistingDuplicate(normalizedName, normalizedUrl);
+        const existingItem = await findExistingDuplicate(normalizedName, normalizedUrl);
 
         if (existingItem) {
             return NextResponse.json(

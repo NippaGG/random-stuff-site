@@ -18,7 +18,7 @@ const TAB_ICONS: Record<TabType, React.ElementType> = {
 };
 
 export default function MobileContentSection() {
-    const items = staticItems;
+    const [items, setItems] = useState<Item[]>(staticItems);
     const [activeTab, setActiveTab] = useState<TabType>("Softwares");
     const [searchQuery, setSearchQuery] = useState("");
     const [previewItem, setPreviewItem] = useState<Item | null>(null);
@@ -42,7 +42,29 @@ export default function MobileContentSection() {
     const lockPointRef = useRef<number>(0);
 
 
+    useEffect(() => {
+        let isMounted = true;
 
+        fetch("/api/items")
+            .then((response) => {
+                if (!response.ok) {
+                    throw new Error(`Items request failed: ${response.status}`);
+                }
+                return response.json() as Promise<Item[]>;
+            })
+            .then((nextItems) => {
+                if (isMounted && nextItems.length > 0) {
+                    setItems(nextItems);
+                }
+            })
+            .catch((error) => {
+                console.error("Failed to load database items:", error);
+            });
+
+        return () => {
+            isMounted = false;
+        };
+    }, []);
 
     // Lock body scroll when preview/menu/favorites is open
     useEffect(() => {

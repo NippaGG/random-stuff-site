@@ -201,7 +201,7 @@ export default function ContentSection() {
   const sectionRef = useRef(null);
   const contentGridRef = useRef<HTMLDivElement>(null);
 
-  const items = staticItems;
+  const [items, setItems] = useState<Item[]>(staticItems);
   const [activeTab, setActiveTab] = useState("Websites");
   const [isStraight, setIsStraight] = useState(false);
   const [isLocked, setIsLocked] = useState(false);
@@ -231,7 +231,29 @@ export default function ContentSection() {
 
   const { isFavorite, toggleFavorite, clearFavorites, removeFavorites } = useFavorites();
 
+  useEffect(() => {
+    let isMounted = true;
 
+    fetch("/api/items")
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(`Items request failed: ${response.status}`);
+        }
+        return response.json() as Promise<Item[]>;
+      })
+      .then((nextItems) => {
+        if (isMounted && nextItems.length > 0) {
+          setItems(nextItems);
+        }
+      })
+      .catch((error) => {
+        console.error("Failed to load database items:", error);
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   useEffect(() => {
     const mediaQuery = window.matchMedia("(max-width: 767px)");
