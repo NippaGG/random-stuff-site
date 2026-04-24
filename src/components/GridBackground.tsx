@@ -31,7 +31,7 @@ export default function GridBackground() {
           const y = j * size;
 
           // Base grid
-          ctx.strokeStyle = "rgba(255, 255, 255, 0.04)"; 
+          ctx.strokeStyle = "rgba(255, 255, 255, 0.08)"; 
           ctx.lineWidth = 1;
           ctx.strokeRect(x, y, size - gap, size - gap);
 

@@ -133,20 +133,13 @@ const TextPressure: React.FC<TextPressureProps> = ({
   // THE MAIN LOOP
   useEffect(() => {
     let rafId = 0;
-    let lastTime = 0;
-    const frameInterval = 1000 / 60;
 
     // KILL SWITCH LOGIC
     if (stopAnimation) {
         return; 
     }
 
-    const animate = (time: number) => {
-      if (time - lastTime < frameInterval) {
-        rafId = requestAnimationFrame(animate);
-        return;
-      }
-      lastTime = time;
+    const animate = () => {
 
       mouseRef.current.x += (cursorRef.current.x - mouseRef.current.x) / 15;
       mouseRef.current.y += (cursorRef.current.y - mouseRef.current.y) / 15;
@@ -166,8 +159,9 @@ const TextPressure: React.FC<TextPressureProps> = ({
         const titleRect = titleRef.current.getBoundingClientRect();
         const maxDist = titleRect.width / 2;
 
-        spansRef.current.forEach((span) => {
-          if (!span) return;
+        // BATCH READS: get all bounding rects first to prevent layout thrashing
+        const spanUpdates = spansRef.current.map((span) => {
+          if (!span) return null;
 
           const rect = span.getBoundingClientRect();
           const charCenter = {
@@ -184,11 +178,18 @@ const TextPressure: React.FC<TextPressureProps> = ({
 
           const newFontVariationSettings = `'wght' ${wght}, 'wdth' ${wdth}, 'ital' ${italVal}`;
 
-          if (span.style.fontVariationSettings !== newFontVariationSettings) {
-            span.style.fontVariationSettings = newFontVariationSettings;
+          return { span, newFontVariationSettings, alphaVal };
+        });
+
+        // BATCH WRITES: apply all styles after reading
+        spanUpdates.forEach((update) => {
+          if (!update) return;
+          
+          if (update.span.style.fontVariationSettings !== update.newFontVariationSettings) {
+            update.span.style.fontVariationSettings = update.newFontVariationSettings;
           }
-          if (alpha && span.style.opacity !== alphaVal.toString()) {
-            span.style.opacity = alphaVal.toString();
+          if (alpha && update.span.style.opacity !== update.alphaVal.toString()) {
+            update.span.style.opacity = update.alphaVal.toString();
           }
         });
 
