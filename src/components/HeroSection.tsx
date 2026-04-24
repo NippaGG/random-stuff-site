@@ -140,6 +140,7 @@ export default function HeroSection() {
                 src="/icon.png"
                 alt="Portfolio"
                 fill
+                sizes="48px"
                 className="object-cover"
               />
             </motion.a>

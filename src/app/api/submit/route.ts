@@ -1,65 +1,130 @@
-import fs from "fs";
-import path from "path";
-
 import { items } from "@/data/items";
 import { NextResponse } from "next/server";
 
-const SUBMISSIONS_PATH = path.join(process.cwd(), "data", "submissions.json");
-const SUBMISSIONS_DIR = path.dirname(SUBMISSIONS_PATH);
-
-let submissionMutationQueue: Promise<void> = Promise.resolve();
+const ALLOWED_CATEGORIES = ["Websites", "Softwares", "Scripts"] as const;
+const TOOL_NAME_MAX_LENGTH = 80;
+const LINK_MAX_LENGTH = 500;
+const DESCRIPTION_MAX_LENGTH = 500;
+const RATE_LIMIT_WINDOW_MS = 15 * 60 * 1000;
+const RATE_LIMIT_MAX_REQUESTS = 5;
+const RECENT_SUBMISSION_TTL_MS = 24 * 60 * 60 * 1000;
 
 interface Submission {
     toolName: string;
     link: string;
-    category: string;
+    category: (typeof ALLOWED_CATEGORIES)[number];
     description: string;
     submittedAt: string;
 }
 
-function ensureSubmissionsStorage(): void {
-    fs.mkdirSync(SUBMISSIONS_DIR, { recursive: true });
+type RateLimitEntry = {
+    count: number;
+    resetAt: number;
+};
 
-    if (!fs.existsSync(SUBMISSIONS_PATH)) {
-        fs.writeFileSync(SUBMISSIONS_PATH, "[]\n", "utf-8");
+const rateLimitStore = new Map<string, RateLimitEntry>();
+const recentSubmittedUrls = new Map<string, number>();
+const recentSubmittedNames = new Map<string, number>();
+
+function getClientIp(request: Request) {
+    const forwardedFor = request.headers.get("x-forwarded-for");
+    if (forwardedFor) {
+        return forwardedFor.split(",")[0]?.trim() || "unknown";
+    }
+
+    return request.headers.get("x-real-ip") ?? "unknown";
+}
+
+function checkRateLimit(identifier: string) {
+    const now = Date.now();
+
+    for (const [key, entry] of rateLimitStore) {
+        if (entry.resetAt <= now) rateLimitStore.delete(key);
+    }
+
+    const current = rateLimitStore.get(identifier);
+
+    if (!current || current.resetAt <= now) {
+        rateLimitStore.set(identifier, {
+            count: 1,
+            resetAt: now + RATE_LIMIT_WINDOW_MS,
+        });
+        return { allowed: true, retryAfterSeconds: 0 };
+    }
+
+    if (current.count >= RATE_LIMIT_MAX_REQUESTS) {
+        return {
+            allowed: false,
+            retryAfterSeconds: Math.ceil((current.resetAt - now) / 1000),
+        };
+    }
+
+    current.count += 1;
+    return { allowed: true, retryAfterSeconds: 0 };
+}
+
+function pruneRecentSubmissions() {
+    const now = Date.now();
+
+    for (const [url, expiresAt] of recentSubmittedUrls) {
+        if (expiresAt <= now) recentSubmittedUrls.delete(url);
+    }
+
+    for (const [name, expiresAt] of recentSubmittedNames) {
+        if (expiresAt <= now) recentSubmittedNames.delete(name);
     }
 }
 
-function readSubmissions(): Submission[] {
-    ensureSubmissionsStorage();
+function normalizeName(value: string) {
+    return value.toLowerCase().replace(/\s+/g, " ").trim();
+}
 
-    try {
-        const raw = fs.readFileSync(SUBMISSIONS_PATH, "utf-8");
-        return JSON.parse(raw) as Submission[];
-    } catch {
-        return [];
+function normalizeUrlForDuplicateCheck(value: string) {
+    const url = new URL(value);
+    url.protocol = url.protocol.toLowerCase();
+    url.hostname = url.hostname.toLowerCase().replace(/^www\./, "");
+    url.hash = "";
+
+    if (
+        (url.protocol === "https:" && url.port === "443") ||
+        (url.protocol === "http:" && url.port === "80")
+    ) {
+        url.port = "";
     }
+
+    for (const key of [...url.searchParams.keys()]) {
+        if (
+            key.toLowerCase().startsWith("utm_") ||
+            ["fbclid", "gclid", "ref", "source", "tab"].includes(key.toLowerCase())
+        ) {
+            url.searchParams.delete(key);
+        }
+    }
+
+    const normalizedPath = url.pathname.replace(/\/+$/, "") || "/";
+    url.pathname = normalizedPath;
+
+    return url.toString().replace(/\/$/, "");
 }
 
-function writeSubmissions(submissions: Submission[]): void {
-    ensureSubmissionsStorage();
-    fs.writeFileSync(
-        SUBMISSIONS_PATH,
-        JSON.stringify(submissions, null, 2),
-        "utf-8"
-    );
+function isAllowedCategory(value: string): value is Submission["category"] {
+    return ALLOWED_CATEGORIES.includes(value as Submission["category"]);
 }
 
-async function withSubmissionLock<T>(task: () => Promise<T> | T): Promise<T> {
-    const previous = submissionMutationQueue;
-    let release = () => {};
+function findExistingDuplicate(normalizedName: string, normalizedUrl: string) {
+    return items.find((item) => {
+        const titleMatches = normalizeName(item.title) === normalizedName;
+        const urls = [item.website, item.github].filter(Boolean) as string[];
+        const urlMatches = urls.some((url) => {
+            try {
+                return normalizeUrlForDuplicateCheck(url) === normalizedUrl;
+            } catch {
+                return false;
+            }
+        });
 
-    submissionMutationQueue = new Promise<void>((resolve) => {
-        release = resolve;
+        return titleMatches || urlMatches;
     });
-
-    await previous;
-
-    try {
-        return await task();
-    } finally {
-        release();
-    }
 }
 
 async function sendToDiscord(submission: {
@@ -103,14 +168,47 @@ async function sendToDiscord(submission: {
 }
 
 export async function GET() {
-    const submissions = readSubmissions();
-    return NextResponse.json({ submissionCount: submissions.length });
+    return NextResponse.json({
+        message: "Submissions are delivered to Discord and are not stored locally.",
+    });
 }
 
 export async function POST(request: Request) {
     try {
-        const body = await request.json();
-        const { toolName, link, category, description } = body;
+        const clientIp = getClientIp(request);
+        const rateLimit = checkRateLimit(clientIp);
+
+        if (!rateLimit.allowed) {
+            return NextResponse.json(
+                { error: "Too many submissions. Please try again later." },
+                {
+                    status: 429,
+                    headers: {
+                        "Retry-After": String(rateLimit.retryAfterSeconds),
+                    },
+                }
+            );
+        }
+
+        let body: unknown;
+        try {
+            body = await request.json();
+        } catch {
+            return NextResponse.json(
+                { error: "Invalid submission payload." },
+                { status: 400 }
+            );
+        }
+
+        if (!body || typeof body !== "object") {
+            return NextResponse.json(
+                { error: "Invalid submission payload." },
+                { status: 400 }
+            );
+        }
+
+        const payload = body as Record<string, unknown>;
+        const { toolName, link, category, description } = payload;
 
         const trimmedName = typeof toolName === "string" ? toolName.trim() : "";
         const trimmedLink = typeof link === "string" ? link.trim() : "";
@@ -121,6 +219,34 @@ export async function POST(request: Request) {
         if (!trimmedName || !trimmedLink || !trimmedCategory || !trimmedDescription) {
             return NextResponse.json(
                 { error: "All fields are required" },
+                { status: 400 }
+            );
+        }
+
+        if (trimmedName.length > TOOL_NAME_MAX_LENGTH) {
+            return NextResponse.json(
+                { error: `Tool name must be ${TOOL_NAME_MAX_LENGTH} characters or fewer.` },
+                { status: 400 }
+            );
+        }
+
+        if (trimmedLink.length > LINK_MAX_LENGTH) {
+            return NextResponse.json(
+                { error: `URL must be ${LINK_MAX_LENGTH} characters or fewer.` },
+                { status: 400 }
+            );
+        }
+
+        if (trimmedDescription.length > DESCRIPTION_MAX_LENGTH) {
+            return NextResponse.json(
+                { error: `Description must be ${DESCRIPTION_MAX_LENGTH} characters or fewer.` },
+                { status: 400 }
+            );
+        }
+
+        if (!isAllowedCategory(trimmedCategory)) {
+            return NextResponse.json(
+                { error: "Please choose a valid category." },
                 { status: 400 }
             );
         }
@@ -142,9 +268,9 @@ export async function POST(request: Request) {
             );
         }
 
-        const existingItem = items.find(
-            (item) => item.title.toLowerCase() === trimmedName.toLowerCase()
-        );
+        const normalizedName = normalizeName(trimmedName);
+        const normalizedUrl = normalizeUrlForDuplicateCheck(parsedLink.toString());
+        const existingItem = findExistingDuplicate(normalizedName, normalizedUrl);
 
         if (existingItem) {
             return NextResponse.json(
@@ -153,62 +279,48 @@ export async function POST(request: Request) {
             );
         }
 
-        const result = await withSubmissionLock(() => {
-            const submissions = readSubmissions();
-            const existingSubmission = submissions.find(
-                (submission) =>
-                    submission.toolName.toLowerCase() === trimmedName.toLowerCase()
-            );
+        pruneRecentSubmissions();
 
-            if (existingSubmission) {
-                return {
-                    ok: false as const,
-                    error: "This tool has already been submitted!",
-                    status: 409,
-                };
-            }
-
-            const newSubmission: Submission = {
-                toolName: trimmedName,
-                link: parsedLink.toString(),
-                category: trimmedCategory,
-                description: trimmedDescription,
-                submittedAt: new Date().toISOString(),
-            };
-
-            submissions.push(newSubmission);
-            writeSubmissions(submissions);
-
-            return {
-                ok: true as const,
-                submission: newSubmission,
-                submissionCount: submissions.length,
-            };
-        });
-
-        if (!result.ok) {
+        if (
+            recentSubmittedUrls.has(normalizedUrl) ||
+            recentSubmittedNames.has(normalizedName)
+        ) {
             return NextResponse.json(
-                { error: result.error },
-                { status: result.status }
+                { error: "This tool has already been submitted recently." },
+                { status: 409 }
             );
         }
 
+        const submission: Submission = {
+            toolName: trimmedName,
+            link: parsedLink.toString(),
+            category: trimmedCategory,
+            description: trimmedDescription,
+            submittedAt: new Date().toISOString(),
+        };
+
         const discordSuccess = await sendToDiscord({
-            toolName: result.submission.toolName,
-            link: result.submission.link,
-            category: result.submission.category,
-            description: result.submission.description,
+            toolName: submission.toolName,
+            link: submission.link,
+            category: submission.category,
+            description: submission.description,
         });
 
         if (!discordSuccess) {
-            console.warn("Discord notification failed, but submission was saved.");
+            return NextResponse.json(
+                { error: "Submission could not be delivered. Please try again later." },
+                { status: 502 }
+            );
         }
+
+        const expiresAt = Date.now() + RECENT_SUBMISSION_TTL_MS;
+        recentSubmittedUrls.set(normalizedUrl, expiresAt);
+        recentSubmittedNames.set(normalizedName, expiresAt);
 
         return NextResponse.json(
             {
                 message: "Submission received!",
-                submission: result.submission,
-                submissionCount: result.submissionCount,
+                submission,
             },
             { status: 201 }
         );

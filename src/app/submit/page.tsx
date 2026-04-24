@@ -1,30 +1,23 @@
 "use client";
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useRef } from "react";
 import { motion } from "framer-motion";
 import GridBackground from "@/components/GridBackground";
 import CustomCursor from "@/components/CustomCursor";
 import Link from "next/link";
-import { ArrowLeft, Users, Package } from "lucide-react";
+import { ArrowLeft, MessageSquare, ShieldCheck } from "lucide-react";
+
+const TOOL_NAME_MAX_LENGTH = 80;
+const LINK_MAX_LENGTH = 500;
+const DESCRIPTION_MAX_LENGTH = 500;
 
 export default function SubmitPage() {
     const [status, setStatus] = useState<"idle" | "submitting" | "success" | "error">("idle");
     const [errorMessage, setErrorMessage] = useState("");
-    const [submissionCount, setSubmissionCount] = useState<number | null>(null);
 
     const nameRef = useRef<HTMLInputElement>(null);
     const linkRef = useRef<HTMLInputElement>(null);
     const categoryRef = useRef<HTMLSelectElement>(null);
     const descriptionRef = useRef<HTMLTextAreaElement>(null);
-
-    // Fetch submission stats on mount
-    useEffect(() => {
-        fetch("/api/submit")
-            .then((res) => res.json())
-            .then((data) => {
-                setSubmissionCount(data.submissionCount ?? 0);
-            })
-            .catch(() => setSubmissionCount(0));
-    }, []);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -54,7 +47,6 @@ export default function SubmitPage() {
             }
 
             setStatus("success");
-            setSubmissionCount(data.submissionCount);
         } catch {
             setStatus("error");
             setErrorMessage("Network error. Please try again.");
@@ -101,7 +93,7 @@ export default function SubmitPage() {
                     Found something cool? Let us know and we&apos;ll add it to the directory.
                 </p>
 
-                {/* Community Stats Indicator */}
+                {/* Submission status indicator */}
                 <motion.div
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -109,22 +101,16 @@ export default function SubmitPage() {
                     className="flex items-center justify-center gap-5 mb-8 py-3 px-4 border border-white/5 bg-white/[0.02] rounded-none"
                 >
                     <div className="flex items-center gap-2">
-                        <Users size={14} className="text-[#a3e635]/70" />
+                        <MessageSquare size={14} className="text-[#a3e635]/70" />
                         <span className="font-mono text-xs text-gray-400">
-                            <span className="text-white font-semibold">
-                                {submissionCount !== null ? submissionCount : "–"}
-                            </span>{" "}
-                            users submitted
+                            Discord review queue
                         </span>
                     </div>
                     <div className="w-px h-4 bg-white/10" />
                     <div className="flex items-center gap-2">
-                        <Package size={14} className="text-[#a3e635]/70" />
+                        <ShieldCheck size={14} className="text-[#a3e635]/70" />
                         <span className="font-mono text-xs text-gray-400">
-                            <span className="text-white font-semibold">
-                                {submissionCount !== null ? submissionCount : "–"}
-                            </span>{" "}
-                            tools submitted
+                            Spam protected
                         </span>
                     </div>
                     <div className="w-px h-4 bg-white/10" />
@@ -182,6 +168,7 @@ export default function SubmitPage() {
                                 name="toolName"
                                 autoComplete="off"
                                 required
+                                maxLength={TOOL_NAME_MAX_LENGTH}
                                 placeholder="e.g. Raycast"
                                 className="w-full px-4 py-2.5 rounded-none bg-white/5 border border-white/10 focus:border-[#a3e635]/50 focus:ring-1 focus:ring-[#a3e635]/50 outline-none transition-all placeholder:text-gray-600 focus:bg-white/10 font-mono text-sm"
                             />
@@ -197,6 +184,7 @@ export default function SubmitPage() {
                                 autoComplete="url"
                                 spellCheck={false}
                                 required
+                                maxLength={LINK_MAX_LENGTH}
                                 placeholder="https://example.com..."
                                 className="w-full px-4 py-2.5 rounded-none bg-white/5 border border-white/10 focus:border-[#a3e635]/50 focus:ring-1 focus:ring-[#a3e635]/50 outline-none transition-all placeholder:text-gray-600 focus:bg-white/10 font-mono text-sm"
                             />
@@ -235,6 +223,7 @@ export default function SubmitPage() {
                                 autoComplete="off"
                                 required
                                 rows={3}
+                                maxLength={DESCRIPTION_MAX_LENGTH}
                                 placeholder="What does it do? Why is it cool?..."
                                 className="w-full px-4 py-3 rounded-none bg-white/5 border border-white/10 focus:border-[#a3e635]/50 focus:ring-1 focus:ring-[#a3e635]/50 outline-none transition-all placeholder:text-gray-600 resize-none focus:bg-white/10 font-mono text-sm"
                             />

@@ -562,6 +562,7 @@ export default function MobileContentSection() {
                                             src="/icon.png"
                                             alt="Portfolio"
                                             fill
+                                            sizes="20px"
                                             className="object-cover"
                                         />
                                     </div>

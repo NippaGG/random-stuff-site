@@ -34,6 +34,7 @@ body::-webkit-scrollbar {
 }
 
 html {
+  position: relative;
   scrollbar-width: none;
   -ms-overflow-style: none;
 }
