@@ -530,6 +530,7 @@ export default function ContentSection() {
     { id: "windows", label: "Windows" },
     { id: "linux", label: "Linux" },
     { id: "android", label: "Android" },
+    { id: "ios", label: "iOS" },
   ];
 
   return (

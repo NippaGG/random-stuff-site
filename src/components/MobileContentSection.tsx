@@ -35,6 +35,7 @@ export default function MobileContentSection() {
         { id: "windows", label: "Windows" },
         { id: "linux", label: "Linux" },
         { id: "android", label: "Android" },
+        { id: "ios", label: "iOS" },
     ];
 
     const sectionRef = useRef<HTMLDivElement>(null);

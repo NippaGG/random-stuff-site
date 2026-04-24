@@ -951,6 +951,29 @@ const rawItems: RawItem[] = [
       "all"
     ],
     "image": "https://github.com/nicobailon.png"
+  },
+  {
+    "title": "FluxMarkdown",
+    "description": "Beautiful Markdown previews in macOS Finder QuickLook with Mermaid, KaTeX, GFM, charts, and export.",
+    "github": "https://github.com/xykong/flux-markdown",
+    "category": "Softwares",
+    "tags": [
+      "macos"
+    ],
+    "image": "https://github.com/xykong.png"
+  },
+  {
+    "title": "TypeWhisper",
+    "description": "Local, on-device speech-to-text for macOS, Windows, and iOS with no cloud or API keys.",
+    "website": "https://www.typewhisper.com/",
+    "github": "https://github.com/TypeWhisper",
+    "category": "Softwares",
+    "tags": [
+      "macos",
+      "windows",
+      "ios"
+    ],
+    "image": "https://github.com/TypeWhisper.png"
   }
 ];
 
