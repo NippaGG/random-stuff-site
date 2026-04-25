@@ -201,7 +201,7 @@ export default function MobileContentSection() {
 
     return (
         <>
-            <div ref={sectionRef} id="mobile-content-anchor" className="relative flex min-h-screen w-full flex-col pb-40 bg-[#0a0a0a] text-slate-100">
+            <div ref={sectionRef} id="mobile-content-anchor" className="relative flex min-h-screen w-full flex-col pb-40 bg-black/75 text-slate-100">
                 {/* Scroll lock anchor */}
                 <div ref={contentTopRef} />
 
@@ -317,7 +317,7 @@ export default function MobileContentSection() {
                                             onClick={() => setPreviewItem(item)}
                                             initial={{ opacity: 0, y: 10 }}
                                             animate={{ opacity: 1, y: 0 }}
-                                            className="bg-white/5 border border-white/10 p-2 flex gap-3 items-center hover:border-[#bef264]/50 group text-left w-full cursor-pointer relative overflow-hidden"
+                                            className="bg-black/70 border border-white/10 p-2 flex gap-3 items-center hover:border-[#bef264]/50 group text-left w-full cursor-pointer relative overflow-hidden"
                                         >
                                             {/* Image Thumbnail */}
                                             <div className="size-10 shrink-0 bg-slate-800 relative overflow-hidden border border-white/10">
@@ -672,7 +672,7 @@ export default function MobileContentSection() {
                                                 }}
                                                 role="button"
                                                 tabIndex={0}
-                                                className="bg-white/5 border border-white/10 p-2 flex gap-3 items-center text-left w-full hover:border-[#bef264]/50 transition-colors"
+                                                className="bg-black/70 border border-white/10 p-2 flex gap-3 items-center text-left w-full hover:border-[#bef264]/50 transition-colors"
                                             >
                                                 <div className="size-10 shrink-0 bg-slate-800 relative overflow-hidden border border-white/10 flex items-center justify-center">
                                                     {item.image ? (

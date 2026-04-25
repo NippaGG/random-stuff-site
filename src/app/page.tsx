@@ -9,6 +9,7 @@ import Footer from "@/components/Footer";
 import CustomCursor from "@/components/CustomCursor";
 import MobileHeroSection from "@/components/MobileHeroSection";
 import MobileContentSection from "@/components/MobileContentSection";
+import PixelBlast from "@/components/PixelBlast";
 import { AnimatePresence } from "framer-motion";
 import { clearLenisInstance, setLenisInstance } from "@/lib/lenis";
 
@@ -82,15 +83,40 @@ export default function Home() {
   // ─── MOBILE ─────────────────────────────────────────
   if (isMobile) {
     return (
-      <main className="relative min-h-screen text-white flex flex-col bg-[#0a0a0a]">
+      <main className="relative min-h-screen text-white flex flex-col bg-[#0a0a0a] overflow-hidden">
+        <div className="fixed inset-0 z-0 pointer-events-none">
+          <PixelBlast
+            className="absolute inset-0"
+            variant="circle"
+            pixelSize={8}
+            color="#9ccf2f"
+            patternScale={1.8}
+            patternDensity={3.1}
+            pixelSizeJitter={0.25}
+            enableRipples
+            rippleSpeed={0.42}
+            rippleThickness={0.14}
+            rippleIntensityScale={2}
+            liquid={false}
+            liquidStrength={0.1}
+            liquidRadius={1.2}
+            liquidWobbleSpeed={5}
+            speed={0.7}
+            edgeFade={0.02}
+            transparent
+          />
+        </div>
+
         <AnimatePresence mode="wait">
           {isLoading && (
             <LoadingScreen onComplete={() => setIsLoading(false)} />
           )}
         </AnimatePresence>
 
-        <MobileHeroSection />
-        <MobileContentSection />
+        <div className="relative z-10">
+          <MobileHeroSection />
+          <MobileContentSection />
+        </div>
       </main>
     );
   }

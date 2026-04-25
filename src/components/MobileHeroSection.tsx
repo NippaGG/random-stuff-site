@@ -112,17 +112,9 @@ export default function MobileHeroSection() {
     }, []);
 
     return (
-        <section className="bg-[#050505] text-white min-h-screen antialiased flex flex-col relative z-0">
-            {/* Image Hero Area */}
+        <section className="text-white min-h-screen antialiased flex flex-col relative z-0">
+            {/* Hero Area */}
             <div className="relative h-[55vh] w-full overflow-hidden">
-                <motion.img
-                    initial={{ scale: 1.1, opacity: 0 }}
-                    animate={{ scale: 1.05, opacity: 1 }}
-                    transition={{ duration: 1.5, ease: "easeOut" }}
-                    alt="Digital Abstract Art"
-                    className="absolute inset-0 w-full h-full object-cover"
-                    src="https://images.unsplash.com/photo-1550751827-4bd374c3f58b?q=80&w=2070&auto=format&fit=crop"
-                />
 
                 {/* Noise Overlay */}
                 <div
@@ -137,7 +129,13 @@ export default function MobileHeroSection() {
                 {/* Gradient fade to dark background */}
                 <div
                     className="absolute inset-0 pointer-events-none"
-                    style={{ background: "linear-gradient(to bottom, transparent 0%, rgba(5, 5, 5, 0.4) 70%, rgba(5, 5, 5, 1) 100%)" }}
+                    style={{
+                        background: [
+                            "radial-gradient(circle at 21% 8%, rgba(0, 0, 0, 0.94) 0%, rgba(0, 0, 0, 0.82) 13%, rgba(0, 0, 0, 0.18) 32%, transparent 48%)",
+                            "linear-gradient(to bottom, rgba(0, 0, 0, 0.16) 0%, rgba(5, 5, 5, 0.52) 64%, rgba(5, 5, 5, 0.94) 100%)",
+                            "radial-gradient(circle at 31% 78%, rgba(0, 0, 0, 0.88) 0%, rgba(0, 0, 0, 0.6) 24%, transparent 52%)",
+                        ].join(", "),
+                    }}
                 />
 
                 {/* Top Badge */}
@@ -146,7 +144,7 @@ export default function MobileHeroSection() {
                         initial={{ opacity: 0, y: -10 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.5, duration: 0.8 }}
-                        className="mix-blend-difference text-white/80 font-mono text-[10px] tracking-[0.3em] uppercase"
+                        className="text-white/90 font-mono text-[10px] tracking-[0.3em] uppercase drop-shadow-[0_2px_10px_rgba(0,0,0,0.95)]"
                     >
                         COLLECTION {String(itemCount).padStart(3, "0")}
                     </motion.div>
@@ -175,7 +173,7 @@ export default function MobileHeroSection() {
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 1, duration: 0.8 }}
-                className="flex-1 flex flex-col px-8 pt-4 pb-8 gap-6 justify-between bg-[#050505]"
+                className="flex-1 flex flex-col px-8 pt-4 pb-8 gap-6 justify-between bg-black/95 backdrop-blur-[1px]"
             >
                 <div className="space-y-6 max-w-md">
                     <p className="text-lg md:text-xl text-slate-400 font-light leading-snug">
@@ -207,7 +205,7 @@ export default function MobileHeroSection() {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 1.2, duration: 1 }}
-                className="p-8 pt-0 flex justify-between items-center opacity-30 font-mono text-[9px] uppercase tracking-[0.2em]"
+                className="p-8 pt-0 flex justify-between items-center bg-black/[0.86] text-white/55 font-mono text-[9px] uppercase tracking-[0.2em] backdrop-blur-[1px]"
             >
                 <div className="flex gap-4 sm:gap-8 flex-wrap">
                     <div>Updated / {lastUpdated}</div>
@@ -216,18 +214,20 @@ export default function MobileHeroSection() {
             </motion.div>
 
             {/* Bottom Graphic Accents */}
-            <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 0.05 }}
-                transition={{ delay: 1.4, duration: 1 }}
-                className="p-10 grayscale pb-20"
-            >
-                <div className="grid grid-cols-3 gap-10">
-                    <div className="aspect-square bg-slate-800"></div>
-                    <div className="aspect-square bg-slate-800"></div>
-                    <div className="aspect-square bg-slate-800"></div>
-                </div>
-            </motion.div>
+            <div className="bg-black/[0.86] backdrop-blur-[1px]">
+                <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 0.05 }}
+                    transition={{ delay: 1.4, duration: 1 }}
+                    className="p-10 grayscale pb-20"
+                >
+                    <div className="grid grid-cols-3 gap-10">
+                        <div className="aspect-square bg-slate-800"></div>
+                        <div className="aspect-square bg-slate-800"></div>
+                        <div className="aspect-square bg-slate-800"></div>
+                    </div>
+                </motion.div>
+            </div>
         </section>
     );
 }
