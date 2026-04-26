@@ -974,6 +974,87 @@ const rawItems: RawItem[] = [
       "ios"
     ],
     "image": "https://github.com/TypeWhisper.png"
+  },
+  {
+    "title": "VibeUI",
+    "description": "92 ready-to-copy layout prompts for vibe coding and AI UI generation. Covers auth, pricing, hero, bento, dashboards and more — paste into any AI tool instantly.",
+    "website": "https://vibeui.online/",
+    "category": "Websites",
+    "tags": [
+      "all"
+    ]
+  },
+  {
+    "title": "CompressO",
+    "description": "A 100% free, offline, and open-source video and image compression app. Compress any file to a tiny size without quality loss. Available for Mac, Windows, and Linux.",
+    "website": "https://compresso.codeforreal.com/",
+    "category": "Softwares",
+    "tags": [
+      "macos",
+      "windows",
+      "linux"
+    ]
+  },
+  {
+    "title": "Reclip",
+    "description": "Lightweight, self-hosted media downloader with a clean web UI. Download videos from almost any website. Easy to deploy and run on your own server.",
+    "github": "https://github.com/averygan/reclip",
+    "category": "Scripts",
+    "tags": [
+      "all"
+    ],
+    "image": "https://github.com/averygan.png"
+  },
+  {
+    "title": "Clicky",
+    "description": "An AI teacher that lives as a buddy next to your cursor. It can see your screen, talk to you, and even point at things on screen — like having a real teacher beside you. macOS only.",
+    "website": "https://www.clicky.so/",
+    "github": "https://github.com/farzaa/clicky",
+    "category": "Softwares",
+    "tags": [
+      "macos"
+    ],
+    "image": "https://github.com/farzaa.png"
+  },
+  {
+    "title": "ytDownloader",
+    "description": "A free, open-source desktop video downloader. Download videos and audio from YouTube, TikTok, Instagram, Twitter, Twitch, and 1000+ more sites.",
+    "website": "https://aandrew-me.github.io/ytDownloader/",
+    "category": "Softwares",
+    "tags": [
+      "macos",
+      "windows",
+      "linux"
+    ]
+  },
+  {
+    "title": "VidBee",
+    "description": "Personal media archive and AI content hub. Archive video, audio, and transcripts from YouTube, TikTok, and 1000+ sites for backup, offline access, and AI workflows. Free and open source.",
+    "website": "https://vidbee.org/",
+    "category": "Softwares",
+    "tags": [
+      "all"
+    ]
+  },
+  {
+    "title": "Webcam & Mic Test",
+    "description": "Test your webcam and microphone instantly in the browser. Check video quality, resolution, and FPS before video calls. Works on any device — no download needed. Free and private.",
+    "website": "https://webcammictest.com/",
+    "category": "Websites",
+    "tags": [
+      "all"
+    ]
+  },
+  {
+    "title": "Dither",
+    "description": "A vector dithering tool for the web and Adobe Illustrator. Apply stylish dithering effects to images and graphics to create retro halftone-style art. Open source.",
+    "website": "https://dither.fun/",
+    "github": "https://github.com/Shpigford/dither",
+    "category": "Scripts",
+    "tags": [
+      "all"
+    ],
+    "image": "https://github.com/Shpigford.png"
   }
 ];
 
