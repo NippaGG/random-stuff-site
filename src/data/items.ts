@@ -1055,6 +1055,19 @@ const rawItems: RawItem[] = [
       "all"
     ],
     "image": "https://github.com/Shpigford.png"
+  },
+  {
+    "title": "Recordly",
+    "description": "Open-source desktop screen recorder and editor for polished demos, walkthroughs, and product videos with auto-zooms, cursor polish, backgrounds, and timeline editing.",
+    "website": "https://recordly.dev/",
+    "github": "https://github.com/webadderallorg/Recordly",
+    "category": "Softwares",
+    "tags": [
+      "macos",
+      "windows",
+      "linux"
+    ],
+    "image": "https://github.com/webadderallorg.png"
   }
 ];
 
