@@ -1100,6 +1100,27 @@ const rawItems: RawItem[] = [
       "macos"
     ],
     "image": "https://github.com/mangerlahn.png"
+  },
+  {
+    "title": "Caveman",
+    "description": "Claude/Codex plugin and agent skill that makes AI assistants answer tersely to cut output tokens while keeping technical detail.",
+    "github": "https://github.com/JuliusBrussee/caveman",
+    "category": "Scripts",
+    "tags": [
+      "all"
+    ],
+    "image": "https://github.com/JuliusBrussee.png"
+  },
+  {
+    "title": "Dot Matrix",
+    "description": "React component library of expressive dot matrix loaders that you install via the shadcn registry and own as local code.",
+    "website": "https://dotmatrix.zzzzshawn.cloud/",
+    "github": "https://github.com/zzzzshawn/matrix",
+    "category": "Websites",
+    "tags": [
+      "all"
+    ],
+    "image": "https://dotmatrix.zzzzshawn.cloud/og.png"
   }
 ];
 
