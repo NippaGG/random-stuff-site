@@ -1068,6 +1068,38 @@ const rawItems: RawItem[] = [
       "linux"
     ],
     "image": "https://github.com/webadderallorg.png"
+  },
+  {
+    "title": "Clop",
+    "description": "Image, video, PDF, and clipboard optimizer for macOS. Automatically compresses copied media, screen recordings, screenshots, and files so they are smaller and easier to share.",
+    "website": "https://lowtechguys.com/clop/",
+    "github": "https://github.com/FuzzyIdeas/Clop",
+    "category": "Softwares",
+    "tags": [
+      "macos"
+    ],
+    "image": "https://github.com/FuzzyIdeas.png"
+  },
+  {
+    "title": "Parcel - Delivery Tracking",
+    "description": "Delivery tracking app for iPhone, iPad, Mac, Apple Vision, and Apple Watch with carrier recognition, barcode scanning, Amazon integration, widgets, maps, and push notifications.",
+    "website": "https://apps.apple.com/gb/app/parcel-delivery-tracking/id375589283",
+    "category": "Softwares",
+    "tags": [
+      "all"
+    ],
+    "image": "https://is1-ssl.mzstatic.com/image/thumb/Purple221/v4/b7/34/5c/b7345cbd-843b-3679-22fc-82fe99898552/AppIcon-0-0-1x_U007epad-0-0-0-1-0-0-85-220.png/512x512bb.jpg"
+  },
+  {
+    "title": "Latest",
+    "description": "Free, open-source macOS utility that checks whether your apps are up to date, shows what changed, and helps update Mac App Store and Sparkle-based apps.",
+    "website": "https://max.codes/latest/",
+    "github": "https://github.com/mangerlahn/Latest",
+    "category": "Softwares",
+    "tags": [
+      "macos"
+    ],
+    "image": "https://github.com/mangerlahn.png"
   }
 ];
 
