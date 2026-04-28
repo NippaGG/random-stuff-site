@@ -1121,6 +1121,17 @@ const rawItems: RawItem[] = [
       "all"
     ],
     "image": "https://dotmatrix.zzzzshawn.cloud/og.png"
+  },
+  {
+    "title": "Evil Charts",
+    "description": "Open-source chart UI website built with shadcn and Recharts, with handcrafted chart components and docs.",
+    "website": "https://evilcharts.com/docs",
+    "github": "https://github.com/legions-developer/evilcharts",
+    "category": "Websites",
+    "tags": [
+      "all"
+    ],
+    "image": "https://evilcharts.com/og/og-image.png"
   }
 ];
 
