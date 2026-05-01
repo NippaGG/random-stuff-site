@@ -1132,6 +1132,17 @@ const rawItems: RawItem[] = [
       "all"
     ],
     "image": "https://evilcharts.com/og/og-image.png"
+  },
+  {
+    "title": "OmniGet",
+    "description": "Open-source desktop app for studying online courses and books, with notes, flashcards, focus tools, and media downloads.",
+    "website": "https://discord.gg/jgdxyPy7Vn",
+    "github": "https://github.com/tonhowtf/omniget",
+    "category": "Softwares",
+    "tags": [
+      "all"
+    ],
+    "image": "https://github.com/tonhowtf.png"
   }
 ];
 
