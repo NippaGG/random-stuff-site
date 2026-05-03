@@ -9,6 +9,7 @@ import { FolderHeartIcon, type FolderHeartIconHandle } from "./FolderHeartIcon";
 import DecryptedText from "./DecryptedText";
 import { useFavorites } from "@/hooks/useFavorites";
 import { scrollToY } from "@/lib/lenis";
+import { getVisiblePlatformTags, itemMatchesPlatformTag } from "@/lib/platform-tags";
 
 import { twMerge } from "tailwind-merge";
 
@@ -36,7 +37,7 @@ const ScrollBlurCard = ({
   onSelect?: (id: string) => void;
 }) => {
   const colors = CATEGORY_COLORS[item.category] || CATEGORY_COLORS.Websites;
-  const visibleTags = item.tags.filter(t => t !== "all");
+  const visibleTags = getVisiblePlatformTags(item);
 
   return (
     <motion.a
@@ -309,7 +310,7 @@ export default function ContentSection() {
       if (!matchesSearch) return false;
 
       if (activeTag === "all") return true;
-      return item.tags.includes(activeTag) || item.tags.includes("all");
+      return itemMatchesPlatformTag(item, activeTag);
     })
     .sort((a, b) => a.title.localeCompare(b.title));
 
@@ -1316,18 +1317,16 @@ function PreviewContent({
 
             {/* Tags */}
             <div className="flex flex-wrap gap-2 mt-4">
-              {item.tags.map((tag, i) => (
-                tag !== 'all' && (
-                  <motion.span
-                    key={tag}
-                    initial={{ opacity: 0, scale: 0.8 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ delay: 0.4 + (i * 0.05) }}
-                    className="px-2.5 py-1 rounded-none text-[10px] uppercase font-bold tracking-wider border border-white/10 bg-white/5 text-white/60"
-                  >
-                    {tag}
-                  </motion.span>
-                )
+              {getVisiblePlatformTags(item).map((tag, i) => (
+                <motion.span
+                  key={tag}
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: 0.4 + (i * 0.05) }}
+                  className="px-2.5 py-1 rounded-none text-[10px] uppercase font-bold tracking-wider border border-white/10 bg-white/5 text-white/60"
+                >
+                  {tag}
+                </motion.span>
               ))}
             </div>
           </motion.div>

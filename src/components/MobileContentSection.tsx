@@ -7,6 +7,7 @@ import { Terminal, Globe, FileCode, Search, X, ArrowUpRight, Heart, Monitor, Git
 import { useFavorites } from "@/hooks/useFavorites";
 import Image from "next/image";
 import { scrollToY } from "@/lib/lenis";
+import { getVisiblePlatformTags, itemMatchesPlatformTag } from "@/lib/platform-tags";
 
 const TABS = ["Softwares", "Websites", "Scripts"] as const;
 type TabType = (typeof TABS)[number];
@@ -174,7 +175,7 @@ export default function MobileContentSection() {
 
                 // Tag filtering
                 if (activeTag !== "all") {
-                    if (!item.tags.includes(activeTag) && !item.tags.includes("all")) {
+                    if (!itemMatchesPlatformTag(item, activeTag)) {
                         return false;
                     }
                 }
@@ -310,7 +311,7 @@ export default function MobileContentSection() {
                                     </div>
                                 ) : (
                                     filteredItems.map((item) => {
-                                        const visibleTags = item.tags.filter(t => t !== "all");
+                                        const visibleTags = getVisiblePlatformTags(item);
                                         return (
                                         <motion.div
                                             key={item.id}
@@ -795,8 +796,7 @@ export default function MobileContentSection() {
 
                                 {/* Tags */}
                                 <div className="flex flex-wrap gap-2 mb-6">
-                                    {previewItem.tags
-                                        .filter((t: string) => t !== "all")
+                                    {getVisiblePlatformTags(previewItem)
                                         .map((tag: string) => (
                                             <span
                                                 key={tag}
