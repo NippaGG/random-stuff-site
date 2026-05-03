@@ -1143,6 +1143,26 @@ const rawItems: RawItem[] = [
       "all"
     ],
     "image": "https://github.com/tonhowtf.png"
+  },
+  {
+    "title": "ASCII Magic",
+    "description": "Free browser tool that turns images and videos into ASCII art in real time, with PNG and MP4 export.",
+    "website": "https://www.ascii-magic.com/",
+    "category": "Websites",
+    "tags": [
+      "all"
+    ],
+    "image": "https://ascii-magic.com/og.jpg"
+  },
+  {
+    "title": "Thide",
+    "description": "Lightweight Windows 10/11 app to hide or show the taskbar with system tray and CLI control.",
+    "github": "https://github.com/amnweb/thide",
+    "category": "Softwares",
+    "tags": [
+      "windows"
+    ],
+    "image": "https://github.com/amnweb.png"
   }
 ];
 
