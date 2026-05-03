@@ -1174,6 +1174,16 @@ const rawItems: RawItem[] = [
       "all"
     ],
     "image": "https://github.com/AnmolSaini16.png"
+  },
+  {
+    "title": "BrewStation",
+    "description": "Homebrew GUI browser, searcher, and manager with app snapshot saving and restoring.",
+    "github": "https://github.com/hreinssondev/BrewStation",
+    "category": "Softwares",
+    "tags": [
+      "macos"
+    ],
+    "image": "https://github.com/hreinssondev.png"
   }
 ];
 
