@@ -1163,6 +1163,17 @@ const rawItems: RawItem[] = [
       "windows"
     ],
     "image": "https://github.com/amnweb.png"
+  },
+  {
+    "title": "mapcn",
+    "description": "Beautiful map components with zero config and one-command setup.",
+    "website": "https://mapcn.dev",
+    "github": "https://github.com/AnmolSaini16/mapcn",
+    "category": "Websites",
+    "tags": [
+      "all"
+    ],
+    "image": "https://github.com/AnmolSaini16.png"
   }
 ];
 
