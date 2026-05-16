@@ -129,7 +129,7 @@ export default function HeroSection() {
           {/* PORTFOLIO TRIGGER - Top Right (Desktop Only) */}
           <div className="hidden md:block absolute top-8 right-8 z-[150] pointer-events-auto">
             <motion.a
-              href="https://shockagg.vercel.app/"
+              href="https://shocka.site/"
               target="_blank"
               rel="noreferrer"
               whileTap={{ scale: 0.95 }}

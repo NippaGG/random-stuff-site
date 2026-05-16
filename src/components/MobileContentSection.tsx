@@ -576,7 +576,7 @@ export default function MobileContentSection() {
                                 </a>
 
                                 <a
-                                    href="https://shockagg.vercel.app/"
+                                    href="https://shocka.site/"
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     className="flex items-center gap-4 px-4 py-3.5 bg-white/5 border border-white/10 hover:border-[#bef264]/50 transition-colors group"
@@ -595,7 +595,7 @@ export default function MobileContentSection() {
                                             Portfolio
                                         </p>
                                         <p className="text-slate-500 text-[10px]">
-                                            shockagg.vercel.app
+                                            shocka.site
                                         </p>
                                     </div>
                                 </a>

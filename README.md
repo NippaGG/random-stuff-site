@@ -54,4 +54,4 @@ npm run start
 
 ## Credits
 
-Built by [Nipun Yatawara / ShockaGG](https://shockagg.vercel.app/).
+Built by [Nipun Yatawara / ShockaGG](https://shocka.site/).

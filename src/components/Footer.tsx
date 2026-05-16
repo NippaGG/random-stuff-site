@@ -22,7 +22,7 @@ export default function Footer() {
         <span>by</span>
 
         <a
-          href="https://shockagg.vercel.app/"
+          href="https://shocka.site/"
           target="_blank"
           rel="noopener noreferrer"
           className="group relative text-[#a3e635] font-bold cursor-pointer"
