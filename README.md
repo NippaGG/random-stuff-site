@@ -2,11 +2,11 @@
 
 A curated directory of websites, apps, and scripts worth keeping around. Built for quick browsing, clean filtering, and discovering useful tools without digging through messy bookmark dumps.
 
-[Check it out](https://random-stuff-by-shockagg.vercel.app/)
+[Check it out](https://randomstuff.shocka.site/)
 
 ## Contributing
 
-The easiest way to suggest a tool is through the [Submit a tool](https://random-stuff-by-shockagg.vercel.app/submit) page. Submissions are checked for obvious duplicates and sent to ShockaGG through Discord for review.
+The easiest way to suggest a tool is through the [Submit a tool](https://randomstuff.shocka.site/submit) page. Submissions are checked for obvious duplicates and sent to ShockaGG through Discord for review.
 
 ## Stack
 
