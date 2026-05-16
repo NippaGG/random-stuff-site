@@ -1184,6 +1184,26 @@ const rawItems: RawItem[] = [
       "macos"
     ],
     "image": "https://github.com/hreinssondev.png"
+  },
+  {
+    "title": "unlumen UI",
+    "description": "Copy-ready React, TypeScript, Tailwind, Motion, and shadcn components for building polished interfaces fast.",
+    "website": "https://ui.unlumen.com/components",
+    "category": "Websites",
+    "tags": [
+      "all"
+    ],
+    "image": "https://ui.unlumen.com/favicon.ico"
+  },
+  {
+    "title": "Deck.Gallery",
+    "description": "Curated gallery of beautifully designed presentation decks, slides, reports, brand guidelines, and pitch decks.",
+    "website": "https://deck.gallery/",
+    "category": "Websites",
+    "tags": [
+      "all"
+    ],
+    "image": "https://deck.gallery/favicon.ico"
   }
 ];
 
