@@ -1204,6 +1204,27 @@ const rawItems: RawItem[] = [
       "all"
     ],
     "image": "https://deck.gallery/favicon.ico"
+  },
+  {
+    "title": "VirtualBuddy",
+    "description": "Virtualize macOS 12 and later on Apple Silicon with a friendly virtual machine GUI.",
+    "github": "https://github.com/insidegui/VirtualBuddy",
+    "category": "Softwares",
+    "tags": [
+      "macos"
+    ],
+    "image": "https://github.com/insidegui.png"
+  },
+  {
+    "title": "Mos",
+    "description": "Lightweight macOS utility for smooth mouse scrolling and independent scroll direction settings.",
+    "website": "http://mos.caldis.me",
+    "github": "https://github.com/Caldis/Mos",
+    "category": "Softwares",
+    "tags": [
+      "macos"
+    ],
+    "image": "https://github.com/Caldis.png"
   }
 ];
 
