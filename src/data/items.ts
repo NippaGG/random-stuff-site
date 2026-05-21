@@ -1225,6 +1225,16 @@ const rawItems: RawItem[] = [
       "macos"
     ],
     "image": "https://github.com/Caldis.png"
+  },
+  {
+    "title": "RuView",
+    "description": "Turns commodity WiFi signals into real-time spatial intelligence — detect presence, vital signs, and movement through walls using low-cost ESP32 sensors. No cameras, no wearables.",
+    "github": "https://github.com/ruvnet/RuView",
+    "category": "Softwares",
+    "tags": [
+      "all"
+    ],
+    "image": "https://github.com/ruvnet.png"
   }
 ];
 
