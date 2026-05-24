@@ -16,7 +16,7 @@ The easiest way to suggest a tool is through the [Submit a tool](https://randoms
 | Styling | Tailwind CSS 4 |
 | Motion | Framer Motion, Lenis |
 | Visuals | Three.js, Postprocessing, custom WebGL shaders |
-| Data | Supabase REST API with local fallback data |
+| Data | Bundled JSON dataset (`src/data/items.ts`) |
 | Icons | Lucide React |
 | Hosting | Vercel |
 
