@@ -4,7 +4,7 @@ import React, { useRef, useState, useEffect } from "react";
 // 1. Import useMotionValueEvent
 import { motion, useScroll, useTransform, useMotionValueEvent } from "framer-motion";
 import TextPressure from "./TextPressure";
-import FloatingIcons from "./FloatingIcons";
+import ConstellationWords from "./ConstellationWords";
 import Image from "next/image";
 import { Github, ArrowDown } from "lucide-react";
 import { scrollToY } from "@/lib/lenis";
@@ -79,7 +79,7 @@ export default function HeroSection() {
   const scrollTextOpacity = useTransform(scrollYProgress, [0, 0.1], [1, 0]);
 
   const sideOpacity = useTransform(scrollYProgress, [0, 0.15], [1, 0]);
-  const iconsOpacity = useTransform(scrollYProgress, [0, 0.12], [1, 0]);
+  const constellationOpacity = useTransform(scrollYProgress, [0, 0.14], [1, 0]);
   const sideBlur = useTransform(scrollYProgress, [0, 0.15], ["0px", "20px"]);
   const yPos = useTransform(
     scrollYProgress,
@@ -165,8 +165,8 @@ export default function HeroSection() {
             </motion.button>
           </div>
 
-          {/* FLOATING ICONS */}
-          <FloatingIcons opacity={iconsOpacity} compact={isMobile} />
+          {/* CONSTELLATION WORDS — mind-map radiating lines */}
+          <ConstellationWords opacity={constellationOpacity} compact={isMobile} />
 
           {/* GRID LAYOUT */}
           <div className="grid grid-cols-1 md:grid-cols-[1fr_auto_1fr] items-center w-full max-w-screen-xl mx-auto gap-2 md:gap-[2vw]">
