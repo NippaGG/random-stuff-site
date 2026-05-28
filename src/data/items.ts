@@ -1235,6 +1235,73 @@ const rawItems: RawItem[] = [
       "all"
     ],
     "image": "https://github.com/ruvnet.png"
+  },
+  {
+    "title": "WhatCable",
+    "description": "A macOS menu bar app to identify the charging and data transfer capabilities of your USB-C cables.",
+    "website": "https://www.whatcable.uk/",
+    "github": "https://github.com/darrylmorley/whatcable",
+    "category": "Softwares",
+    "tags": [
+      "macos"
+    ],
+    "image": "https://github.com/darrylmorley.png"
+  },
+  {
+    "title": "Free Claude Code",
+    "description": "A lightweight, backend-agnostic reverse proxy to run Claude Code with other AI providers like Gemini, DeepSeek, or local LLMs.",
+    "github": "https://github.com/Alishahryar1/free-claude-code",
+    "category": "Scripts",
+    "tags": [
+      "all"
+    ],
+    "image": "https://github.com/Alishahryar1.png"
+  },
+  {
+    "title": "Open Design",
+    "description": "An open-source, local-first alternative to Claude Design that turns local coding agents into design engines.",
+    "website": "https://open-design.ai",
+    "github": "https://github.com/nexu-io/open-design",
+    "category": "Softwares",
+    "tags": [
+      "all"
+    ],
+    "image": "https://github.com/nexu-io.png"
+  },
+  {
+    "title": "Atomic Chat",
+    "description": "An open-source, local-first AI application to run large language models locally and privately.",
+    "website": "https://atomic.chat/",
+    "github": "https://github.com/AtomicBot-ai/Atomic-Chat",
+    "category": "Softwares",
+    "tags": [
+      "macos",
+      "windows",
+      "linux"
+    ],
+    "image": "https://github.com/AtomicBot-ai.png"
+  },
+  {
+    "title": "Omi",
+    "description": "Open-source AI wearable ecosystem to augment human memory and intelligence.",
+    "website": "https://www.omi.me/",
+    "github": "https://github.com/BasedHardware/omi",
+    "category": "Softwares",
+    "tags": [
+      "all"
+    ],
+    "image": "https://github.com/BasedHardware.png"
+  },
+  {
+    "title": "FluentFlyout",
+    "description": "Modern, customizable flyouts for Windows 11 following Fluent 2 Design principles.",
+    "website": "https://fluentflyout.com/",
+    "github": "https://github.com/unchihugo/FluentFlyout",
+    "category": "Softwares",
+    "tags": [
+      "windows"
+    ],
+    "image": "https://github.com/unchihugo.png"
   }
 ];
 
@@ -1248,8 +1315,8 @@ function slugify(value: string) {
 
 const idCounts = new Map<string, number>();
 
-// Mark the last 5 items in the raw array as "new"
-const NEW_ITEM_COUNT = 5;
+// Mark the last 6 items in the raw array as "new"
+const NEW_ITEM_COUNT = 6;
 const newItemTitles = new Set(
   rawItems.slice(-NEW_ITEM_COUNT).map(i => i.title)
 );
