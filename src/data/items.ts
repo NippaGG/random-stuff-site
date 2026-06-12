@@ -1302,6 +1302,670 @@ const rawItems: RawItem[] = [
       "windows"
     ],
     "image": "https://github.com/unchihugo.png"
+  },
+  {
+    "title": "LocalSend",
+    "description": "An open-source, cross-platform alternative to AirDrop for sharing files over local networks.",
+    "website": "https://localsend.org",
+    "github": "https://github.com/localsend/localsend",
+    "category": "Softwares",
+    "tags": ["windows", "macos", "linux"]
+  },
+  {
+    "title": "Syncthing",
+    "description": "A continuous file synchronization program that syncs files between devices securely and privately.",
+    "website": "https://syncthing.net",
+    "github": "https://github.com/syncthing/syncthing",
+    "category": "Softwares",
+    "tags": ["windows", "macos", "linux"]
+  },
+  {
+    "title": "KDE Connect",
+    "description": "A tool that enables secure communication and integration between your computer and mobile devices.",
+    "website": "https://kdeconnect.kde.org",
+    "github": "https://github.com/KDE/kdeconnect-kde",
+    "category": "Softwares",
+    "tags": ["windows", "macos", "linux"]
+  },
+  {
+    "title": "RustDesk",
+    "description": "An open-source remote desktop client and server written in Rust, serving as an alternative to TeamViewer.",
+    "website": "https://rustdesk.com",
+    "github": "https://github.com/rustdesk/rustdesk",
+    "category": "Softwares",
+    "tags": ["windows", "macos", "linux"]
+  },
+  {
+    "title": "Zotero",
+    "description": "A free, easy-to-use tool to help you collect, organize, annotate, cite, and share research sources.",
+    "website": "https://www.zotero.org",
+    "github": "https://github.com/zotero/zotero",
+    "category": "Softwares",
+    "tags": ["windows", "macos", "linux"]
+  },
+  {
+    "title": "JabRef",
+    "description": "An open-source bibliography reference manager using BibTeX and BibLaTeX as its native formats.",
+    "website": "https://www.jabref.org",
+    "github": "https://github.com/JabRef/jabref",
+    "category": "Softwares",
+    "tags": ["windows", "macos", "linux"]
+  },
+  {
+    "title": "KeePass",
+    "description": "A free, open-source, light-weight password manager with a highly customizable and secure database.",
+    "website": "https://keepass.info",
+    "category": "Softwares",
+    "tags": ["windows"]
+  },
+  {
+    "title": "KeePassXC",
+    "description": "A community fork of KeePassX, providing a modern, cross-platform offline password manager.",
+    "website": "https://keepassxc.org",
+    "github": "https://github.com/keepassxreboot/keepassxc",
+    "category": "Softwares",
+    "tags": ["windows", "macos", "linux"]
+  },
+  {
+    "title": "Cryptomator",
+    "description": "Multi-platform client-side encryption tool that secures your cloud storage files before they leave your device.",
+    "website": "https://cryptomator.org",
+    "github": "https://github.com/cryptomator/cryptomator",
+    "category": "Softwares",
+    "tags": ["windows", "macos", "linux"]
+  },
+  {
+    "title": "FreeFileSync",
+    "description": "A folder comparison and synchronization software that creates and manages backup copies of files.",
+    "website": "https://freefilesync.org",
+    "category": "Softwares",
+    "tags": ["windows", "macos", "linux"]
+  },
+  {
+    "title": "Jitsi Meet",
+    "description": "A secure, fully featured, and completely free video conferencing service requiring no account.",
+    "website": "https://meet.jit.si",
+    "github": "https://github.com/jitsi/jitsi-meet",
+    "category": "Websites",
+    "tags": ["all"]
+  },
+  {
+    "title": "Element",
+    "description": "A secure, decentralized messenger app for group chat and collaboration built on the Matrix protocol.",
+    "website": "https://element.io",
+    "github": "https://github.com/vector-im/element-web",
+    "category": "Softwares",
+    "tags": ["windows", "macos", "linux"]
+  },
+  {
+    "title": "Firefox",
+    "description": "A free, privacy-respecting, open-source web browser developed by Mozilla.",
+    "website": "https://www.mozilla.org/firefox/",
+    "github": "https://github.com/mozilla/gecko-dev",
+    "category": "Softwares",
+    "tags": ["windows", "macos", "linux"]
+  },
+  {
+    "title": "LibreWolf",
+    "description": "A custom Firefox fork focused on privacy, security, and user freedom out-of-the-box.",
+    "website": "https://librewolf.net",
+    "github": "https://github.com/librewolf-community",
+    "category": "Softwares",
+    "tags": ["windows", "macos", "linux"]
+  },
+  {
+    "title": "Waterfox",
+    "description": "A privacy-focused, high-performance web browser based on Firefox that respects user choice.",
+    "website": "https://www.waterfox.net",
+    "github": "https://github.com/WaterfoxCo/Waterfox",
+    "category": "Softwares",
+    "tags": ["windows", "macos", "linux"]
+  },
+  {
+    "title": "Zen Browser",
+    "description": "A beautiful, modern, and highly customisable Firefox fork built for speed and privacy.",
+    "website": "https://zen-browser.app",
+    "github": "https://github.com/zen-browser/desktop",
+    "category": "Softwares",
+    "tags": ["windows", "macos", "linux"]
+  },
+  {
+    "title": "Chromium",
+    "description": "The open-source web browser project that serves as the foundation for Google Chrome and other browsers.",
+    "website": "https://www.chromium.org",
+    "github": "https://github.com/chromium/chromium",
+    "category": "Softwares",
+    "tags": ["windows", "macos", "linux"]
+  },
+  {
+    "title": "Mozilla Thunderbird",
+    "description": "A free, open-source email, newsroom, chat, and calendar client configured for security.",
+    "website": "https://www.thunderbird.net",
+    "github": "https://github.com/mozilla/thunderbird-bin",
+    "category": "Softwares",
+    "tags": ["windows", "macos", "linux"]
+  },
+  {
+    "title": "Mailspring",
+    "description": "A fast, modern email client with search, translation, tracking, and dark themes.",
+    "website": "https://getmailspring.com",
+    "github": "https://github.com/Foundry376/Mailspring",
+    "category": "Softwares",
+    "tags": ["windows", "macos", "linux"]
+  },
+  {
+    "title": "LibreOffice",
+    "description": "A powerful, free, and open-source office suite that is a popular alternative to Microsoft Office.",
+    "website": "https://www.libreoffice.org",
+    "category": "Softwares",
+    "tags": ["windows", "macos", "linux"]
+  },
+  {
+    "title": "OnlyOffice",
+    "description": "An open-source office suite offering secure collaborative document editors for text, spreadsheets, and slides.",
+    "website": "https://www.onlyoffice.com",
+    "github": "https://github.com/ONLYOFFICE/DocumentServer",
+    "category": "Softwares",
+    "tags": ["windows", "macos", "linux"]
+  },
+  {
+    "title": "OpenBoard",
+    "description": "A free, open-source interactive whiteboard software designed for schools and universities.",
+    "website": "https://openboard.ch",
+    "github": "https://github.com/OpenBoard-org/OpenBoard",
+    "category": "Softwares",
+    "tags": ["windows", "macos", "linux"]
+  },
+  {
+    "title": "Excalidraw",
+    "description": "A collaborative virtual whiteboard for sketching hand-drawn like diagrams.",
+    "website": "https://excalidraw.com",
+    "github": "https://github.com/excalidraw/excalidraw",
+    "category": "Websites",
+    "tags": ["all"]
+  },
+  {
+    "title": "Draw.io",
+    "description": "A free, professional online diagramming tool and flowchart maker.",
+    "website": "https://app.diagrams.net",
+    "github": "https://github.com/jgraph/drawio",
+    "category": "Websites",
+    "tags": ["all"]
+  },
+  {
+    "title": "Okular",
+    "description": "A universal document viewer developed by KDE, supporting PDF, EPUB, images, and markdown.",
+    "website": "https://okular.kde.org",
+    "github": "https://github.com/KDE/okular",
+    "category": "Softwares",
+    "tags": ["windows", "macos", "linux"]
+  },
+  {
+    "title": "PDFsam",
+    "description": "A free and open-source desktop application to split, merge, mix, rotate, and extract PDF pages.",
+    "website": "https://pdfsam.org",
+    "github": "https://github.com/torakiki/pdfsam",
+    "category": "Softwares",
+    "tags": ["windows", "macos", "linux"]
+  },
+  {
+    "title": "Obsidian",
+    "description": "A powerful markdown-based knowledge base and note-taking app that works on local plain text files.",
+    "website": "https://obsidian.md",
+    "category": "Softwares",
+    "tags": ["windows", "macos", "linux"]
+  },
+  {
+    "title": "Logseq",
+    "description": "A privacy-first, open-source outliner and knowledge base for note-taking and task management.",
+    "website": "https://logseq.com",
+    "github": "https://github.com/logseq/logseq",
+    "category": "Softwares",
+    "tags": ["windows", "macos", "linux"]
+  },
+  {
+    "title": "Dendron",
+    "description": "A hierarchical, local-first note-taking tool that integrates directly into VS Code.",
+    "website": "https://www.dendron.so",
+    "github": "https://github.com/dendronhq/dendron",
+    "category": "Softwares",
+    "tags": ["windows", "macos", "linux"]
+  },
+  {
+    "title": "Joplin",
+    "description": "An open-source note-taking and to-do application with end-to-end encryption and cloud sync support.",
+    "website": "https://joplinapp.org",
+    "github": "https://github.com/laurent22/joplin",
+    "category": "Softwares",
+    "tags": ["windows", "macos", "linux"]
+  },
+  {
+    "title": "Trilium Notes",
+    "description": "A hierarchical note-taking application designed for building large personal knowledge bases.",
+    "website": "https://github.com/zadam/trilium",
+    "github": "https://github.com/zadam/trilium",
+    "category": "Softwares",
+    "tags": ["windows", "macos", "linux"]
+  },
+  {
+    "title": "AppFlowy",
+    "description": "An open-source Notion alternative built with Flutter and Rust for privacy and customization.",
+    "website": "https://www.appflowy.io",
+    "github": "https://github.com/AppFlowy-IO/AppFlowy",
+    "category": "Softwares",
+    "tags": ["windows", "macos", "linux"]
+  },
+  {
+    "title": "AFFiNE",
+    "description": "A modern workspace that fuses documentation, whiteboards, and database tables, serving as a Notion/Miro alternative.",
+    "website": "https://affine.pro",
+    "github": "https://github.com/toeverything/AFFiNE",
+    "category": "Softwares",
+    "tags": ["windows", "macos", "linux"]
+  },
+  {
+    "title": "Super Productivity",
+    "description": "An open-source to-do list and time tracker with integrations for Jira, GitHub, and GitLab.",
+    "website": "https://super-productivity.com",
+    "github": "https://github.com/johannesjo/super-productivity",
+    "category": "Softwares",
+    "tags": ["windows", "macos", "linux"]
+  },
+  {
+    "title": "BreakTimer",
+    "description": "A customizable break-timer application to help you manage screen-time and avoid eye strain.",
+    "website": "https://breaktimer.app",
+    "github": "https://github.com/tom-james-watson/breaktimer-app",
+    "category": "Softwares",
+    "tags": ["windows", "macos", "linux"]
+  },
+  {
+    "title": "VLC Media Player",
+    "description": "A free, open-source, cross-platform multimedia player that plays almost all audio/video formats.",
+    "website": "https://www.videolan.org/vlc/",
+    "category": "Softwares",
+    "tags": ["windows", "macos", "linux"]
+  },
+  {
+    "title": "Navidrome",
+    "description": "A self-hosted, lightweight personal music streaming server compatible with Subsonic.",
+    "website": "https://www.navidrome.org",
+    "github": "https://github.com/navidrome/navidrome",
+    "category": "Softwares",
+    "tags": ["windows", "macos", "linux"]
+  },
+  {
+    "title": "Jellyfin",
+    "description": "A free software media system that puts you in control of managing and streaming your media files.",
+    "website": "https://jellyfin.org",
+    "github": "https://github.com/jellyfin/jellyfin",
+    "category": "Softwares",
+    "tags": ["windows", "macos", "linux"]
+  },
+  {
+    "title": "Nora",
+    "description": "A beautiful, minimalistic, and modern open-source desktop music player for local files.",
+    "website": "https://github.com/NoraPlayer/Nora",
+    "github": "https://github.com/NoraPlayer/Nora",
+    "category": "Softwares",
+    "tags": ["windows", "macos", "linux"]
+  },
+  {
+    "title": "Strawberry Player",
+    "description": "A high-quality music player and collection organizer geared towards audiophiles and collectors.",
+    "website": "https://www.strawberrymusicplayer.org",
+    "github": "https://github.com/strawberrymusicplayer/strawberry",
+    "category": "Softwares",
+    "tags": ["windows", "macos", "linux"]
+  },
+  {
+    "title": "Ardour",
+    "description": "A powerful digital audio workstation (DAW) for recording, editing, mixing, and mastering audio.",
+    "website": "https://ardour.org",
+    "github": "https://github.com/Ardour/ardour",
+    "category": "Softwares",
+    "tags": ["windows", "macos", "linux"]
+  },
+  {
+    "title": "LMMS",
+    "description": "A free, open-source digital audio workstation for producing music by synthesising and sequencing sounds.",
+    "website": "https://lmms.io",
+    "github": "https://github.com/LMMS/lmms",
+    "category": "Softwares",
+    "tags": ["windows", "macos", "linux"]
+  },
+  {
+    "title": "f.lux",
+    "description": "An application that warms up your computer display color temperature to match the time of day.",
+    "website": "https://justgetflux.com",
+    "category": "Softwares",
+    "tags": ["windows", "macos", "linux"]
+  },
+  {
+    "title": "Blanket",
+    "description": "A simple ambient noise player designed to help you focus and increase your productivity.",
+    "website": "https://github.com/rafaelmardojai/blanket",
+    "github": "https://github.com/rafaelmardojai/blanket",
+    "category": "Softwares",
+    "tags": ["windows", "macos", "linux"]
+  },
+  {
+    "title": "GIMP",
+    "description": "The GNU Image Manipulation Program, a professional open-source raster graphics editor.",
+    "website": "https://www.gimp.org",
+    "category": "Softwares",
+    "tags": ["windows", "macos", "linux"]
+  },
+  {
+    "title": "Krita",
+    "description": "A professional open-source painting program designed for digital artists, concept art, and illustrators.",
+    "website": "https://krita.org",
+    "github": "https://github.com/KDE/krita",
+    "category": "Softwares",
+    "tags": ["windows", "macos", "linux"]
+  },
+  {
+    "title": "Inkscape",
+    "description": "A powerful open-source vector graphics editor supporting SVG, PDF, and various illustrator formats.",
+    "website": "https://inkscape.org",
+    "github": "https://github.com/inkscape/inkscape",
+    "category": "Softwares",
+    "tags": ["windows", "macos", "linux"]
+  },
+  {
+    "title": "Pinta",
+    "description": "An open-source drawing and image editing program modeled after Paint.NET for simpler workflows.",
+    "website": "https://pinta-project.com",
+    "github": "https://github.com/PintaProject/Pinta",
+    "category": "Softwares",
+    "tags": ["windows", "macos", "linux"]
+  },
+  {
+    "title": "CopyQ",
+    "description": "An advanced clipboard manager with searchable history, formatting preservation, and scripting support.",
+    "website": "https://hluk.github.io/CopyQ/",
+    "github": "https://github.com/hluk/CopyQ",
+    "category": "Softwares",
+    "tags": ["windows", "macos", "linux"]
+  },
+  {
+    "title": "Lap Photo Manager",
+    "description": "A local-first, privacy-respecting photo organizer for large libraries built with Tauri and Rust.",
+    "website": "https://julyx10.github.io/lap/",
+    "github": "https://github.com/julyx10/lap",
+    "category": "Softwares",
+    "tags": ["windows", "macos", "linux"]
+  },
+  {
+    "title": "digiKam",
+    "description": "An advanced open-source digital photo management application for importing, organizing, and editing photos.",
+    "website": "https://www.digikam.org",
+    "github": "https://github.com/KDE/digikam",
+    "category": "Softwares",
+    "tags": ["windows", "macos", "linux"]
+  },
+  {
+    "title": "darktable",
+    "description": "An open-source photography workflow application and raw developer that behaves like a virtual lighttable.",
+    "website": "https://www.darktable.org",
+    "github": "https://github.com/darktable-org/darktable",
+    "category": "Softwares",
+    "tags": ["windows", "macos", "linux"]
+  },
+  {
+    "title": "RawTherapee",
+    "description": "A high-performance raw photo processing software designed for modifying digital images.",
+    "website": "https://www.rawtherapee.com",
+    "github": "https://github.com/Beep6581/RawTherapee",
+    "category": "Softwares",
+    "tags": ["windows", "macos", "linux"]
+  },
+  {
+    "title": "Flameshot",
+    "description": "An easy-to-use screenshot utility with built-in annotation tools and sharing features.",
+    "website": "https://flameshot.org",
+    "github": "https://github.com/flameshot-org/flameshot",
+    "category": "Softwares",
+    "tags": ["windows", "macos", "linux"]
+  },
+  {
+    "title": "Ksnip",
+    "description": "A feature-rich screenshot tool that offers drawing tools, watermarks, and crop capabilities.",
+    "website": "https://github.com/ksnip/ksnip",
+    "github": "https://github.com/ksnip/ksnip",
+    "category": "Softwares",
+    "tags": ["windows", "macos", "linux"]
+  },
+  {
+    "title": "OBS Studio",
+    "description": "Free and open-source software for video recording and live streaming.",
+    "website": "https://obsproject.com",
+    "github": "https://github.com/obsproject/obs-studio",
+    "category": "Softwares",
+    "tags": ["windows", "macos", "linux"]
+  },
+  {
+    "title": "Audacity",
+    "description": "A free, easy-to-use, multi-track audio editor and recorder.",
+    "website": "https://www.audacityteam.org",
+    "github": "https://github.com/audacity/audacity",
+    "category": "Softwares",
+    "tags": ["windows", "macos", "linux"]
+  },
+  {
+    "title": "HandBrake",
+    "description": "A tool for converting video from nearly any format to a selection of modern, widely supported codecs.",
+    "website": "https://handbrake.fr",
+    "github": "https://github.com/HandBrake/HandBrake",
+    "category": "Softwares",
+    "tags": ["windows", "macos", "linux"]
+  },
+  {
+    "title": "Kdenlive",
+    "description": "A professional open-source non-linear video editor developed by the KDE community.",
+    "website": "https://kdenlive.org",
+    "github": "https://github.com/KDE/kdenlive",
+    "category": "Softwares",
+    "tags": ["windows", "macos", "linux"]
+  },
+  {
+    "title": "LosslessCut",
+    "description": "A lightweight cross-platform tool for extremely fast and lossless cutting of video and audio files.",
+    "website": "https://github.com/mifi/lossless-cut",
+    "github": "https://github.com/mifi/lossless-cut",
+    "category": "Softwares",
+    "tags": ["windows", "macos", "linux"]
+  },
+  {
+    "title": "Qalculate!",
+    "description": "A multi-purpose, cross-platform desktop calculator featuring advanced unit conversions and expressions.",
+    "website": "https://qalculate.github.io",
+    "github": "https://github.com/Qalculate/qalculate-gtk",
+    "category": "Softwares",
+    "tags": ["windows", "macos", "linux"]
+  },
+  {
+    "title": "SpeedCrunch",
+    "description": "A fast, high-precision algebraic desktop calculator with keyboard-friendly interface.",
+    "website": "https://speedcrunch.org",
+    "github": "https://github.com/speedcrunch/SpeedCrunch",
+    "category": "Softwares",
+    "tags": ["windows", "macos", "linux"]
+  },
+  {
+    "title": "PeaZip",
+    "description": "A free file archiver and utility for opening zip, rar, and 7z archives with strong encryption.",
+    "website": "https://peazip.github.io",
+    "github": "https://github.com/peazip/PeaZip",
+    "category": "Softwares",
+    "tags": ["windows", "macos", "linux"]
+  },
+  {
+    "title": "Filelight",
+    "description": "A utility to visualize disk usage by drawing a set of concentric segmented rings.",
+    "website": "https://apps.kde.org/filelight/",
+    "github": "https://github.com/KDE/filelight",
+    "category": "Softwares",
+    "tags": ["windows", "macos", "linux"]
+  },
+  {
+    "title": "Crossdirstat",
+    "description": "A cross-platform disk usage analysis tool similar to WinDirStat showing directory trees and treemaps.",
+    "website": "https://github.com/Jelmerro/crossdirstat",
+    "github": "https://github.com/Jelmerro/crossdirstat",
+    "category": "Softwares",
+    "tags": ["windows", "macos", "linux"]
+  },
+  {
+    "title": "Double Commander",
+    "description": "A cross-platform two-panel file manager inspired by Total Commander.",
+    "website": "https://doublecmd.sourceforge.io",
+    "github": "https://github.com/doublecmd/doublecmd",
+    "category": "Softwares",
+    "tags": ["windows", "macos", "linux"]
+  },
+  {
+    "title": "muCommander",
+    "description": "A lightweight, cross-platform file manager with a dual-pane interface.",
+    "website": "https://www.mucommander.com",
+    "github": "https://github.com/mucommander/mucommander",
+    "category": "Softwares",
+    "tags": ["windows", "macos", "linux"]
+  },
+  {
+    "title": "TagSpaces",
+    "description": "An open-source personal data manager that helps you organize and tag files locally.",
+    "website": "https://www.tagspaces.org",
+    "github": "https://github.com/tagspaces/tagspaces",
+    "category": "Softwares",
+    "tags": ["windows", "macos", "linux"]
+  },
+  {
+    "title": "SpaceDrive",
+    "description": "A cross-platform local-first file manager with a beautiful modern interface built on Rust.",
+    "website": "https://www.spacedrive.com",
+    "github": "https://github.com/spacedriveapp/spacedrive",
+    "category": "Softwares",
+    "tags": ["windows", "macos", "linux"]
+  },
+  {
+    "title": "Persepolis Download Manager",
+    "description": "A graphical download manager client for the powerful command-line tool aria2.",
+    "website": "https://persepolisdm.github.io",
+    "github": "https://github.com/persepolisdm/persepolis",
+    "category": "Softwares",
+    "tags": ["windows", "macos", "linux"]
+  },
+  {
+    "title": "Duplicati",
+    "description": "A free backup client that securely stores encrypted, incremental backups on local storage and cloud drives.",
+    "website": "https://www.duplicati.com",
+    "github": "https://github.com/duplicati/duplicati",
+    "category": "Softwares",
+    "tags": ["windows", "macos", "linux"]
+  },
+  {
+    "title": "Glances",
+    "description": "An open-source system monitoring tool that displays system metrics in a terminal or web interface.",
+    "website": "https://nicolargo.github.io/glances/",
+    "github": "https://github.com/nicolargo/glances",
+    "category": "Softwares",
+    "tags": ["windows", "macos", "linux"]
+  },
+  {
+    "title": "GSmartControl",
+    "description": "A graphical user interface for smartctl, exposing SMART disk drive health status and diagnostic tests.",
+    "website": "https://gsmartcontrol.shadedlands.com",
+    "github": "https://github.com/kzsolt/gsmartcontrol",
+    "category": "Softwares",
+    "tags": ["windows", "macos", "linux"]
+  },
+  {
+    "title": "Actiona",
+    "description": "An open-source automation utility that allows you to automate tasks on your system using a visual editor.",
+    "website": "https://actiona.tools",
+    "github": "https://github.com/Jxtkez/actiona",
+    "category": "Softwares",
+    "tags": ["windows", "linux"]
+  },
+  {
+    "title": "Lapce",
+    "description": "A lightning-fast desktop code editor written in Rust with built-in remote development support.",
+    "website": "https://lapce.dev",
+    "github": "https://github.com/lapce/lapce",
+    "category": "Softwares",
+    "tags": ["windows", "macos", "linux"]
+  },
+  {
+    "title": "Zed",
+    "description": "A high-performance, collaborative code editor written in Rust by the creators of Atom and Tree-sitter.",
+    "website": "https://zed.dev",
+    "github": "https://github.com/zed-industries/zed",
+    "category": "Softwares",
+    "tags": ["windows", "macos", "linux"]
+  },
+  {
+    "title": "Espanso",
+    "description": "A lightweight, cross-platform text expander written in Rust to automate typing tasks.",
+    "website": "https://espanso.org",
+    "github": "https://github.com/espanso/espanso",
+    "category": "Softwares",
+    "tags": ["windows", "macos", "linux"]
+  },
+  {
+    "title": "Asyar",
+    "description": "A local-first, open-source productivity launcher designed as an alternative to Raycast, built with Tauri and Rust.",
+    "website": "https://asyar.org",
+    "github": "https://github.com/Xoshbin/asyar-launcher",
+    "category": "Softwares",
+    "tags": ["windows", "macos", "linux"]
+  },
+  {
+    "title": "Ueli",
+    "description": "A customizable keystroke launcher for Windows and macOS to quickly launch apps, files, and web links.",
+    "website": "https://ueli.app",
+    "github": "https://github.com/oliverschwendener/ueli",
+    "category": "Softwares",
+    "tags": ["windows", "macos"]
+  },
+  {
+    "title": "Seafile",
+    "description": "An open-source cloud storage and file sync platform designed for high performance and reliability.",
+    "website": "https://www.seafile.com",
+    "github": "https://github.com/haiwen/seafile",
+    "category": "Softwares",
+    "tags": ["windows", "macos", "linux"]
+  },
+  {
+    "title": "Nextcloud",
+    "description": "A self-hosted productivity platform allowing you to share files, collaborate, and manage calendar/contacts securely.",
+    "website": "https://nextcloud.com",
+    "github": "https://github.com/nextcloud/desktop",
+    "category": "Softwares",
+    "tags": ["windows", "macos", "linux"]
+  },
+  {
+    "title": "Input Leap",
+    "description": "A software utility that allows you to share one keyboard and mouse between multiple computers on a local network.",
+    "github": "https://github.com/input-leap/input-leap",
+    "category": "Softwares",
+    "tags": ["windows", "macos", "linux"]
+  },
+  {
+    "title": "OpenRGB",
+    "description": "An open-source RGB lighting control software that acts as a unified hub for all your lighting hardware.",
+    "website": "https://openrgb.org",
+    "github": "https://github.com/CalcProgrammer1/OpenRGB",
+    "category": "Softwares",
+    "tags": ["windows", "macos", "linux"]
+  },
+  {
+    "title": "Paperless-ngx",
+    "description": "A document management system that transforms your physical documents into a searchable online archive.",
+    "website": "https://docs.paperless-ngx.com",
+    "github": "https://github.com/paperless-ngx/paperless-ngx",
+    "category": "Softwares",
+    "tags": ["windows", "macos", "linux"]
   }
 ];
 
