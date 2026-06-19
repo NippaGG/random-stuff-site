@@ -34,8 +34,8 @@ const getAttr = (distance: number, maxDist: number, minVal: number, maxVal: numb
 
 const TextPressure: React.FC<TextPressureProps> = ({
   text = 'Compressa',
-  fontFamily = 'Compressa VF',
-  fontUrl = 'https://res.cloudinary.com/dr6lvwubh/raw/upload/v1529908256/CompressaPRO-GX.woff2',
+  fontFamily = 'Roboto Flex',
+  fontUrl = 'https://fonts.gstatic.com/s/robotoflex/v30/NaNnepOXO_NexZs0b5QrzlOHb8wCikXpYqmZsWI-__OGbt8jZktqc2V3Zs0KvDLdBP8SBZtOs2IifRuUZQMsPJtUsR4DEK6cULNeUx9XgTnH37Ha_FIAp4Fm0PP1hw45DntW2x0wZGzhPmr1YNMYKYn9_1IQXGwJAiUJVUMdN5YUW4O8HtSoXjC1z3QSabshNFVe3e0O5j3ZjrZCu23Qd4G0EBysQNK-QKavMl1cKq3tHXtXi8mzLjaAQbE.woff2',
   width = true,
   weight = true,
   italic = true,
