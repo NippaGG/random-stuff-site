@@ -1,11 +1,18 @@
 import type { Metadata } from "next";
-import { JetBrains_Mono } from "next/font/google"; // The "Hacker" font
+import { JetBrains_Mono, Roboto_Flex } from "next/font/google";
 import "./globals.css";
 
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { Analytics } from "@vercel/analytics/next";
 
 const mono = JetBrains_Mono({ subsets: ["latin"] });
+
+// Variable font for the hero TextPressure effect (wght + wdth axes)
+const robotoFlex = Roboto_Flex({
+  subsets: ["latin"],
+  axes: ["wdth"],
+  variable: "--font-hero",
+});
 
 export const metadata: Metadata = {
   title: "Random Stuff",
@@ -21,7 +28,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" className={robotoFlex.variable}>
       <body className={mono.className}>
         {children}
 
