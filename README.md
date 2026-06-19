@@ -8,6 +8,16 @@ A curated directory of websites, apps, and scripts worth keeping around. Built f
 
 The easiest way to suggest a tool is through the [Submit a tool](https://randomstuff.shocka.site/submit) page. Submissions are checked for obvious duplicates and sent to ShockaGG through Discord for review.
 
+## Star History
+
+<a href="https://www.star-history.com/?repos=nipunyatawara-dev%2Frandom-stuff-site&type=date&legend=bottom-right">
+ <picture>
+   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/chart?repos=nipunyatawara-dev/random-stuff-site&type=date&theme=dark&legend=bottom-right" />
+   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/chart?repos=nipunyatawara-dev/random-stuff-site&type=date&legend=bottom-right" />
+   <img alt="Star History Chart" src="https://api.star-history.com/chart?repos=nipunyatawara-dev/random-stuff-site&type=date&legend=bottom-right" />
+ </picture>
+</a>
+
 ## Stack
 
 | Area | Tech |
