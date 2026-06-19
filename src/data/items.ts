@@ -1966,6 +1966,50 @@ const rawItems: RawItem[] = [
     "github": "https://github.com/paperless-ngx/paperless-ngx",
     "category": "Softwares",
     "tags": ["windows", "macos", "linux"]
+  },
+  {
+    "title": "LiteParse",
+    "description": "A lightweight, fast document parsing library by LlamaIndex for extracting text and structure from PDFs and other files.",
+    "github": "https://github.com/run-llama/liteparse",
+    "category": "Websites",
+    "tags": ["all"]
+  },
+  {
+    "title": "Motion",
+    "description": "Production-grade animation library for React, JavaScript, and Vue. The successor to Framer Motion with a tiny footprint.",
+    "website": "https://motion.dev",
+    "category": "Websites",
+    "tags": ["all"]
+  },
+  {
+    "title": "Bklit UI",
+    "description": "A component library built on top of shadcn/ui to help you build charts and data visualizations more easily.",
+    "website": "https://bklit.com",
+    "github": "https://github.com/bklit/bklit-ui",
+    "category": "Websites",
+    "tags": ["all"]
+  },
+  {
+    "title": "Transitions.dev",
+    "description": "A collection of the most essential copy-paste CSS transitions for web apps, ready to drop into any project.",
+    "website": "https://transitions.dev",
+    "category": "Websites",
+    "tags": ["all"]
+  },
+  {
+    "title": "termcn",
+    "description": "Beautiful, accessible, and customizable terminal UI components for React. Built on Ink and OpenTUI, distributed via shadcn.",
+    "website": "https://www.termcn.dev",
+    "github": "https://github.com/Aniket-508/termcn",
+    "category": "Websites",
+    "tags": ["all"]
+  },
+  {
+    "title": "Dot Matrix",
+    "description": "A React component library of dot matrix loaders — expressive loading primitives you install via the shadcn registry and own as local code.",
+    "website": "https://dotmatrix.zzzzshawn.cloud",
+    "category": "Websites",
+    "tags": ["all"]
   }
 ];
 
