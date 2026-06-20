@@ -25,6 +25,17 @@ function getFaviconUrl(url?: string): string | undefined {
 
 const rawItems: RawItem[] = [
   {
+    "title": "Tabby",
+    "description": "A terminal for a more modern age.",
+    "website": "https://tabby.sh",
+    "github": "https://github.com/Eugeny/tabby",
+    "category": "Softwares",
+    "tags": [
+      "terminal",
+      "all"
+    ]
+  },
+  {
     "title": "React Bits",
     "description": "A huge library of animated React components.",
     "website": "https://reactbits.dev",
