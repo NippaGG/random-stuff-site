@@ -2021,6 +2021,21 @@ const rawItems: RawItem[] = [
     "website": "https://dotmatrix.zzzzshawn.cloud",
     "category": "Websites",
     "tags": ["all"]
+  },
+  {
+    "title": "noMeiryoUI",
+    "description": "Change Windows system fonts on Windows 8.1/10/11 — a simple tool to replace Meiryo UI and other UI fonts.",
+    "github": "https://github.com/Tatsu-syo/noMeiryoUI",
+    "category": "Softwares",
+    "tags": ["windows"]
+  },
+  {
+    "title": "Windhawk",
+    "description": "The customization marketplace for Windows — install lightweight mods for the taskbar, Start menu, and programs with a couple of clicks.",
+    "website": "https://windhawk.net/",
+    "github": "https://github.com/ramensoftware/windhawk",
+    "category": "Softwares",
+    "tags": ["windows"]
   }
 ];
 
