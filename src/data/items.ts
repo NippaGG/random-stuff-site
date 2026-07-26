@@ -2036,6 +2036,15 @@ const rawItems: RawItem[] = [
     "github": "https://github.com/ramensoftware/windhawk",
     "category": "Softwares",
     "tags": ["windows"]
+  },
+  {
+    "title": "Textream",
+    "description": "A free macOS teleprompter app for streamers, interviewers, and presenters that highlights your script in real-time as you speak in a Dynamic Island overlay.",
+    "website": "https://github.com/f/textream",
+    "github": "https://github.com/f/textream",
+    "category": "Softwares",
+    "tags": ["macos"],
+    "image": "https://github.com/f.png"
   }
 ];
 
