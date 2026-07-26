@@ -493,6 +493,7 @@ const rawItems: RawItem[] = [
     "title": "Excalidraw",
     "description": "Virtual collaborative whiteboard with hand-drawn feel diagrams.",
     "website": "https://excalidraw.com",
+    "github": "https://github.com/excalidraw/excalidraw",
     "category": "Websites",
     "tags": [
       "all"
@@ -1488,14 +1489,6 @@ const rawItems: RawItem[] = [
     "tags": ["windows", "macos", "linux"]
   },
   {
-    "title": "Excalidraw",
-    "description": "A collaborative virtual whiteboard for sketching hand-drawn like diagrams.",
-    "website": "https://excalidraw.com",
-    "github": "https://github.com/excalidraw/excalidraw",
-    "category": "Websites",
-    "tags": ["all"]
-  },
-  {
     "title": "Draw.io",
     "description": "A free, professional online diagramming tool and flowchart maker.",
     "website": "https://app.diagrams.net",
@@ -2012,13 +2005,6 @@ const rawItems: RawItem[] = [
     "description": "Beautiful, accessible, and customizable terminal UI components for React. Built on Ink and OpenTUI, distributed via shadcn.",
     "website": "https://www.termcn.dev",
     "github": "https://github.com/Aniket-508/termcn",
-    "category": "Websites",
-    "tags": ["all"]
-  },
-  {
-    "title": "Dot Matrix",
-    "description": "A React component library of dot matrix loaders — expressive loading primitives you install via the shadcn registry and own as local code.",
-    "website": "https://dotmatrix.zzzzshawn.cloud",
     "category": "Websites",
     "tags": ["all"]
   },
