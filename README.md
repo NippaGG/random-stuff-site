@@ -1,6 +1,5 @@
 # Random Stuff Site
 
-[![Version](https://img.shields.io/badge/version-0.1.0-blue)](https://github.com/nipunyatawara-dev/random-stuff-site)
 [![Stack](https://img.shields.io/badge/stack-Next.js%2016%20%2B%20React%2019-green)](https://github.com/nipunyatawara-dev/random-stuff-site)
 [![Deployment](https://img.shields.io/badge/hosting-Vercel-black)](https://randomstuff.shocka.site/)
 
@@ -10,35 +9,23 @@
 
 * [Live Site](https://randomstuff.shocka.site/)
 * [Submit a Tool](https://randomstuff.shocka.site/submit)
-* [Clone & run from source](#local-development)
-
 ---
 
-**Random Stuff** by ShockaGG is a high-performance, curated directory of websites, desktop software, tools, and scripts worth keeping around — built with Next.js 16, React 19, and Tailwind CSS 4.
+**Random Stuff** by ShockaGG is a curated directory of websites, desktop software, tools, and scripts worth keeping around.
 
 * **Curated catalog** of handpicked tools across Websites, Softwares, and Scripts
 * **Instant search & tag filtering** to find exact utilities in milliseconds
-* **Interactive 3D canvas** with custom WebGL postprocessing shaders powered by Three.js
-* **Smooth inertia scrolling** with Lenis and Framer Motion micro-interactions
 * **Automated Favicon & Metadata extraction** for clean visual presentation
 * **Community submission pipeline** with direct Discord review integration
-* **Fully responsive & dark-themed UI** optimized for speed and readability
 
 # Contents
 
-- [What Random Stuff is and isn't](#what-random-stuff-is-and-isnt)
 - [Key Features](#key-features)
 - [Architecture](#architecture)
 - [Tech Stack](#tech-stack)
 - [Local Development](#local-development)
 - [Star History](#star-history)
 - [Contributing](#contributing)
-
-# What Random Stuff is and isn't
-
-* **Random Stuff is** a clean, curated directory of developer tools, macOS/Windows software, essential websites, and helpful scripts — designed for quick discovery and clean organization.
-
-* **Random Stuff is not** an unvetted bookmark dump or search engine aggregator. Every listed resource is evaluated for quality, utility, and active maintenance before inclusion.
 
 # Key Features
 
