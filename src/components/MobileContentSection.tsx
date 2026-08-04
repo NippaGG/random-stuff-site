@@ -7,7 +7,8 @@ import { Terminal, Globe, FileCode, Search, X, ArrowUpRight, Heart, Monitor, Git
 import { useFavorites } from "@/hooks/useFavorites";
 import Image from "next/image";
 import { scrollToY } from "@/lib/lenis";
-import { getVisiblePlatformTags, itemMatchesPlatformTag } from "@/lib/platform-tags";
+import { getVisiblePlatformTags } from "@/lib/platform-tags";
+import { searchItems } from "@/lib/item-search";
 
 const TABS = ["Softwares", "Websites", "Scripts"] as const;
 type TabType = (typeof TABS)[number];
@@ -168,26 +169,11 @@ export default function MobileContentSection() {
         });
     };
 
-    const filteredItems = useMemo(() => {
-        return items
-            .filter((item) => {
-                if (item.category !== activeTab) return false;
-
-                // Tag filtering
-                if (activeTag !== "all") {
-                    if (!itemMatchesPlatformTag(item, activeTag)) {
-                        return false;
-                    }
-                }
-
-                const q = searchQuery.toLowerCase();
-                return (
-                    item.title.toLowerCase().includes(q) ||
-                    item.description.toLowerCase().includes(q)
-                );
-            })
-            .sort((a, b) => a.title.localeCompare(b.title));
-    }, [items, activeTab, activeTag, searchQuery]);
+    const isSearchActive = searchQuery.trim().length > 0;
+    const filteredItems = useMemo(
+        () => searchItems(items, searchQuery, { platformTag: activeTag, browseCategory: activeTab }),
+        [items, searchQuery, activeTag, activeTab],
+    );
 
     const favoriteItems = useMemo(
         () => items.filter((item) => isFavorite(item.id)),
@@ -299,9 +285,16 @@ export default function MobileContentSection() {
                             exit={{ opacity: 0, y: -8 }}
                             transition={{ duration: 0.2 }}
                         >
-                            <h2 className="text-[#bef264] text-xs font-bold leading-tight tracking-[0.2em] uppercase mb-4">
-                                {categoryLabel}
-                            </h2>
+                            <div className="flex items-center justify-between gap-3 mb-4 text-xs font-bold leading-tight tracking-[0.2em] uppercase">
+                                <h2 className="text-[#bef264]">
+                                    {isSearchActive ? "Search results" : categoryLabel}
+                                </h2>
+                                {isSearchActive && (
+                                    <span className="text-white/30 font-mono tracking-normal">
+                                        {filteredItems.length} {filteredItems.length === 1 ? "match" : "matches"}
+                                    </span>
+                                )}
+                            </div>
 
                             <div className="flex flex-col gap-4">
                                 {filteredItems.length === 0 ? (
@@ -339,9 +332,9 @@ export default function MobileContentSection() {
                                                     </>
                                                 ) : (
                                                     <div className="w-full h-full flex items-center justify-center text-white/20">
-                                                        {activeTab === "Websites" && <Globe className="w-5 h-5" />}
-                                                        {activeTab === "Softwares" && <Monitor className="w-5 h-5" />}
-                                                        {activeTab === "Scripts" && <FileCode className="w-5 h-5" />}
+                                                        {item.category === "Websites" && <Globe className="w-5 h-5" />}
+                                                        {item.category === "Softwares" && <Monitor className="w-5 h-5" />}
+                                                        {item.category === "Scripts" && <FileCode className="w-5 h-5" />}
                                                     </div>
                                                 )}
                                             </div>
@@ -355,6 +348,11 @@ export default function MobileContentSection() {
                                                     {item.isNew && (
                                                         <span className="shrink-0 px-1 py-0 text-[8px] font-bold uppercase bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-sm">
                                                             New
+                                                        </span>
+                                                    )}
+                                                    {isSearchActive && (
+                                                        <span className="shrink-0 px-1 py-0 text-[8px] font-bold uppercase text-[#bef264]/70 border border-[#bef264]/20 rounded-sm">
+                                                            {item.category}
                                                         </span>
                                                     )}
                                                 </div>
@@ -423,10 +421,10 @@ export default function MobileContentSection() {
                                         </div>
                                         <input
                                             className="flex w-full flex-1 bg-transparent border-none focus:ring-0 focus:outline-none text-white placeholder:text-slate-500 text-sm px-4"
-                                            placeholder={`Search ${activeTab.toLowerCase()}...`}
+                                            placeholder="Search all tools..."
                                             value={searchQuery}
                                             onChange={(e) => setSearchQuery(e.target.value)}
-                                            aria-label={`Search ${activeTab.toLowerCase()}`}
+                                            aria-label="Search all tools"
                                         />
                                         {searchQuery && (
                                             <button

@@ -1,3 +1,5 @@
+import { getTopicsForItem, type SearchTopic } from "@/lib/search-topics";
+
 export interface Item {
   id: string;
   title: string;
@@ -6,11 +8,13 @@ export interface Item {
   github?: string;
   category: string;
   tags: string[];
+  topics: SearchTopic[];
+  searchTerms?: string[];
   image?: string;
   isNew?: boolean;
 }
 
-type RawItem = Omit<Item, "id">;
+type RawItem = Omit<Item, "id" | "topics">;
 
 /** Extract a favicon URL from a website URL */
 function getFaviconUrl(url?: string): string | undefined {
@@ -2060,6 +2064,7 @@ export const items: Item[] = rawItems.map((item) => {
 
   return {
     ...item,
+    topics: getTopicsForItem(item.title),
     image,
     isNew: newItemTitles.has(item.title),
     id: count === 0 ? baseId : `${baseId}-${count + 1}`,

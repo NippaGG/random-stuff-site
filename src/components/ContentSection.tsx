@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { motion, AnimatePresence, useScroll, useMotionValueEvent, useTransform, useMotionTemplate } from "framer-motion";
 import { items as staticItems, type Item, CATEGORY_COLORS } from "@/data/items";
 import CircularNav from "./CircularNav";
@@ -9,7 +9,8 @@ import { FolderHeartIcon, type FolderHeartIconHandle } from "./FolderHeartIcon";
 import DecryptedText from "./DecryptedText";
 import { useFavorites } from "@/hooks/useFavorites";
 import { scrollToY } from "@/lib/lenis";
-import { getVisiblePlatformTags, itemMatchesPlatformTag } from "@/lib/platform-tags";
+import { getVisiblePlatformTags } from "@/lib/platform-tags";
+import { searchItems } from "@/lib/item-search";
 
 import { twMerge } from "tailwind-merge";
 
@@ -24,7 +25,8 @@ const ScrollBlurCard = ({
   disableAnimations = false,
   className,
   isSelected = false,
-  onSelect
+  onSelect,
+  showCategory = false,
 }: {
   item: Item;
   onClick: (e: React.MouseEvent<HTMLAnchorElement>, item: Item) => void;
@@ -35,6 +37,7 @@ const ScrollBlurCard = ({
   className?: string;
   isSelected?: boolean;
   onSelect?: (id: string) => void;
+  showCategory?: boolean;
 }) => {
   const colors = CATEGORY_COLORS[item.category] || CATEGORY_COLORS.Websites;
   const visibleTags = getVisiblePlatformTags(item);
@@ -45,7 +48,7 @@ const ScrollBlurCard = ({
       target="_blank"
       rel="noreferrer"
       onClick={(event) => onClick(event, item)}
-      variants={variants}
+      variants={disableAnimations ? undefined : variants}
       className={twMerge(
         "group relative flex justify-between items-start gap-3 md:gap-4 bg-white/5 border border-white/10 p-5 md:p-6 rounded-none hover:bg-white/10 transition-colors overflow-hidden backdrop-blur-sm cursor-pointer h-full",
         className
@@ -62,12 +65,19 @@ const ScrollBlurCard = ({
       )}
 
       <div className="flex flex-col z-10 pr-12">
-        <h3 className={twMerge(
-          "text-lg md:text-xl font-bold text-white mb-2 group-hover:text-[#a3e635] transition-colors font-mono",
-          item.isNew && "mt-5"
-        )}>
-          {item.title}
-        </h3>
+        <div className={twMerge("flex flex-wrap items-center gap-2 mb-2", item.isNew && "mt-5")}>
+          <h3 className="text-lg md:text-xl font-bold text-white group-hover:text-[#a3e635] transition-colors font-mono">
+            {item.title}
+          </h3>
+          {showCategory && (
+            <span
+              className="px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider border rounded-sm"
+              style={{ color: colors.accent, borderColor: colors.accentBorder, backgroundColor: colors.accentBg }}
+            >
+              {item.category}
+            </span>
+          )}
+        </div>
         <p className="line-clamp-3 text-gray-400 text-sm font-sans leading-relaxed mb-3">
           {item.description}
         </p>
@@ -300,19 +310,11 @@ export default function ContentSection() {
     }
   };
 
-  const filteredItems = items
-    .filter((item) => {
-      if (item.category !== activeTab) return false;
-
-      const searchLower = searchQuery.toLowerCase();
-      const matchesSearch = item.title.toLowerCase().includes(searchLower) ||
-        item.description.toLowerCase().includes(searchLower);
-      if (!matchesSearch) return false;
-
-      if (activeTag === "all") return true;
-      return itemMatchesPlatformTag(item, activeTag);
-    })
-    .sort((a, b) => a.title.localeCompare(b.title));
+  const isSearchActive = searchQuery.trim().length > 0;
+  const filteredItems = useMemo(
+    () => searchItems(items, searchQuery, { platformTag: activeTag, browseCategory: activeTab }),
+    [items, searchQuery, activeTag, activeTab],
+  );
 
   const { scrollY } = useScroll();
 
@@ -365,7 +367,7 @@ export default function ContentSection() {
         window.clearTimeout(gridLoadingTimeoutRef.current);
       }
     };
-  }, [activeTab, activeTag, searchQuery]);
+  }, []);
 
   useEffect(() => {
     if (!previewItem) return;
@@ -689,6 +691,7 @@ export default function ContentSection() {
             activeTab={activeTab}
             setActiveTab={(tab) => {
               setActiveTab(tab);
+              setSearchQuery("");
               setActiveTag("all");
               // Scroll to the lock position (where navbar straightens and content begins)
               // This ensures a consistent resting position regardless of current scroll depth
@@ -721,6 +724,14 @@ export default function ContentSection() {
         className="w-full max-w-6xl px-4 md:px-5 mx-auto relative z-10 -mt-36 md:-mt-52 pt-[100vh] md:pt-[125vh] flex flex-col min-h-screen"
       >
         <div className="flex-grow">
+          {isSearchActive && !isGridLoading && (
+            <div className="flex items-center justify-between gap-4 mb-4 text-xs font-mono uppercase tracking-widest">
+              <span className="text-[#a3e635]">Search results</span>
+              <span className="text-white/40">
+                {filteredItems.length} {filteredItems.length === 1 ? "match" : "matches"}
+              </span>
+            </div>
+          )}
           <AnimatePresence mode="wait">
             {isGridLoading ? (
               <motion.div
@@ -748,7 +759,7 @@ export default function ContentSection() {
               </motion.div>
             ) : (
               <motion.div
-                key={`${activeTab}-${activeTag}`}
+                key={isSearchActive ? "global-search" : `${activeTab}-${activeTag}`}
                 variants={gridVariants}
                 initial="hidden"
                 animate="show"
@@ -775,6 +786,8 @@ export default function ContentSection() {
                       variants={cardVariants}
                       isFavorite={isFavorite(item.id)}
                       onToggle={toggleFavorite}
+                      showCategory={isSearchActive}
+                      disableAnimations={isSearchActive}
                     />
                   ))
                 )}
@@ -797,10 +810,10 @@ export default function ContentSection() {
             <Search className="absolute left-3 w-4 h-4 text-white/40" />
             <input
               type="text"
-              placeholder={`Search ${activeTab}...`}
+              placeholder="Search all tools..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              aria-label={`Search ${activeTab}`}
+              aria-label="Search all tools"
               onFocus={() => {
                 const viewportHeight = window.innerHeight;
                 const lockPosition = viewportHeight * (isMobile ? 1.6 : 1.9);
