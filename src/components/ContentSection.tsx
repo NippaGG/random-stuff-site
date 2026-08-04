@@ -11,6 +11,7 @@ import { useFavorites } from "@/hooks/useFavorites";
 import { scrollToY } from "@/lib/lenis";
 import { getVisiblePlatformTags } from "@/lib/platform-tags";
 import { searchItems } from "@/lib/item-search";
+import ProgressiveLoadSentinel from "./ProgressiveLoadSentinel";
 
 import { twMerge } from "tailwind-merge";
 
@@ -50,7 +51,7 @@ const ScrollBlurCard = ({
       onClick={(event) => onClick(event, item)}
       variants={disableAnimations ? undefined : variants}
       className={twMerge(
-        "group relative flex justify-between items-start gap-3 md:gap-4 bg-white/5 border border-white/10 p-5 md:p-6 rounded-none hover:bg-white/10 transition-colors overflow-hidden backdrop-blur-sm cursor-pointer h-full",
+        "directory-card group relative flex justify-between items-start gap-3 md:gap-4 bg-[#111111]/95 border border-white/10 p-5 md:p-6 rounded-none hover:bg-[#181818] transition-colors overflow-hidden cursor-pointer h-full",
         className
       )}
     >
@@ -186,6 +187,8 @@ const ScrollBlurCard = ({
 };
 
 const TABS = ["Softwares", "Websites", "Scripts"] as const;
+const INITIAL_VISIBLE_ITEMS = 36;
+const LOAD_MORE_ITEMS = 24;
 
 export default function ContentSection() {
   const sectionRef = useRef(null);
@@ -201,6 +204,10 @@ export default function ContentSection() {
   const [isGridLoading, setIsGridLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [isSortMenuOpen, setIsSortMenuOpen] = useState(false);
+  const [visibleItemsState, setVisibleItemsState] = useState({
+    key: "Websites-all-",
+    count: INITIAL_VISIBLE_ITEMS,
+  });
 
 
   const [showFavorites, setShowFavorites] = useState(false);
@@ -315,6 +322,21 @@ export default function ContentSection() {
     () => searchItems(items, searchQuery, { platformTag: activeTag, browseCategory: activeTab }),
     [items, searchQuery, activeTag, activeTab],
   );
+  const resultSetKey = `${activeTab}-${activeTag}-${searchQuery.trim().toLowerCase()}`;
+  const visibleItemCount = visibleItemsState.key === resultSetKey
+    ? visibleItemsState.count
+    : INITIAL_VISIBLE_ITEMS;
+  const visibleItems = filteredItems.slice(0, visibleItemCount);
+
+  const loadMoreItems = () => {
+    setVisibleItemsState((current) => ({
+      key: resultSetKey,
+      count: Math.min(
+        (current.key === resultSetKey ? current.count : INITIAL_VISIBLE_ITEMS) + LOAD_MORE_ITEMS,
+        filteredItems.length,
+      ),
+    }));
+  };
 
   const { scrollY } = useScroll();
 
@@ -778,7 +800,7 @@ export default function ContentSection() {
                     </button>
                   </div>
                 ) : (
-                  filteredItems.map((item) => (
+                  visibleItems.map((item) => (
                     <ScrollBlurCard
                       key={item.id}
                       item={item}
@@ -790,6 +812,14 @@ export default function ContentSection() {
                       disableAnimations={isSearchActive}
                     />
                   ))
+                )}
+                {visibleItemCount < filteredItems.length && (
+                  <ProgressiveLoadSentinel
+                    onVisible={loadMoreItems}
+                    rootMargin="800px 0px"
+                    triggerKey={`${resultSetKey}-${visibleItemCount}`}
+                    className="col-span-full h-px w-full"
+                  />
                 )}
               </motion.div>
             )}

@@ -22,11 +22,57 @@ export default function CustomCursor() {
         let dotY = 0;
         let ringX = 0;
         let ringY = 0;
-        let rafId = 0;
+        let rafId: number | null = null;
+        let hasPosition = false;
+
+        const renderPosition = () => {
+            dot.style.transform = `translate3d(${dotX}px, ${dotY}px, 0)`;
+            ring.style.transform = `translate3d(${ringX}px, ${ringY}px, 0) translate(-50%, -50%)`;
+        };
+
+        const animate = () => {
+            dotX += (mouseX - dotX) * 0.5;
+            dotY += (mouseY - dotY) * 0.5;
+            ringX += (mouseX - ringX) * 0.15;
+            ringY += (mouseY - ringY) * 0.15;
+
+            const remainingDistance = Math.max(
+                Math.abs(mouseX - dotX),
+                Math.abs(mouseY - dotY),
+                Math.abs(mouseX - ringX),
+                Math.abs(mouseY - ringY),
+            );
+
+            if (remainingDistance < 0.1) {
+                dotX = mouseX;
+                dotY = mouseY;
+                ringX = mouseX;
+                ringY = mouseY;
+                renderPosition();
+                rafId = null;
+                return;
+            }
+
+            renderPosition();
+            rafId = requestAnimationFrame(animate);
+        };
+
+        const requestCursorFrame = () => {
+            if (rafId === null) rafId = requestAnimationFrame(animate);
+        };
 
         const onMouseMove = (e: MouseEvent) => {
             mouseX = e.clientX;
             mouseY = e.clientY;
+            if (!hasPosition) {
+                dotX = mouseX;
+                dotY = mouseY;
+                ringX = mouseX;
+                ringY = mouseY;
+                hasPosition = true;
+                renderPosition();
+            }
+            requestCursorFrame();
             if (!isVisibleRef.current) {
                 isVisibleRef.current = true;
                 setIsVisible(true);
@@ -64,37 +110,17 @@ export default function CustomCursor() {
             }
         };
 
-        // Smooth animation loop
-        const animate = () => {
-            // Dot follows mouse directly with slight smoothing
-            dotX += (mouseX - dotX) * 0.5;
-            dotY += (mouseY - dotY) * 0.5;
-
-            // Ring follows with more delay for trailing effect
-            ringX += (mouseX - ringX) * 0.15;
-            ringY += (mouseY - ringY) * 0.15;
-
-            dot.style.left = `${dotX}px`;
-            dot.style.top = `${dotY}px`;
-            ring.style.left = `${ringX}px`;
-            ring.style.top = `${ringY}px`;
-
-            rafId = requestAnimationFrame(animate);
-        };
-
         window.addEventListener('mousemove', onMouseMove);
         window.addEventListener('mouseover', onMouseOver);
         document.addEventListener('mouseenter', onMouseEnter);
         document.addEventListener('mouseleave', onMouseLeave);
-
-        rafId = requestAnimationFrame(animate);
 
         return () => {
             window.removeEventListener('mousemove', onMouseMove);
             window.removeEventListener('mouseover', onMouseOver);
             document.removeEventListener('mouseenter', onMouseEnter);
             document.removeEventListener('mouseleave', onMouseLeave);
-            cancelAnimationFrame(rafId);
+            if (rafId !== null) cancelAnimationFrame(rafId);
         };
     }, []);
 

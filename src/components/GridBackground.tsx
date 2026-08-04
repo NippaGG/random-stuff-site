@@ -7,8 +7,6 @@ export default function GridBackground() {
   
   // We use refs for mouse positions to avoid React re-renders loops
   const mouseRef = useRef({ x: -1000, y: -1000 });
-  const lastMouseRef = useRef({ x: -1001, y: -1001 }); // Start different to force 1st draw
-
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -55,8 +53,6 @@ export default function GridBackground() {
     const resize = () => {
       canvas.width = window.innerWidth;
       canvas.height = window.innerHeight;
-      // Force a redraw on resize by resetting last position
-      lastMouseRef.current = { x: -10000, y: -10000 };
       drawGrid(false);
     };
     window.addEventListener("resize", resize);
@@ -64,42 +60,48 @@ export default function GridBackground() {
 
     const isCoarsePointer = window.matchMedia("(pointer: coarse)").matches;
     let rafId: number | null = null;
+    let isPaused = document.documentElement.dataset.siteLocked === "true";
 
-    if (!isCoarsePointer) {
-      // Animation loop
-      const animate = () => {
-        // OPTIMIZATION: Check if mouse has moved
-        // If the mouse position hasn't changed, we SKIP the heavy drawing entirely.
-        // This drops CPU usage to near-zero when the mouse is idle.
-        if (
-          mouseRef.current.x === lastMouseRef.current.x &&
-          mouseRef.current.y === lastMouseRef.current.y
-        ) {
-          rafId = requestAnimationFrame(animate);
-          return;
-        }
-
-        // Update last known position
-        lastMouseRef.current = { x: mouseRef.current.x, y: mouseRef.current.y };
+    const scheduleDraw = () => {
+      if (isPaused || document.hidden || rafId !== null) return;
+      rafId = requestAnimationFrame(() => {
+        rafId = null;
         drawGrid(true);
-        rafId = requestAnimationFrame(animate);
-      };
-
-      rafId = requestAnimationFrame(animate);
-    }
+      });
+    };
 
     const handleMouseMove = (e: MouseEvent) => {
       mouseRef.current.x = e.clientX;
       mouseRef.current.y = e.clientY;
+      scheduleDraw();
+    };
+
+    const handleLockChange = (event: Event) => {
+      isPaused = Boolean((event as CustomEvent<{ locked?: boolean }>).detail?.locked);
+      if (isPaused) {
+        if (rafId !== null) cancelAnimationFrame(rafId);
+        rafId = null;
+        drawGrid(false);
+      } else {
+        scheduleDraw();
+      }
+    };
+
+    const handleVisibilityChange = () => {
+      if (!document.hidden) scheduleDraw();
     };
 
     if (!isCoarsePointer) {
       window.addEventListener("mousemove", handleMouseMove);
     }
+    window.addEventListener("site-lock-change", handleLockChange);
+    document.addEventListener("visibilitychange", handleVisibilityChange);
 
     return () => {
       window.removeEventListener("resize", resize);
       window.removeEventListener("mousemove", handleMouseMove);
+      window.removeEventListener("site-lock-change", handleLockChange);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
       if (rafId !== null) {
         cancelAnimationFrame(rafId);
       }

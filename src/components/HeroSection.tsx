@@ -166,7 +166,11 @@ export default function HeroSection() {
           </div>
 
           {/* CONSTELLATION WORDS — mind-map radiating lines */}
-          <ConstellationWords opacity={constellationOpacity} compact={isMobile} />
+          <ConstellationWords
+            opacity={constellationOpacity}
+            compact={isMobile}
+            paused={freezeAnimations || isSiteLocked}
+          />
 
           {/* GRID LAYOUT */}
           <div className="grid grid-cols-1 md:grid-cols-[1fr_auto_1fr] items-center w-full max-w-screen-xl mx-auto gap-2 md:gap-[2vw]">

@@ -9,9 +9,12 @@ import Image from "next/image";
 import { scrollToY } from "@/lib/lenis";
 import { getVisiblePlatformTags } from "@/lib/platform-tags";
 import { searchItems } from "@/lib/item-search";
+import ProgressiveLoadSentinel from "./ProgressiveLoadSentinel";
 
 const TABS = ["Softwares", "Websites", "Scripts"] as const;
 type TabType = (typeof TABS)[number];
+const INITIAL_VISIBLE_ITEMS = 32;
+const LOAD_MORE_ITEMS = 24;
 
 const TAB_ICONS: Record<TabType, React.ElementType> = {
     Softwares: Terminal,
@@ -29,6 +32,10 @@ export default function MobileContentSection() {
     const [isLocked, setIsLocked] = useState(false);
     const [activeTag, setActiveTag] = useState("all");
     const [isSortMenuOpen, setIsSortMenuOpen] = useState(false);
+    const [visibleItemsState, setVisibleItemsState] = useState({
+        key: "Softwares-all-",
+        count: INITIAL_VISIBLE_ITEMS,
+    });
     const { isFavorite, toggleFavorite } = useFavorites();
 
     const tagOptions = [
@@ -135,6 +142,20 @@ export default function MobileContentSection() {
         };
     }, [isLocked]);
 
+    useEffect(() => {
+        document.documentElement.dataset.siteLocked = isLocked ? "true" : "false";
+        window.dispatchEvent(
+            new CustomEvent("site-lock-change", { detail: { locked: isLocked } })
+        );
+    }, [isLocked]);
+
+    useEffect(() => () => {
+        document.documentElement.dataset.siteLocked = "false";
+        window.dispatchEvent(
+            new CustomEvent("site-lock-change", { detail: { locked: false } })
+        );
+    }, []);
+
     // Activate lock when content section header reaches the top of the viewport
     useEffect(() => {
         const updateLockPoint = () => {
@@ -174,6 +195,21 @@ export default function MobileContentSection() {
         () => searchItems(items, searchQuery, { platformTag: activeTag, browseCategory: activeTab }),
         [items, searchQuery, activeTag, activeTab],
     );
+    const resultSetKey = `${activeTab}-${activeTag}-${searchQuery.trim().toLowerCase()}`;
+    const visibleItemCount = visibleItemsState.key === resultSetKey
+        ? visibleItemsState.count
+        : INITIAL_VISIBLE_ITEMS;
+    const visibleItems = filteredItems.slice(0, visibleItemCount);
+
+    const loadMoreItems = () => {
+        setVisibleItemsState((current) => ({
+            key: resultSetKey,
+            count: Math.min(
+                (current.key === resultSetKey ? current.count : INITIAL_VISIBLE_ITEMS) + LOAD_MORE_ITEMS,
+                filteredItems.length,
+            ),
+        }));
+    };
 
     const favoriteItems = useMemo(
         () => items.filter((item) => isFavorite(item.id)),
@@ -303,7 +339,7 @@ export default function MobileContentSection() {
                                         <p className="text-base">No results found.</p>
                                     </div>
                                 ) : (
-                                    filteredItems.map((item) => {
+                                    visibleItems.map((item) => {
                                         const visibleTags = getVisiblePlatformTags(item);
                                         return (
                                         <motion.div
@@ -311,7 +347,7 @@ export default function MobileContentSection() {
                                             onClick={() => setPreviewItem(item)}
                                             initial={{ opacity: 0, y: 10 }}
                                             animate={{ opacity: 1, y: 0 }}
-                                            className="bg-black/70 border border-white/10 p-2 flex gap-3 items-center hover:border-[#bef264]/50 group text-left w-full cursor-pointer relative overflow-hidden"
+                                            className="mobile-directory-card bg-black/90 border border-white/10 p-2 flex gap-3 items-center hover:border-[#bef264]/50 group text-left w-full cursor-pointer relative overflow-hidden"
                                         >
                                             {/* Image Thumbnail */}
                                             <div className="size-10 shrink-0 bg-slate-800 relative overflow-hidden border border-white/10">
@@ -393,6 +429,14 @@ export default function MobileContentSection() {
                                             </button>
                                         </motion.div>
                                     )})
+                                )}
+                                {visibleItemCount < filteredItems.length && (
+                                    <ProgressiveLoadSentinel
+                                        onVisible={loadMoreItems}
+                                        rootMargin="600px 0px"
+                                        triggerKey={`${resultSetKey}-${visibleItemCount}`}
+                                        className="h-px w-full"
+                                    />
                                 )}
                             </div>
                         </motion.div>

@@ -34,11 +34,13 @@ const WORD_LIST = [
 interface ConstellationWordsProps {
   opacity: MotionValue<number>;
   compact?: boolean;
+  paused?: boolean;
 }
 
 export default function ConstellationWords({
   opacity,
   compact = false,
+  paused = false,
 }: ConstellationWordsProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -220,7 +222,7 @@ export default function ConstellationWords({
 
   // ── Resize + animation loop ───────────────────────
   useEffect(() => {
-    if (!isReady) return;
+    if (!isReady || paused) return;
     const container = containerRef.current;
     const canvas = canvasRef.current;
     if (!container || !canvas) return;
@@ -523,7 +525,7 @@ export default function ConstellationWords({
       window.removeEventListener("resize", handleResize);
       cancelAnimationFrame(rafRef.current);
     };
-  }, [isReady, compact]);
+  }, [isReady, compact, paused]);
 
   if (!isReady) return null;
 

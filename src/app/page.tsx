@@ -16,6 +16,7 @@ import { clearLenisInstance, setLenisInstance } from "@/lib/lenis";
 export default function Home() {
   const [isLoading, setIsLoading] = useState(true);
   const [isMobile, setIsMobile] = useState<boolean | null>(null);
+  const [isDirectoryActive, setIsDirectoryActive] = useState(false);
 
   // Detect mobile on mount (avoids SSR hydration mismatch)
   useEffect(() => {
@@ -24,6 +25,16 @@ export default function Home() {
     const onChange = (e: MediaQueryListEvent) => setIsMobile(e.matches);
     mq.addEventListener("change", onChange);
     return () => mq.removeEventListener("change", onChange);
+  }, []);
+
+  useEffect(() => {
+    const onSiteLockChange = (event: Event) => {
+      const lockEvent = event as CustomEvent<{ locked?: boolean }>;
+      setIsDirectoryActive(Boolean(lockEvent.detail?.locked));
+    };
+
+    window.addEventListener("site-lock-change", onSiteLockChange);
+    return () => window.removeEventListener("site-lock-change", onSiteLockChange);
   }, []);
 
   // Lenis smooth scrolling — desktop and mobile
@@ -104,6 +115,7 @@ export default function Home() {
             speed={0.7}
             edgeFade={0.02}
             transparent
+            paused={isDirectoryActive}
           />
         </div>
 

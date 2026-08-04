@@ -53,6 +53,7 @@ type PixelBlastProps = {
   transparent?: boolean;
   edgeFade?: number;
   noiseAmount?: number;
+  paused?: boolean;
 };
 
 const createTouchTexture = (): TouchTexture => {
@@ -375,10 +376,13 @@ const PixelBlast: React.FC<PixelBlastProps> = ({
   transparent = true,
   edgeFade = 0.5,
   noiseAmount = 0,
+  paused = false,
 }) => {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const visibilityRef = useRef({ visible: true });
   const speedRef = useRef(speed);
+  const pausedRef = useRef(paused);
+  pausedRef.current = paused;
 
   const threeRef = useRef<{
     renderer: THREE.WebGLRenderer;
@@ -406,6 +410,7 @@ const PixelBlast: React.FC<PixelBlastProps> = ({
     };
     resizeObserver?: ResizeObserver;
     raf?: number;
+    animate?: () => void;
     quad?: THREE.Mesh<THREE.PlaneGeometry, THREE.ShaderMaterial>;
     timeOffset?: number;
     composer?: EffectComposer;
@@ -423,6 +428,21 @@ const PixelBlast: React.FC<PixelBlastProps> = ({
 
     return () => observer.disconnect();
   }, []);
+
+  useEffect(() => {
+    const state = threeRef.current;
+    if (!state) return;
+
+    if (paused) {
+      if (state.raf !== undefined) cancelAnimationFrame(state.raf);
+      state.raf = undefined;
+      return;
+    }
+
+    if (state.raf === undefined && state.animate) {
+      state.raf = requestAnimationFrame(state.animate);
+    }
+  }, [paused]);
 
   useEffect(() => {
     const container = containerRef.current;
@@ -443,7 +463,7 @@ const PixelBlast: React.FC<PixelBlastProps> = ({
       if (threeRef.current) {
         const t = threeRef.current;
         t.resizeObserver?.disconnect();
-        cancelAnimationFrame(t.raf!);
+        if (t.raf !== undefined) cancelAnimationFrame(t.raf);
         t.quad?.geometry.dispose();
         t.material.dispose();
         t.composer?.dispose();
@@ -596,10 +616,15 @@ const PixelBlast: React.FC<PixelBlastProps> = ({
       renderer.domElement.addEventListener("pointermove", onPointerMove, {
         passive: true,
       });
-      let raf = 0;
+      let raf: number | undefined;
       const animate = () => {
+        if (pausedRef.current) {
+          if (threeRef.current) threeRef.current.raf = undefined;
+          return;
+        }
         if (autoPauseOffscreen && !visibilityRef.current.visible) {
           raf = requestAnimationFrame(animate);
+          if (threeRef.current) threeRef.current.raf = raf;
           return;
         }
         uniforms.uTime.value = timeOffset + clock.getElapsedTime() * speedRef.current;
@@ -622,8 +647,9 @@ const PixelBlast: React.FC<PixelBlastProps> = ({
           composer.render();
         } else renderer.render(scene, camera);
         raf = requestAnimationFrame(animate);
+        if (threeRef.current) threeRef.current.raf = raf;
       };
-      raf = requestAnimationFrame(animate);
+      if (!pausedRef.current) raf = requestAnimationFrame(animate);
       threeRef.current = {
         renderer,
         scene,
@@ -634,6 +660,7 @@ const PixelBlast: React.FC<PixelBlastProps> = ({
         uniforms,
         resizeObserver: ro,
         raf,
+        animate,
         quad,
         timeOffset,
         composer,
@@ -670,7 +697,7 @@ const PixelBlast: React.FC<PixelBlastProps> = ({
       if (!threeRef.current) return;
       const t = threeRef.current;
       t.resizeObserver?.disconnect();
-      cancelAnimationFrame(t.raf!);
+      if (t.raf !== undefined) cancelAnimationFrame(t.raf);
       t.quad?.geometry.dispose();
       t.material.dispose();
       t.composer?.dispose();
