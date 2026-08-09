@@ -2035,6 +2035,14 @@ const rawItems: RawItem[] = [
     "category": "Softwares",
     "tags": ["macos"],
     "image": "https://github.com/f.png"
+  },
+  {
+    "title": "SteamVaults Market Fee Calculator",
+    "description": "Estimate what a Steam Community Market buyer pays and seller receives using adjustable Steam, game, and publisher fee rates.",
+    "website": "https://steamvaults.org/tools/steam-market-fee-calculator",
+    "github": "https://github.com/hyunjun12312/steam-market-fee-calculator",
+    "category": "Websites",
+    "tags": ["all"]
   }
 ];
 
