@@ -38,8 +38,10 @@ function getClientIp(request: Request) {
 function checkRateLimit(identifier: string) {
     const now = Date.now();
 
-    for (const [key, entry] of rateLimitStore) {
-        if (entry.resetAt <= now) rateLimitStore.delete(key);
+    if (rateLimitStore.size > 1000) {
+        for (const [key, entry] of rateLimitStore) {
+            if (entry.resetAt <= now) rateLimitStore.delete(key);
+        }
     }
 
     const current = rateLimitStore.get(identifier);
@@ -66,12 +68,16 @@ function checkRateLimit(identifier: string) {
 function pruneRecentSubmissions() {
     const now = Date.now();
 
-    for (const [url, expiresAt] of recentSubmittedUrls) {
-        if (expiresAt <= now) recentSubmittedUrls.delete(url);
+    if (recentSubmittedUrls.size > 1000) {
+        for (const [url, expiresAt] of recentSubmittedUrls) {
+            if (expiresAt <= now) recentSubmittedUrls.delete(url);
+        }
     }
 
-    for (const [name, expiresAt] of recentSubmittedNames) {
-        if (expiresAt <= now) recentSubmittedNames.delete(name);
+    if (recentSubmittedNames.size > 1000) {
+        for (const [name, expiresAt] of recentSubmittedNames) {
+            if (expiresAt <= now) recentSubmittedNames.delete(name);
+        }
     }
 }
 

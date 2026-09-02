@@ -1,10 +1,11 @@
 "use client";
 
+import Image from "next/image";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { motion, AnimatePresence, useScroll, useMotionValueEvent, useTransform, useMotionTemplate } from "framer-motion";
 import { items as staticItems, type Item, CATEGORY_COLORS } from "@/data/items";
 import CircularNav from "./CircularNav";
-import { Lock, Unlock, X, ArrowUpRight, Globe, Monitor, Terminal, Heart, Search, ListFilter, Sparkles } from "lucide-react";
+import { Lock, Unlock, X, ArrowUpRight, Globe, Monitor, Terminal, Heart, Search, ListFilter } from "lucide-react";
 import { FolderHeartIcon, type FolderHeartIconHandle } from "./FolderHeartIcon";
 import DecryptedText from "./DecryptedText";
 import { useFavorites } from "@/hooks/useFavorites";
@@ -58,8 +59,7 @@ const ScrollBlurCard = ({
       {/* New badge */}
       {item.isNew && (
         <div className="absolute top-2.5 left-3 z-10">
-          <span className="flex items-center gap-1 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider rounded-sm bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-            <Sparkles className="w-2.5 h-2.5" />
+          <span className="px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider rounded-sm bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
             New
           </span>
         </div>
@@ -151,17 +151,12 @@ const ScrollBlurCard = ({
             <span className="absolute inset-0 flex items-center justify-center text-white/30 text-sm font-bold font-mono select-none">
               {item.title.charAt(0).toUpperCase()}
             </span>
-            <img
+            <Image
               src={item.image}
               alt={item.title}
-              loading="lazy"
-              decoding="async"
-              onError={(event) => {
-                const target = event.currentTarget;
-                target.onerror = null;
-                target.style.display = "none";
-              }}
-              className="relative z-10 w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity"
+              fill
+              sizes="(max-width: 768px) 48px, 48px"
+              className="relative z-10 object-cover opacity-80 group-hover:opacity-100 transition-opacity"
             />
           </div>
         )
@@ -190,11 +185,11 @@ const TABS = ["Softwares", "Websites", "Scripts"] as const;
 const INITIAL_VISIBLE_ITEMS = 36;
 const LOAD_MORE_ITEMS = 24;
 
-export default function ContentSection() {
+export default function ContentSection({ initialItems }: { initialItems: Item[] }) {
   const sectionRef = useRef(null);
   const contentGridRef = useRef<HTMLDivElement>(null);
 
-  const [items, setItems] = useState<Item[]>(staticItems);
+  const [items, setItems] = useState<Item[]>(initialItems);
   const [activeTab, setActiveTab] = useState("Websites");
   const [isStraight, setIsStraight] = useState(false);
   const [isLocked, setIsLocked] = useState(false);
@@ -208,7 +203,6 @@ export default function ContentSection() {
     key: "Websites-all-",
     count: INITIAL_VISIBLE_ITEMS,
   });
-
 
   const [showFavorites, setShowFavorites] = useState(false);
   const [selectedFavs, setSelectedFavs] = useState<string[]>([]);
@@ -227,30 +221,6 @@ export default function ContentSection() {
   const folderHeartRef = useRef<FolderHeartIconHandle>(null);
 
   const { isFavorite, toggleFavorite, clearFavorites, removeFavorites } = useFavorites();
-
-  useEffect(() => {
-    let isMounted = true;
-
-    fetch("/api/items")
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error(`Items request failed: ${response.status}`);
-        }
-        return response.json() as Promise<Item[]>;
-      })
-      .then((nextItems) => {
-        if (isMounted && nextItems.length > 0) {
-          setItems(nextItems);
-        }
-      })
-      .catch((error) => {
-        console.error("Failed to load database items:", error);
-      });
-
-    return () => {
-      isMounted = false;
-    };
-  }, []);
 
   useEffect(() => {
     const mediaQuery = window.matchMedia("(max-width: 767px)");
@@ -671,7 +641,7 @@ export default function ContentSection() {
                     onClick={handleRandomItem}
                     aria-label="Pick a random item"
                     className="group relative flex items-center justify-center h-10 md:h-12 px-4 md:px-5 bg-[#a3e635] rounded-none border border-[#a3e635] hover:-translate-y-1 hover:-translate-x-1 hover:shadow-[4px_4px_0px_#a3e635] transition-all overflow-hidden"
-                    title="I'm Feeling Lucky (Press 'R')"
+                    title="Random item (Press 'R')"
                   >
 
                     <span className="text-black font-bold font-mono text-sm md:text-base uppercase tracking-wide">
@@ -840,10 +810,10 @@ export default function ContentSection() {
             <Search className="absolute left-3 w-4 h-4 text-white/40" />
             <input
               type="text"
-              placeholder="Search all tools..."
+              placeholder="Search directory..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              aria-label="Search all tools"
+              aria-label="Search directory"
               onFocus={() => {
                 const viewportHeight = window.innerHeight;
                 const lockPosition = viewportHeight * (isMobile ? 1.6 : 1.9);

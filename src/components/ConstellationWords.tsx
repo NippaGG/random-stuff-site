@@ -23,7 +23,7 @@ interface WordParticle {
 
 const WORD_LIST = [
   "websites", "tools", "scripts", "discover",
-  "curated", "internet", "explore", "open-source",
+  "utilities", "internet", "explore", "open-source",
   "random", "useful", "bookmarks", "dev",
   "design", "code", "resources", "collection",
   "creative", "experiments", "software", "labs",
@@ -55,7 +55,7 @@ export default function ConstellationWords({
   const opacityRef = useRef(1);
   const centerBoxRef = useRef({ width: 0, height: 0, yOffset: 0 });
 
-  // The center "STUFF" text reference — we compute its bounds for collision
+  // Center STUFF text reference for collision bounds
   const [isReady, setIsReady] = useState(false);
 
   // Initialize particles in a beautiful cluster close to the center
@@ -143,6 +143,33 @@ export default function ConstellationWords({
     requestAnimationFrame(animateEntrance);
   }, [isReady]);
 
+  // ── Explosion effect ──────────────────────────────
+  const triggerExplosion = useCallback(() => {
+    const focused = focusedRef.current;
+    focusedRef.current = null;
+    if (focused === null) return;
+
+    const source = particlesRef.current.find(p => p.id === focused);
+    if (!source) return;
+
+    const sx = source.x;
+    const sy = source.y;
+
+    particlesRef.current.forEach(p => {
+      const dx = p.x - sx;
+      const dy = p.y - sy;
+      const dist = Math.sqrt(dx * dx + dy * dy) || 1;
+      p.vx += (dx / dist) * 2.2;
+      p.vy += (dy / dist) * 2.2;
+    });
+
+    // Give the source word a random push
+    const angle = Math.random() * Math.PI * 2;
+    const speed = 1.2 + Math.random() * 0.5;
+    source.vx = Math.cos(angle) * speed;
+    source.vy = Math.sin(angle) * speed;
+  }, []);
+
   // ── Auto-focus (idle animation) ───────────────────
   const scheduleAutoFocus = useCallback((delay: number) => {
     if (userInteractedRef.current) return;
@@ -171,34 +198,7 @@ export default function ConstellationWords({
       autoTimers.current.push(explodeTimer);
     }, delay);
     autoTimers.current.push(t);
-  }, []);
-
-  // ── Explosion effect ──────────────────────────────
-  const triggerExplosion = useCallback(() => {
-    const focused = focusedRef.current;
-    focusedRef.current = null;
-    if (focused === null) return;
-
-    const source = particlesRef.current.find(p => p.id === focused);
-    if (!source) return;
-
-    const sx = source.x;
-    const sy = source.y;
-
-    particlesRef.current.forEach(p => {
-      const dx = p.x - sx;
-      const dy = p.y - sy;
-      const dist = Math.sqrt(dx * dx + dy * dy) || 1;
-      p.vx += (dx / dist) * 2.2;
-      p.vy += (dy / dist) * 2.2;
-    });
-
-    // Give the source word a random push
-    const angle = Math.random() * Math.PI * 2;
-    const speed = 1.2 + Math.random() * 0.5;
-    source.vx = Math.cos(angle) * speed;
-    source.vy = Math.sin(angle) * speed;
-  }, []);
+  }, [triggerExplosion]);
 
   // ── Hover handlers ────────────────────────────────
   const handleWordEnter = useCallback((id: number) => {

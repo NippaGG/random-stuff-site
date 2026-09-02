@@ -9,9 +9,9 @@ import { scrollToY } from "@/lib/lenis";
 const SYMBOLS = ["!", "@", "#", "$", "%", "&", "*", "(", ")", "_", "[", "]", "{", "}", "|", "<", ">", "?", ":", ";"];
 const FINAL_TEXT = "RANDOM \nSTUFF.";
 
-export default function MobileHeroSection() {
+export default function MobileHeroSection({ initialItemCount }: { initialItemCount: number }) {
     const [lastUpdated, setLastUpdated] = useState<string>("...");
-    const [itemCount, setItemCount] = useState(fallbackItems.length);
+    const [itemCount, setItemCount] = useState(initialItemCount);
     const [scrambledText, setScrambledText] = useState<string>("####### \n######*");
     const phaseRef = useRef(0);
 
@@ -87,30 +87,6 @@ export default function MobileHeroSection() {
         setLastUpdated(formatted);
     }, []);
 
-    useEffect(() => {
-        let isMounted = true;
-
-        fetch("/api/items")
-            .then((response) => {
-                if (!response.ok) {
-                    throw new Error(`Items request failed: ${response.status}`);
-                }
-                return response.json() as Promise<Item[]>;
-            })
-            .then((nextItems) => {
-                if (isMounted && nextItems.length > 0) {
-                    setItemCount(nextItems.length);
-                }
-            })
-            .catch((error) => {
-                console.error("Failed to load database item count:", error);
-            });
-
-        return () => {
-            isMounted = false;
-        };
-    }, []);
-
     return (
         <section className="text-white min-h-screen antialiased flex flex-col relative z-0">
             {/* Hero Area */}
@@ -177,7 +153,7 @@ export default function MobileHeroSection() {
             >
                 <div className="space-y-6 max-w-md">
                     <p className="text-lg md:text-xl text-slate-400 font-light leading-snug">
-                        A curated collection of interesting <span className="text-[#bef264]">websites, tools</span>, and <span className="text-[#bef264]">scripts</span> from across the internet.
+                        A directory of useful <span className="text-[#bef264]">websites</span>, <span className="text-[#bef264]">desktop apps</span>, and <span className="text-[#bef264]">scripts</span>.
                     </p>
                 </div>
 

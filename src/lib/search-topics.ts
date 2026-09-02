@@ -31,12 +31,13 @@ const TOPIC_ITEMS: Record<SearchTopic, readonly string[]> = {
     "Cline", "Open Researcher", "LM Studio", "CodexBar", "Mini-Agent", "FlyCut Caption",
     "AnythingLLM", "LLMFit", "Onyx", "Jan", "Flow", "WorldMonitor", "TypeWhisper",
     "VibeUI", "Clicky", "VidBee", "Caveman", "Free Claude Code", "Open Design",
-    "Atomic Chat", "Omi",
+    "Atomic Chat", "Omi", "Handy",
   ],
   image: [
     "Isocons", "Gemini Watermark Remover", "FaceFusion", "Shader Gradient", "Excalidraw",
     "WinShot", "Dither", "CompressO", "Clop", "ASCII Magic", "GIMP", "Krita", "Inkscape",
     "Pinta", "Lap Photo Manager", "digiKam", "darktable", "RawTherapee", "Flameshot", "Ksnip",
+    "Screendrop",
   ],
   development: [
     "Tabby", "React Bits", "Awesome Swift Apps", "Spicetify CLI", "Mate Engine", "Cline",
@@ -44,30 +45,30 @@ const TOPIC_ITEMS: Record<SearchTopic, readonly string[]> = {
     "Lucide Animated", "Scrapy", "The Component Gallery", "Shadcn Admin", "API Mega List",
     "Penpot", "Visual Explainer", "VibeUI", "Caveman", "Dot Matrix", "Evil Charts", "mapcn",
     "unlumen UI", "Free Claude Code", "Open Design", "Dendron", "Lapce", "Zed", "Motion",
-    "Bklit UI", "Transitions.dev", "termcn",
+    "Bklit UI", "Transitions.dev", "termcn", "Orchard",
   ],
   video: [
     "Ffmpeg Script", "Popcorn Time", "Cobalt", "Gemini Watermark Remover", "FaceFusion",
     "Quick Subtitles", "BetterCapture", "IINA", "NouTube Desktop", "NouTube", "FlyCut Caption",
     "CompressO", "Reclip", "ytDownloader", "VidBee", "Webcam & Mic Test", "Recordly", "Clop",
     "ASCII Magic", "VLC Media Player", "Jellyfin", "OBS Studio", "HandBrake", "Kdenlive",
-    "LosslessCut", "Textream",
+    "LosslessCut", "Textream", "Keyty", "KeyCastr", "Screendrop",
   ],
   audio: [
     "FineTune", "Ear (web)", "Quick Subtitles", "MagicPods", "Karaoke Eternal", "FlyCut Caption",
     "TypeWhisper", "ytDownloader", "VidBee", "Webcam & Mic Test", "VLC Media Player", "Navidrome",
     "Jellyfin", "Nora", "Strawberry Player", "Ardour", "LMMS", "Blanket", "OBS Studio",
-    "Audacity", "LosslessCut", "Textream",
+    "Audacity", "LosslessCut", "Textream", "Handy", "Doppi", "PixelPlayer",
   ],
   documents: [
     "Corca", "iLovePDF", "BentoPDF", "CopyCat Clipboard", "FluxMarkdown", "Clop", "Deck.Gallery",
     "Zotero", "JabRef", "LibreOffice", "OnlyOffice", "OpenBoard", "Draw.io", "Okular", "PDFsam",
     "Obsidian", "Logseq", "Dendron", "Joplin", "Trilium Notes", "AppFlowy", "AFFiNE", "Paperless-ngx",
-    "LiteParse",
+    "LiteParse", "ZenNotes", "Printed Matter",
   ],
   compression: [
     "Ffmpeg Script", "Vert", "iLovePDF", "BentoPDF", "CompressO", "Clop", "HandBrake",
-    "LosslessCut", "PeaZip",
+    "LosslessCut", "PeaZip", "Keka",
   ],
   productivity: [
     "Raycast", "Boring Notch", "Darkwrite", "EdClub", "DockDoor", "CopyCat Clipboard", "Metrolist",
@@ -75,7 +76,8 @@ const TOPIC_ITEMS: Record<SearchTopic, readonly string[]> = {
     "Mos", "Zotero", "JabRef", "LibreOffice", "OnlyOffice", "Obsidian", "Logseq", "Dendron",
     "Joplin", "Trilium Notes", "AppFlowy", "AFFiNE", "Super Productivity", "BreakTimer", "Blanket",
     "CopyQ", "Qalculate!", "SpeedCrunch", "TagSpaces", "Actiona", "Espanso", "Asyar", "Ueli",
-    "Nextcloud", "Textream",
+    "Nextcloud", "Textream", "Keyty", "Itsycal", "KeyCastr", "Handy", "ZenNotes", "Screendrop",
+    "DigiBouquet",
   ],
   system: [
     "Tabby", "WizTree", "Raycast", "Chris Titus WinUtil", "Mole", "Mounty", "Boring Notch", "UTM",
@@ -83,7 +85,7 @@ const TOPIC_ITEMS: Record<SearchTopic, readonly string[]> = {
     "Scrcpy GUI", "CodexBar", "Hidden", "Battery-Toolkit", "Stats", "Bulk Crap Uninstaller", "Latest",
     "Thide", "BrewStation", "VirtualBuddy", "Mos", "WhatCable", "FluentFlyout", "f.lux", "Filelight",
     "Crossdirstat", "Glances", "GSmartControl", "Asyar", "Ueli", "Input Leap", "OpenRGB",
-    "noMeiryoUI", "Windhawk",
+    "noMeiryoUI", "Windhawk", "Orchard", "Senumy", "Itsycal", "RunCatNeo",
   ],
   design: [
     "React Bits", "Isocons", "Shader Gradient", "Excalidraw", "Torph", "Scrollbar", "Sileo",
@@ -91,7 +93,7 @@ const TOPIC_ITEMS: Record<SearchTopic, readonly string[]> = {
     "Visual Explainer", "VibeUI", "Dither", "Recordly", "Dot Matrix", "Evil Charts", "ASCII Magic",
     "mapcn", "unlumen UI", "Deck.Gallery", "Open Design", "FluentFlyout", "OpenBoard", "Draw.io",
     "GIMP", "Krita", "Inkscape", "Pinta", "Motion", "Bklit UI", "Transitions.dev", "termcn",
-    "noMeiryoUI",
+    "noMeiryoUI", "Printed Matter", "DigiBouquet",
   ],
   automation: [
     "Ffmpeg Script", "Chris Titus WinUtil", "MAS", "Win11Debloat", "Cline", "Open Researcher",
@@ -117,17 +119,18 @@ const TOPIC_ITEMS: Record<SearchTopic, readonly string[]> = {
     "CopyCat Clipboard", "Bulk Crap Uninstaller", "CompressO", "VidBee", "Clop", "LocalSend", "Syncthing",
     "FreeFileSync", "Okular", "PDFsam", "CopyQ", "Lap Photo Manager", "digiKam", "PeaZip", "Filelight",
     "Crossdirstat", "Double Commander", "muCommander", "TagSpaces", "SpaceDrive", "Duplicati", "Seafile",
-    "Nextcloud", "Paperless-ngx", "LiteParse",
+    "Nextcloud", "Paperless-ngx", "LiteParse", "Keka",
   ],
   downloads: [
     "Github Store", "Popcorn Time", "Brisk", "Cobalt", "Transmission", "IPSW Downloads", "NouTube Desktop",
     "NouTube", "Gopeed", "Reclip", "ytDownloader", "VidBee", "OmniGet", "Persepolis Download Manager",
+    "Senumy",
   ],
   communication: [
     "OpenScreen", "Excalidraw", "Corca", "Penpot", "Webcam & Mic Test", "Jitsi Meet", "Element",
     "Mozilla Thunderbird", "Mailspring", "OnlyOffice", "OpenBoard", "AFFiNE", "Zed", "Nextcloud",
   ],
-  education: ["EdClub", "Clicky", "OmniGet", "OpenBoard"],
+  education: ["EdClub", "Clicky", "OmniGet", "OpenBoard", "Printed Matter"],
   research: [
     "Open Researcher", "WorldMonitor", "Visual Explainer", "VidBee", "OmniGet", "Zotero", "JabRef",
     "Obsidian", "Logseq", "Trilium Notes", "Paperless-ngx", "LiteParse",
@@ -135,14 +138,14 @@ const TOPIC_ITEMS: Record<SearchTopic, readonly string[]> = {
   web: [
     "FMHY", "Vert", "Cloudflare Error Page", "Ear (web)", "Poke", "Scrapy", "Awesome Self-Hosted",
     "API Mega List", "Delphi Tools", "Webcam & Mic Test", "mapcn", "Firefox", "LibreWolf", "Waterfox",
-    "Zen Browser", "Chromium", "Motion", "Transitions.dev",
+    "Zen Browser", "Chromium", "Motion", "Transitions.dev", "DigiBouquet",
   ],
   media: [
     "Popcorn Time", "Cobalt", "Spicetify CLI", "FaceFusion", "FineTune", "Quick Subtitles", "BetterCapture",
     "IINA", "MagicPods", "Poke", "NouTube Desktop", "NouTube", "Karaoke Eternal", "FlyCut Caption",
     "Reclip", "ytDownloader", "VidBee", "Recordly", "OmniGet", "VLC Media Player", "Navidrome", "Jellyfin",
     "Nora", "Strawberry Player", "Ardour", "LMMS", "OBS Studio", "Audacity", "HandBrake", "Kdenlive",
-    "LosslessCut",
+    "LosslessCut", "Doppi", "PixelPlayer",
   ],
 };
 

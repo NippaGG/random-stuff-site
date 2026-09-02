@@ -43,7 +43,7 @@ function isPrivateIpAddress(value: string) {
   return false;
 }
 
-async function validateMetadataUrl(rawUrl: string) {
+function validateMetadataUrlFormat(rawUrl: string) {
   const parsedUrl = new URL(rawUrl);
   const protocol = parsedUrl.protocol.toLowerCase();
 
@@ -68,14 +68,87 @@ async function validateMetadataUrl(rawUrl: string) {
     throw new Error("Private network URLs are not allowed.");
   }
 
-  if (!isIP(hostname)) {
+  return parsedUrl;
+}
+
+async function customLookup(
+  hostname: string,
+  options: import("dns").LookupOptions,
+  callback: (err: NodeJS.ErrnoException | null, address?: string | import("dns").LookupAddress[], family?: number) => void
+) {
+  try {
     const records = await lookup(hostname, { all: true, verbatim: true });
     if (records.some((record) => isPrivateIpAddress(record.address))) {
-      throw new Error("Private network URLs are not allowed.");
+      return callback(new Error("Private network URLs are not allowed."), undefined, undefined);
     }
+    // Type casting because the callback signature expects string when all is false, but we use it differently.
+    // However, Node's http uses the callback with (err, address, family) when all is false.
+    // To make TypeScript happy and work with http request:
+    callback(null, records[0].address, records[0].family);
+  } catch (err) {
+    callback(err as NodeJS.ErrnoException, undefined, undefined);
   }
+}
 
-  return parsedUrl;
+import * as http from "http";
+import * as https from "https";
+
+function fetchWithSafeLookup(url: string | URL, redirectCount = 0): Promise<{ html: string; finalUrl: string }> {
+  return new Promise((resolve, reject) => {
+    if (redirectCount > 3) return reject(new Error("Too many redirects"));
+    
+    let parsedUrl: URL;
+    try {
+      parsedUrl = new URL(url.toString());
+      parsedUrl = validateMetadataUrlFormat(parsedUrl.toString());
+    } catch (error) {
+      return reject(error);
+    }
+    
+    const client = parsedUrl.protocol === "https:" ? https : http;
+    
+    const req = client.get(parsedUrl, {
+      lookup: customLookup as any,
+      headers: {
+        "User-Agent": "Mozilla/5.0 (compatible; RandomStuffBot/1.0)",
+        "Accept": "text/html,application/xhtml+xml"
+      },
+      timeout: REQUEST_TIMEOUT_MS
+    }, (res) => {
+      if (res.statusCode && res.statusCode >= 300 && res.statusCode < 400 && res.headers.location) {
+        const nextUrl = new URL(res.headers.location, parsedUrl);
+        return resolve(fetchWithSafeLookup(nextUrl, redirectCount + 1));
+      }
+      
+      if (res.statusCode !== 200) {
+        res.resume();
+        return reject(new Error(`Failed to fetch URL: ${res.statusCode}`));
+      }
+      
+      const contentType = res.headers["content-type"] ?? "";
+      if (!contentType.includes("text/html") && !contentType.includes("application/xhtml+xml")) {
+        res.resume();
+        return reject(new Error("Only HTML pages can be previewed."));
+      }
+      
+      let data = "";
+      res.on("data", (chunk) => {
+        data += chunk;
+        if (data.length > MAX_CONTENT_LENGTH_BYTES) {
+          res.destroy();
+          reject(new Error("The requested page is too large to preview."));
+        }
+      });
+      
+      res.on("end", () => resolve({ html: data, finalUrl: parsedUrl.toString() }));
+    });
+    
+    req.on("error", reject);
+    req.on("timeout", () => {
+      req.destroy();
+      reject(new Error("Request timed out"));
+    });
+  });
 }
 
 function toAbsoluteUrl(value: string | undefined, baseUrl: URL) {
@@ -96,46 +169,9 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: "URL is required" }, { status: 400 });
   }
 
-  let parsedUrl: URL;
   try {
-    parsedUrl = await validateMetadataUrl(rawUrl);
-  } catch (error) {
-    const message =
-      error instanceof Error ? error.message : "Invalid URL";
-    return NextResponse.json({ error: message }, { status: 400 });
-  }
-
-  const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
-
-  try {
-    const response = await fetch(parsedUrl, {
-      headers: {
-        "User-Agent": "Mozilla/5.0 (compatible; RandomStuffBot/1.0)",
-      },
-      redirect: "follow",
-      signal: controller.signal,
-    });
-
-    if (!response.ok) {
-      throw new Error(`Failed to fetch URL: ${response.statusText}`);
-    }
-
-    const contentType = response.headers.get("content-type") ?? "";
-    if (
-      contentType &&
-      !contentType.includes("text/html") &&
-      !contentType.includes("application/xhtml+xml")
-    ) {
-      throw new Error("Only HTML pages can be previewed.");
-    }
-
-    const contentLength = Number(response.headers.get("content-length") ?? "0");
-    if (contentLength && contentLength > MAX_CONTENT_LENGTH_BYTES) {
-      throw new Error("The requested page is too large to preview.");
-    }
-
-    const html = await response.text();
+    const { html, finalUrl } = await fetchWithSafeLookup(rawUrl);
+    const parsedUrl = new URL(finalUrl);
     const $ = cheerio.load(html.slice(0, MAX_CONTENT_LENGTH_BYTES));
 
     const metadata: Record<string, string | boolean> = {
@@ -189,7 +225,5 @@ export async function GET(request: Request) {
         ? "Metadata request timed out."
         : "Failed to fetch metadata";
     return NextResponse.json({ error: message }, { status: 500 });
-  } finally {
-    clearTimeout(timeoutId);
   }
 }

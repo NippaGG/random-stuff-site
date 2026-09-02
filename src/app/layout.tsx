@@ -16,7 +16,7 @@ const robotoFlex = Roboto_Flex({
 
 export const metadata: Metadata = {
   title: "Random Stuff",
-  description: "Curated by ShockaGG",
+  description: "Directory of useful websites, software, and scripts.",
 };
 
 const shouldRenderVercelInsights =

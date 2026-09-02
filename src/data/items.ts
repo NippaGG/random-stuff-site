@@ -82,7 +82,7 @@ const rawItems: RawItem[] = [
   },
   {
     "title": "Chris Titus WinUtil",
-    "description": "The ultimate Windows utility to debloat, update, and fix Windows.",
+    "description": "Windows utility to debloat, install apps, and adjust system settings.",
     "website": "https://christitus.com/one-tool-for-everything/",
     "category": "Scripts",
     "tags": [
@@ -123,7 +123,7 @@ const rawItems: RawItem[] = [
   },
   {
     "title": "Awesome Swift Apps",
-    "description": "A curated list of open-source macOS applications built with Swift.",
+    "description": "List of open-source macOS applications built with Swift.",
     "github": "https://github.com/jaywcjlove/awesome-swift-macos-apps/",
     "category": "Websites",
     "tags": [
@@ -239,7 +239,7 @@ const rawItems: RawItem[] = [
   },
   {
     "title": "WinApps",
-    "description": "Run Windows apps like Office and Adobe on Linux seamlessly.",
+    "description": "Run Windows apps like Office and Adobe on Linux through a guided installer.",
     "github": "https://github.com/winapps-org/winapps",
     "category": "Softwares",
     "tags": [
@@ -506,7 +506,7 @@ const rawItems: RawItem[] = [
   },
   {
     "title": "Corca",
-    "description": "Fast, intuitive math editor with real-time collaboration and LaTeX export.",
+    "description": "Math formula editor with LaTeX export and live collaboration.",
     "website": "https://corca.app",
     "category": "Websites",
     "tags": [
@@ -635,7 +635,7 @@ const rawItems: RawItem[] = [
   },
   {
     "title": "CopyCat Clipboard",
-    "description": "An intuitive clipboard manager designed to enhance your workflow and seamlessly switch between documents, apps, and devices.",
+    "description": "Clipboard history manager to search and paste recent clips across apps.",
     "website": "https://www.entilitystudio.com/copycat-clipboard",
     "github": "https://github.com/raj457036/CopyCat-Clipboard",
     "category": "Softwares",
@@ -667,7 +667,7 @@ const rawItems: RawItem[] = [
   },
   {
     "title": "MagicPods",
-    "description": "Add little magic to your Airpods on Windows.",
+    "description": "Battery status, ear detection, and popup indicators for AirPods on Windows.",
     "website": "https://magicpods.app",
     "github": "https://github.com/steam3d/MagicPods-Windows",
     "category": "Softwares",
@@ -699,7 +699,7 @@ const rawItems: RawItem[] = [
   },
   {
     "title": "Poke",
-    "description": "A free software YouTube front-end, translator, map app, and more! All-in-one privacy app.",
+    "description": "Privacy-focused client with a YouTube front-end, translation tools, and maps.",
     "website": "https://poketube.fun/",
     "github": "https://github.com/TecharoHQ/anubis",
     "category": "Websites",
@@ -797,7 +797,7 @@ const rawItems: RawItem[] = [
   },
   {
     "title": "FlyCut Caption",
-    "description": "A complete video subtitle editing React component with AI-powered speech recognition and visual editing capabilities.",
+    "description": "React component for editing subtitles with speech recognition and timeline waveforms.",
     "website": "https://caption.flycut.co",
     "github": "https://github.com/x007xyz/flycut-caption",
     "category": "Softwares",
@@ -884,7 +884,7 @@ const rawItems: RawItem[] = [
   },
   {
     "title": "AnythingLLM",
-    "description": "The all-in-one AI productivity accelerator. On device and privacy first with no annoying setup or configuration.",
+    "description": "Desktop app to run, chat with, and query local LLMs on your machine.",
     "website": "https://anythingllm.com",
     "github": "https://github.com/Mintplex-Labs/anything-llm",
     "category": "Softwares",
@@ -905,7 +905,7 @@ const rawItems: RawItem[] = [
   },
   {
     "title": "Onyx",
-    "description": "Open Source AI Platform - AI Chat with advanced features that works with every LLM.",
+    "description": "Open-source web chat interface that connects to local and cloud LLM providers.",
     "website": "https://www.onyx.app",
     "github": "https://github.com/onyx-dot-app/onyx",
     "category": "Softwares",
@@ -929,7 +929,7 @@ const rawItems: RawItem[] = [
   },
   {
     "title": "Flow",
-    "description": "Google Labs Flow tool for AI.",
+    "description": "Experimental tool from Google Labs for visual AI workflows.",
     "website": "https://labs.google/fx/tools/flow",
     "category": "Websites",
     "tags": [
@@ -939,7 +939,7 @@ const rawItems: RawItem[] = [
   },
   {
     "title": "WorldMonitor",
-    "description": "Real-time global intelligence dashboard. AI-powered news aggregation, geopolitical monitoring, and infrastructure tracking.",
+    "description": "Dashboard for live global news tracking, geopolitical events, and infrastructure monitoring.",
     "website": "https://worldmonitor.app",
     "category": "Softwares",
     "tags": [
@@ -993,7 +993,7 @@ const rawItems: RawItem[] = [
   },
   {
     "title": "VibeUI",
-    "description": "92 ready-to-copy layout prompts for vibe coding and AI UI generation. Covers auth, pricing, hero, bento, dashboards and more — paste into any AI tool instantly.",
+    "description": "92 layout prompts for UI generation covering auth, pricing, heroes, bento grids, and dashboards.",
     "website": "https://vibeui.online/",
     "category": "Websites",
     "tags": [
@@ -1004,6 +1004,7 @@ const rawItems: RawItem[] = [
     "title": "CompressO",
     "description": "A 100% free, offline, and open-source video and image compression app. Compress any file to a tiny size without quality loss. Available for Mac, Windows, and Linux.",
     "website": "https://compresso.codeforreal.com/",
+    "github": "https://github.com/codeforreal1/compressO",
     "category": "Softwares",
     "tags": [
       "macos",
@@ -1023,7 +1024,7 @@ const rawItems: RawItem[] = [
   },
   {
     "title": "Clicky",
-    "description": "An AI teacher that lives as a buddy next to your cursor. It can see your screen, talk to you, and even point at things on screen — like having a real teacher beside you. macOS only.",
+    "description": "macOS cursor companion that reads screen context and speaks explanations in real time.",
     "website": "https://www.clicky.so/",
     "github": "https://github.com/farzaa/clicky",
     "category": "Softwares",
@@ -1045,7 +1046,7 @@ const rawItems: RawItem[] = [
   },
   {
     "title": "VidBee",
-    "description": "Personal media archive and AI content hub. Archive video, audio, and transcripts from YouTube, TikTok, and 1000+ sites for backup, offline access, and AI workflows. Free and open source.",
+    "description": "Archive video, audio, and transcripts from YouTube, TikTok, and other platforms for offline search and backup.",
     "website": "https://vidbee.org/",
     "category": "Softwares",
     "tags": [
@@ -1054,7 +1055,7 @@ const rawItems: RawItem[] = [
   },
   {
     "title": "Webcam & Mic Test",
-    "description": "Test your webcam and microphone instantly in the browser. Check video quality, resolution, and FPS before video calls. Works on any device — no download needed. Free and private.",
+    "description": "In-browser webcam and microphone tester to check video quality, resolution, and frame rates.",
     "website": "https://webcammictest.com/",
     "category": "Websites",
     "tags": [
@@ -1119,7 +1120,7 @@ const rawItems: RawItem[] = [
   },
   {
     "title": "Caveman",
-    "description": "Claude/Codex plugin and agent skill that makes AI assistants answer tersely to cut output tokens while keeping technical detail.",
+    "description": "Agent skill that trims verbose assistant replies to reduce token usage.",
     "github": "https://github.com/JuliusBrussee/caveman",
     "category": "Scripts",
     "tags": [
@@ -1213,7 +1214,7 @@ const rawItems: RawItem[] = [
   },
   {
     "title": "Deck.Gallery",
-    "description": "Curated gallery of beautifully designed presentation decks, slides, reports, brand guidelines, and pitch decks.",
+    "description": "Gallery of presentation decks, slide designs, reports, and brand guidelines.",
     "website": "https://deck.gallery/",
     "category": "Websites",
     "tags": [
@@ -1244,7 +1245,8 @@ const rawItems: RawItem[] = [
   },
   {
     "title": "RuView",
-    "description": "Turns commodity WiFi signals into real-time spatial intelligence — detect presence, vital signs, and movement through walls using low-cost ESP32 sensors. No cameras, no wearables.",
+    "description": "Detect presence, movement, and vital signs through walls using commodity WiFi signals and ESP32 sensors.",
+    "website": "https://Cognitum.One/RuView",
     "github": "https://github.com/ruvnet/RuView",
     "category": "Softwares",
     "tags": [
@@ -1265,7 +1267,7 @@ const rawItems: RawItem[] = [
   },
   {
     "title": "Free Claude Code",
-    "description": "A lightweight, backend-agnostic reverse proxy to run Claude Code with other AI providers like Gemini, DeepSeek, or local LLMs.",
+    "description": "Reverse proxy to route Claude Code commands through Gemini, DeepSeek, or local LLMs.",
     "github": "https://github.com/Alishahryar1/free-claude-code",
     "category": "Scripts",
     "tags": [
@@ -1286,7 +1288,7 @@ const rawItems: RawItem[] = [
   },
   {
     "title": "Atomic Chat",
-    "description": "An open-source, local-first AI application to run large language models locally and privately.",
+    "description": "Open-source app to download and run language models locally.",
     "website": "https://atomic.chat/",
     "github": "https://github.com/AtomicBot-ai/Atomic-Chat",
     "category": "Softwares",
@@ -1299,7 +1301,7 @@ const rawItems: RawItem[] = [
   },
   {
     "title": "Omi",
-    "description": "Open-source AI wearable ecosystem to augment human memory and intelligence.",
+    "description": "Open-source wearable device and software for capturing audio and transcripts.",
     "website": "https://www.omi.me/",
     "github": "https://github.com/BasedHardware/omi",
     "category": "Softwares",
@@ -1471,7 +1473,7 @@ const rawItems: RawItem[] = [
   },
   {
     "title": "LibreOffice",
-    "description": "A powerful, free, and open-source office suite that is a popular alternative to Microsoft Office.",
+    "description": "Open-source office suite with word processor, spreadsheet, and presentation editors.",
     "website": "https://www.libreoffice.org",
     "category": "Softwares",
     "tags": ["windows", "macos", "linux"]
@@ -1518,7 +1520,7 @@ const rawItems: RawItem[] = [
   },
   {
     "title": "Obsidian",
-    "description": "A powerful markdown-based knowledge base and note-taking app that works on local plain text files.",
+    "description": "Markdown-based note-taking app that stores notes in local plain text files.",
     "website": "https://obsidian.md",
     "category": "Softwares",
     "tags": ["windows", "macos", "linux"]
@@ -1628,7 +1630,7 @@ const rawItems: RawItem[] = [
   },
   {
     "title": "Ardour",
-    "description": "A powerful digital audio workstation (DAW) for recording, editing, mixing, and mastering audio.",
+    "description": "Digital audio workstation for recording, editing, mixing, and mastering audio.",
     "website": "https://ardour.org",
     "github": "https://github.com/Ardour/ardour",
     "category": "Softwares",
@@ -1674,7 +1676,7 @@ const rawItems: RawItem[] = [
   },
   {
     "title": "Inkscape",
-    "description": "A powerful open-source vector graphics editor supporting SVG, PDF, and various illustrator formats.",
+    "description": "Open-source vector graphics editor supporting SVG, PDF, and EPS formats.",
     "website": "https://inkscape.org",
     "github": "https://github.com/inkscape/inkscape",
     "category": "Softwares",
@@ -1858,7 +1860,7 @@ const rawItems: RawItem[] = [
   },
   {
     "title": "Persepolis Download Manager",
-    "description": "A graphical download manager client for the powerful command-line tool aria2.",
+    "description": "Desktop GUI client for the aria2 download utility.",
     "website": "https://persepolisdm.github.io",
     "github": "https://github.com/persepolisdm/persepolis",
     "category": "Softwares",
@@ -1978,6 +1980,7 @@ const rawItems: RawItem[] = [
   {
     "title": "LiteParse",
     "description": "A lightweight, fast document parsing library by LlamaIndex for extracting text and structure from PDFs and other files.",
+    "website": "https://developers.llamaindex.ai/liteparse/",
     "github": "https://github.com/run-llama/liteparse",
     "category": "Websites",
     "tags": ["all"]
@@ -2014,14 +2017,14 @@ const rawItems: RawItem[] = [
   },
   {
     "title": "noMeiryoUI",
-    "description": "Change Windows system fonts on Windows 8.1/10/11 — a simple tool to replace Meiryo UI and other UI fonts.",
+    "description": "Tool to change default system fonts on Windows 8.1, 10, and 11.",
     "github": "https://github.com/Tatsu-syo/noMeiryoUI",
     "category": "Softwares",
     "tags": ["windows"]
   },
   {
     "title": "Windhawk",
-    "description": "The customization marketplace for Windows — install lightweight mods for the taskbar, Start menu, and programs with a couple of clicks.",
+    "description": "Windows desktop customization app to install taskbar, Start menu, and system tweaks.",
     "website": "https://windhawk.net/",
     "github": "https://github.com/ramensoftware/windhawk",
     "category": "Softwares",
@@ -2035,6 +2038,117 @@ const rawItems: RawItem[] = [
     "category": "Softwares",
     "tags": ["macos"],
     "image": "https://github.com/f.png"
+  },
+  {
+    "title": "Orchard",
+    "description": "A native macOS app and GUI for Apple's container tooling to manage containers, machines, and local Kubernetes clusters.",
+    "website": "https://orchard.andon.dev/",
+    "github": "https://github.com/andrew-waters/orchard",
+    "category": "Softwares",
+    "tags": ["macos"]
+  },
+  {
+    "title": "Keyty",
+    "description": "Display keyboard shortcuts, keystrokes, and mouse clicks in real time for macOS demos, recordings, and livestreams.",
+    "website": "https://keyty.app/",
+    "github": "https://github.com/keytyapp/Keyty",
+    "category": "Softwares",
+    "tags": ["macos"]
+  },
+  {
+    "title": "Senumy",
+    "description": "A comprehensive directory and IPA library for iOS jailbreak tools, tweaks, sideloading utilities, and modded apps.",
+    "website": "https://senumy.com/",
+    "category": "Websites",
+    "tags": ["all"]
+  },
+  {
+    "title": "Itsycal",
+    "description": "A tiny menu bar calendar for macOS with Mac Calendar app integration, event creation, and keyboard navigation.",
+    "website": "https://www.mowglii.com/itsycal/",
+    "github": "https://github.com/sfsam/Itsycal",
+    "category": "Softwares",
+    "tags": ["macos"]
+  },
+  {
+    "title": "KeyCastr",
+    "description": "An open-source keystroke visualizer for macOS that displays keystrokes on-screen in real time.",
+    "website": "https://github.com/keycastr/keycastr",
+    "github": "https://github.com/keycastr/keycastr",
+    "category": "Softwares",
+    "tags": ["macos"],
+    "image": "https://github.com/keycastr.png"
+  },
+  {
+    "title": "Keka",
+    "description": "The macOS file archiver — extract and compress 7Z, ZIP, TAR, GZ, RAR, and other archive formats with password protection.",
+    "website": "https://www.keka.io/en/",
+    "github": "https://github.com/aonez/Keka",
+    "category": "Softwares",
+    "tags": ["macos"]
+  },
+  {
+    "title": "Handy",
+    "description": "A free, open-source, cross-platform speech-to-text desktop app that lets you dictate anywhere with local AI.",
+    "website": "https://handy.computer/",
+    "github": "https://github.com/cjpais/Handy",
+    "category": "Softwares",
+    "tags": ["macos", "windows", "linux"]
+  },
+  {
+    "title": "ZenNotes",
+    "description": "A keyboard-first, Vim-native Markdown notes app with local files, KaTeX math, Mermaid diagrams, and cross-device sync.",
+    "website": "https://zennotes.org/",
+    "github": "https://github.com/ZenNotes/zennotes",
+    "category": "Softwares",
+    "tags": ["macos", "windows", "linux"]
+  },
+  {
+    "title": "Doppi",
+    "description": "A clean, native music player for Mac and iOS designed to play and organize your local offline music collection.",
+    "website": "https://doppi.app/mac/",
+    "category": "Softwares",
+    "tags": ["macos"]
+  },
+  {
+    "title": "PixelPlayer",
+    "description": "A privacy-first Android music player built with Material 3 Expressive featuring offline playback, synced lyrics, and equalizer presets.",
+    "website": "https://github.com/PixelPlayerHQ/PixelPlayer",
+    "github": "https://github.com/PixelPlayerHQ/PixelPlayer",
+    "category": "Softwares",
+    "tags": ["android"],
+    "image": "https://github.com/PixelPlayerHQ.png"
+  },
+  {
+    "title": "RunCatNeo",
+    "description": "A cute running cat animation on your macOS menu bar whose running speed changes according to CPU usage.",
+    "website": "https://runcat-dev.github.io/RunCatNeo/",
+    "github": "https://github.com/runcat-dev/RunCatNeo",
+    "category": "Softwares",
+    "tags": ["macos"]
+  },
+  {
+    "title": "Printed Matter",
+    "description": "The world's largest non-profit organization and archive dedicated to the dissemination, appreciation, and distribution of artists' books and publications.",
+    "website": "https://www.printedmatter.org/",
+    "category": "Websites",
+    "tags": ["all"]
+  },
+  {
+    "title": "DigiBouquet",
+    "description": "A free online tool to build and share personalized digital flower bouquets with custom greeting cards and flower meanings.",
+    "website": "https://digibouquet.net/",
+    "category": "Websites",
+    "tags": ["all"]
+  },
+  {
+    "title": "Screendrop",
+    "description": "A native, free, and self-hostable macOS screenshot and screen recording app designed as an open-source Loom alternative.",
+    "website": "https://github.com/fayazara/Screendrop",
+    "github": "https://github.com/fayazara/Screendrop",
+    "category": "Softwares",
+    "tags": ["macos"],
+    "image": "https://github.com/fayazara.png"
   }
 ];
 

@@ -90,7 +90,7 @@ export default function SubmitPage() {
 
                 <h1 className="text-3xl font-bold mb-2 text-center tracking-tight">Submit a Tool</h1>
                 <p className="text-gray-400 text-sm text-center mb-5">
-                    Found something cool? Let us know and we&apos;ll add it to the directory.
+                    Submit a website, software, or script to the directory.
                 </p>
 
                 {/* Submission status indicator */}
@@ -224,7 +224,7 @@ export default function SubmitPage() {
                                 required
                                 rows={3}
                                 maxLength={DESCRIPTION_MAX_LENGTH}
-                                placeholder="What does it do? Why is it cool?..."
+                                placeholder="What does it do and why is it useful?"
                                 className="w-full px-4 py-3 rounded-none bg-white/5 border border-white/10 focus:border-[#a3e635]/50 focus:ring-1 focus:ring-[#a3e635]/50 outline-none transition-all placeholder:text-gray-600 resize-none focus:bg-white/10 font-mono text-sm"
                             />
                         </div>

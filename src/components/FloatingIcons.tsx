@@ -3,12 +3,12 @@
 import React, { useState, useEffect, useRef } from "react";
 import { motion, MotionValue, useMotionValue, useTransform, animate } from "framer-motion";
 import {
-    Globe, Terminal, MonitorSmartphone, Code2, Sparkles, Zap, Box, Layers,
+    Globe, Terminal, MonitorSmartphone, Code2, Binary, Zap, Box, Layers,
     Cpu, Database, Wifi, Cloud, Lock, Key, Folder, File, Settings, Star
 } from "lucide-react";
 
 const ALL_ICONS = [
-    Globe, Terminal, MonitorSmartphone, Code2, Sparkles, Zap, Box, Layers,
+    Globe, Terminal, MonitorSmartphone, Code2, Binary, Zap, Box, Layers,
     Cpu, Database, Wifi, Cloud, Lock, Key, Folder, File, Settings, Star
 ];
 

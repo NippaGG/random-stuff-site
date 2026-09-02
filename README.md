@@ -1,112 +1,111 @@
-# Random Stuff Site
+# Random Stuff
 
 [![Stack](https://img.shields.io/badge/stack-Next.js%2016%20%2B%20React%2019-green)](https://github.com/nipunyatawara-dev/random-stuff-site)
 [![Deployment](https://img.shields.io/badge/hosting-Vercel-black)](https://randomstuff.shocka.site/)
 
 ---
 
-### Get started
+### Links
 
-* [Live Site](https://randomstuff.shocka.site/)
-* [Submit a Tool](https://randomstuff.shocka.site/submit)
+* [Live site](https://randomstuff.shocka.site/)
+* [Submit a tool](https://randomstuff.shocka.site/submit)
+
 ---
 
-**Random Stuff** by ShockaGG is a curated directory of websites, desktop software, tools, and scripts worth keeping around.
+Random Stuff is a directory of useful websites, desktop apps, and scripts.
 
-* **Curated catalog** of handpicked tools across Websites, Softwares, and Scripts
-* **Instant search & tag filtering** to find exact utilities in milliseconds
-* **Automated Favicon & Metadata extraction** for clean visual presentation
-* **Community submission pipeline** with direct Discord review integration
+* Directory of tools across websites, software, and scripts
+* Search and tag filtering by platform (macOS, Windows, Linux, web)
+* Automatic favicon and metadata previews
+* Submission form connected to a Discord review channel
 
 # Contents
 
-- [Key Features](#key-features)
+- [Key features](#key-features)
 - [Architecture](#architecture)
-- [Tech Stack](#tech-stack)
-- [Local Development](#local-development)
-- [Star History](#star-history)
+- [Tech stack](#tech-stack)
+- [Local development](#local-development)
+- [Star history](#star-history)
 - [Contributing](#contributing)
 
-# Key Features
+# Key features
 
-### 🔍 Discovery & Filtering
-* Categorized by **Websites**, **Softwares**, and **Scripts**
-* Tag-based filtering (`#macos`, `#windows`, `#linux`, `#terminal`, etc.)
-* Real-time search across titles, descriptions, and tags
-* Badge indicator for newly added items
+### Discovery and filtering
+* Filter by category: Websites, Softwares, and Scripts
+* Filter by platform tag (`#macos`, `#windows`, `#linux`, `#android`, `#ios`)
+* Live search across titles, descriptions, and tags
+* Badge indicator on recently added items
 
-### 🎨 Visual & Experience
-* **Three.js & Postprocessing canvas** rendering interactive background particle effects
-* **Lenis smooth scroll** coupled with fluid **Framer Motion** card transitions
-* Automatic Google S2 Favicon service resolution for item icons
-* High contrast dark design system with category accent highlights
+### Visual and motion
+* Three.js background canvas with particle effects
+* Lenis smooth scrolling with Framer Motion transitions
+* Favicon resolution via Google S2 service
+* High-contrast dark theme with category accent highlights
 
-### 📤 Submissions & Community
-* In-app submission portal at `/submit`
-* Automated duplication checking against existing dataset
-* Webhook notifications sent directly to Discord for maintainer review
+### Submissions and review
+* Submission form at `/submit`
+* URL duplicate detection against existing items
+* Discord webhook notifications for maintainer review
 
 # Architecture
 
-The app is built as a fast, statically-generatable Next.js 16 web application:
+Next.js 16 web application with static data bundling:
 
 ```
 src/
  ├── app/                      # Next.js App Router (pages, layout, submit API)
- ├── components/               # UI views, filter controls, item cards, 3D background
+ ├── components/               # UI views, filter controls, item cards, canvas
  ├── data/                     # Bundled items dataset (items.ts)
- ├── hooks/                    # Custom React hooks (search, media queries, scroll)
- └── lib/                      # Helper utilities and external API callers
+ ├── hooks/                    # Custom React hooks (favorites, media queries)
+ └── lib/                      # Helper utilities and search index
 ```
 
-| Layer | Key Files | Responsibility |
+| Layer | Key files | Responsibility |
 | --- | --- | --- |
-| **UI & Layout** | `src/app/page.tsx`, `src/components/ContentSection.tsx` | Main grid display, filter bars, search input, responsive layouts |
-| **3D Shader Engine** | `src/components/ConstellationCanvas.tsx` | Custom WebGL background shaders via Three.js & Postprocessing |
-| **Dataset & Engine** | `src/data/items.ts` | Static dataset, automatic slugification, favicon generation, `isNew` tagging |
-| **Submission Pipeline**| `src/app/submit/page.tsx`, `src/app/api/submit/route.ts` | Tool submission form and Discord review webhook dispatch |
+| **UI and layout** | `src/app/page.tsx`, `src/components/ContentSection.tsx` | Grid display, filter controls, search bar, modals |
+| **Canvas background** | `src/components/GridBackground.tsx`, `src/components/ConstellationWords.tsx` | Interactive background graphics and text constellation |
+| **Dataset** | `src/data/items.ts` | Static item records, category assignments, and metadata |
+| **Submissions** | `src/app/submit/page.tsx`, `src/app/api/submit/route.ts` | Submission form and Discord webhook handler |
 
-# Tech Stack
+# Tech stack
 
-| Area | Tech |
+| Area | Technology |
 | --- | --- |
 | **Framework** | Next.js 16 (App Router), React 19, TypeScript |
 | **Styling** | Tailwind CSS 4, PostCSS |
-| **Animations** | Framer Motion, Lenis Smooth Scroll |
-| **Visuals & 3D** | Three.js, Postprocessing WebGL shaders |
+| **Motion** | Framer Motion, Lenis |
+| **3D & Canvas** | Three.js |
 | **Icons** | Lucide React |
 | **Hosting** | Vercel |
 
-# Local Development
+# Local development
 
 ### Prerequisites
 
 * Node.js 20+
 * npm
 
-### Run locally
+### Setup
 
-1. **Clone the repository:**
+1. Clone the repository:
    ```bash
    git clone https://github.com/nipunyatawara-dev/random-stuff-site.git
    cd random-stuff-site
    ```
 
-2. **Install dependencies:**
+2. Install dependencies:
    ```bash
    npm install
    ```
 
-3. **Start the development server:**
+3. Start the development server:
    ```bash
    npm run dev
    ```
 
 4. Open `http://localhost:3000` in your browser.
 
-### Verification & Build
-
-Run type checks before opening a PR:
+### Typecheck and lint
 
 ```bash
 # Typecheck
@@ -114,16 +113,19 @@ npx tsc --noEmit
 
 # Lint
 npm run lint
+
+# Tests
+npm test
 ```
 
-To preview the production build locally:
+Build for production:
 
 ```bash
 npm run build
 npm run start
 ```
 
-# Star History
+# Star history
 
 <a href="https://www.star-history.com/?repos=nipunyatawara-dev%2Frandom-stuff-site&type=date&legend=bottom-right">
  <picture>
@@ -135,18 +137,14 @@ npm run start
 
 # Contributing
 
-Contributions and item submissions are welcome!
-
 1. Fork the repository
-2. Create a feature branch (`git checkout -b feat/add-new-tool`)
-3. Add your tool entry to `src/data/items.ts`
-4. Verify with `npx tsc --noEmit`
-5. Push and open a Pull Request
+2. Create a branch (`git checkout -b feat/add-new-tool`)
+3. Add the item record to `src/data/items.ts`
+4. Verify with `npx tsc --noEmit && npm test`
+5. Open a pull request
 
-You can also submit tools directly via the [Submit a tool](https://randomstuff.shocka.site/submit) page without creating a PR.
+You can also submit tools directly via the [submission page](https://randomstuff.shocka.site/submit).
 
 ---
 
-> Built by [Nipun Yatawara / ShockaGG](https://shocka.site/).
-> 
-> Feedback and bug reports are welcome via [GitHub Issues](https://github.com/nipunyatawara-dev/random-stuff-site/issues).
+Built by [Nipun Yatawara / ShockaGG](https://shocka.site/).

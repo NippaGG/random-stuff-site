@@ -165,7 +165,7 @@ export default function HeroSection() {
             </motion.button>
           </div>
 
-          {/* CONSTELLATION WORDS — mind-map radiating lines */}
+          {/* CONSTELLATION WORDS - radiating network lines */}
           <ConstellationWords
             opacity={constellationOpacity}
             compact={isMobile}
@@ -299,7 +299,7 @@ export default function HeroSection() {
               style={{ opacity: scrollTextOpacity }}
               className="text-gray-500 text-xs animate-pulse tracking-widest uppercase"
             >
-              Scroll to Initialize
+              Scroll down
             </motion.div>
           </motion.div>
 

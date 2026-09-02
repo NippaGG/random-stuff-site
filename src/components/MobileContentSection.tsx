@@ -22,8 +22,8 @@ const TAB_ICONS: Record<TabType, React.ElementType> = {
     Scripts: FileCode,
 };
 
-export default function MobileContentSection() {
-    const [items, setItems] = useState<Item[]>(staticItems);
+export default function MobileContentSection({ initialItems }: { initialItems: Item[] }) {
+    const [items, setItems] = useState<Item[]>(initialItems);
     const [activeTab, setActiveTab] = useState<TabType>("Softwares");
     const [searchQuery, setSearchQuery] = useState("");
     const [previewItem, setPreviewItem] = useState<Item | null>(null);
@@ -50,31 +50,6 @@ export default function MobileContentSection() {
     const sectionRef = useRef<HTMLDivElement>(null);
     const contentTopRef = useRef<HTMLDivElement>(null);
     const lockPointRef = useRef<number>(0);
-
-
-    useEffect(() => {
-        let isMounted = true;
-
-        fetch("/api/items")
-            .then((response) => {
-                if (!response.ok) {
-                    throw new Error(`Items request failed: ${response.status}`);
-                }
-                return response.json() as Promise<Item[]>;
-            })
-            .then((nextItems) => {
-                if (isMounted && nextItems.length > 0) {
-                    setItems(nextItems);
-                }
-            })
-            .catch((error) => {
-                console.error("Failed to load database items:", error);
-            });
-
-        return () => {
-            isMounted = false;
-        };
-    }, []);
 
     // Lock body scroll when preview/menu/favorites is open
     useEffect(() => {
@@ -217,10 +192,10 @@ export default function MobileContentSection() {
     );
 
     const categoryLabel = activeTab === "Softwares"
-        ? "UTILITIES // RUN"
+        ? "Softwares"
         : activeTab === "Websites"
-            ? "Web Resources // Net"
-            : "Script Library // Exec";
+            ? "Websites"
+            : "Scripts";
 
     return (
         <>
@@ -265,7 +240,7 @@ export default function MobileContentSection() {
                         </div>
                     </button>
 
-                    {/* Center: Random Stuff — tap to unlock */}
+                    {/* Center: Random Stuff - tap to unlock */}
                     <button
                         type="button"
                         onClick={handleUnlock}
@@ -356,14 +331,12 @@ export default function MobileContentSection() {
                                                     <span className="absolute inset-0 flex items-center justify-center text-white/30 text-sm font-bold font-mono select-none">
                                                         {item.title.charAt(0).toUpperCase()}
                                                     </span>
-                                                    <img
+                                                    <Image
                                                         alt={item.title}
-                                                        className="relative z-10 w-full h-full object-cover opacity-60"
+                                                        className="relative z-10 object-cover opacity-60"
                                                         src={item.image}
-                                                        loading="lazy"
-                                                        onError={(e) => {
-                                                            (e.target as HTMLImageElement).style.display = "none";
-                                                        }}
+                                                        fill
+                                                        sizes="40px"
                                                     />
                                                     </>
                                                 ) : (
@@ -465,10 +438,10 @@ export default function MobileContentSection() {
                                         </div>
                                         <input
                                             className="flex w-full flex-1 bg-transparent border-none focus:ring-0 focus:outline-none text-white placeholder:text-slate-500 text-sm px-4"
-                                            placeholder="Search all tools..."
+                                            placeholder="Search directory..."
                                             value={searchQuery}
                                             onChange={(e) => setSearchQuery(e.target.value)}
-                                            aria-label="Search all tools"
+                                            aria-label="Search directory"
                                         />
                                         {searchQuery && (
                                             <button
