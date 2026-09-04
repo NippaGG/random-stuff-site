@@ -6,10 +6,21 @@ import { AnimatePresence } from "framer-motion";
 import { clearLenisInstance, setLenisInstance } from "@/lib/lenis";
 import LoadingScreen from "@/components/LoadingScreen";
 import CustomCursor from "@/components/CustomCursor";
+import CrtScanlines from "@/components/CrtScanlines";
+import { getStoredTheme, applyTheme } from "@/lib/theme-manager";
 
 export default function PageClientWrapper({ children }: { children: React.ReactNode }) {
   const [isLoading, setIsLoading] = useState(false);
   const [isMobile, setIsMobile] = useState<boolean | null>(null);
+
+  // Initialize theme & register service worker
+  useEffect(() => {
+    applyTheme(getStoredTheme());
+
+    if ("serviceWorker" in navigator && process.env.NODE_ENV === "production") {
+      navigator.serviceWorker.register("/sw.js").catch(() => {});
+    }
+  }, []);
 
   // Check if intro has already been seen in this session
   useEffect(() => {
@@ -74,6 +85,7 @@ export default function PageClientWrapper({ children }: { children: React.ReactN
       <div className="hidden md:block">
         <CustomCursor />
       </div>
+      <CrtScanlines />
 
       <AnimatePresence mode="wait">
         {isLoading && (

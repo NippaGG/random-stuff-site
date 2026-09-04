@@ -1,0 +1,17 @@
+{
+  "name": "Random Stuff - Curated Web Tools",
+  "short_name": "RandomStuff",
+  "description": "A curated directory of useful websites, developer tools, software, and scripts.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#050505",
+  "theme_color": "#a3e635",
+  "icons": [
+    {
+      "src": "/window.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

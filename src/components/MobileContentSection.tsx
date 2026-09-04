@@ -3,13 +3,18 @@
 import React, { useState, useEffect, useRef, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { type Item } from "@/data/items";
-import { Terminal, Globe, FileCode, Search, X, ArrowUpRight, Heart, Monitor, Github, ListFilter, Lock, Share2, Check } from "lucide-react";
+import { Terminal, Globe, FileCode, Search, X, ArrowUpRight, Heart, Monitor, Github, ListFilter, Lock, Share2, Check, Sparkles, Boxes, Tv, Volume2, VolumeX, Palette, Download, Upload } from "lucide-react";
 import { useFavorites } from "@/hooks/useFavorites";
 import Image from "next/image";
 import { scrollToY } from "@/lib/lenis";
 import { getVisiblePlatformTags } from "@/lib/platform-tags";
 import { searchItems } from "@/lib/item-search";
 import ProgressiveLoadSentinel from "./ProgressiveLoadSentinel";
+import RandomRouletteModal from "./RandomRouletteModal";
+import { CURATED_STACKS } from "@/data/stacks";
+import { exportFavoritesMarkdown, exportFavoritesJson, exportFavoritesHtml, triggerFileDownload, parseFavoritesImport } from "@/lib/export-favorites";
+import { applyTheme, getStoredTheme, toggleCrt, isCrtEnabled, type ThemeName } from "@/lib/theme-manager";
+import { playClickSound, playTabSound, playSuccessSound, toggleSound, isSoundEnabled } from "@/lib/sound-fx";
 
 const TABS = ["Softwares", "Websites", "Scripts"] as const;
 type TabType = (typeof TABS)[number];
@@ -37,10 +42,75 @@ export default function MobileContentSection({ initialItems }: { initialItems: I
         key: "Softwares-all-",
         count: INITIAL_VISIBLE_ITEMS,
     });
-    const { isFavorite, toggleFavorite } = useFavorites();
+    const { favorites, isFavorite, toggleFavorite, addFavorite } = useFavorites();
+
+    const [showRoulette, setShowRoulette] = useState(false);
+    const [activeStackId, setActiveStackId] = useState<string | null>(null);
+    const [sharedStackIds, setSharedStackIds] = useState<string[] | null>(null);
+    const [activeTheme, setActiveTheme] = useState<ThemeName>("lime");
+    const [crtOn, setCrtOn] = useState(false);
+    const [soundOn, setSoundOn] = useState(false);
+    const fileInputRef = useRef<HTMLInputElement>(null);
+
+    // Sync theme, crt, sound
+    useEffect(() => {
+        setActiveTheme(getStoredTheme());
+        setCrtOn(isCrtEnabled());
+        setSoundOn(isSoundEnabled());
+
+        const onThemeChange = (e: Event) => {
+            const customEvent = e as CustomEvent<ThemeName>;
+            if (customEvent.detail) setActiveTheme(customEvent.detail);
+        };
+        const onCrtChange = (e: Event) => {
+            const customEvent = e as CustomEvent<boolean>;
+            setCrtOn(customEvent.detail);
+        };
+        const onSoundChange = (e: Event) => {
+            const customEvent = e as CustomEvent<boolean>;
+            setSoundOn(customEvent.detail);
+        };
+
+        window.addEventListener("theme-change", onThemeChange);
+        window.addEventListener("crt-change", onCrtChange);
+        window.addEventListener("sound-change", onSoundChange);
+
+        return () => {
+            window.removeEventListener("theme-change", onThemeChange);
+            window.removeEventListener("crt-change", onCrtChange);
+            window.removeEventListener("sound-change", onSoundChange);
+        };
+    }, []);
+
+    // Sync URL hash for #stack=
+    useEffect(() => {
+        const handleHash = () => {
+            if (typeof window === "undefined") return;
+            const hash = window.location.hash;
+            if (hash.startsWith("#stack=")) {
+                const ids = hash
+                    .replace("#stack=", "")
+                    .split(",")
+                    .map((s) => s.trim())
+                    .filter(Boolean);
+                if (ids.length > 0) {
+                    setSharedStackIds(ids);
+                    setActiveStackId(null);
+                }
+            }
+        };
+
+        handleHash();
+        window.addEventListener("hashchange", handleHash);
+        return () => window.removeEventListener("hashchange", handleHash);
+    }, []);
 
     const tagOptions = [
         { id: "all", label: "All" },
+        { id: "open-source", label: "Open Source" },
+        { id: "cli", label: "CLI / Terminal" },
+        { id: "self-hosted", label: "Self-Hosted" },
+        { id: "free", label: "Free" },
         { id: "macos", label: "macOS" },
         { id: "windows", label: "Windows" },
         { id: "linux", label: "Linux" },
@@ -198,10 +268,63 @@ export default function MobileContentSection({ initialItems }: { initialItems: I
     };
 
     const isSearchActive = searchQuery.trim().length > 0;
-    const filteredItems = useMemo(
-        () => searchItems(items, searchQuery, { platformTag: activeTag, browseCategory: activeTab }),
-        [items, searchQuery, activeTag, activeTab],
-    );
+    const filteredItems = useMemo(() => {
+        let pool = items;
+        if (activeStackId) {
+            const stack = CURATED_STACKS.find((s) => s.id === activeStackId);
+            if (stack) {
+                pool = pool.filter((i) => stack.itemIds.includes(i.id));
+            }
+        } else if (sharedStackIds && sharedStackIds.length > 0) {
+            pool = pool.filter((i) => sharedStackIds.includes(i.id));
+        }
+        return searchItems(pool, searchQuery, { platformTag: activeTag, browseCategory: activeTab });
+    }, [items, searchQuery, activeTag, activeTab, activeStackId, sharedStackIds]);
+
+    const handleExport = (format: "md" | "json" | "html") => {
+        playClickSound();
+        const favItems = items.filter((item) => isFavorite(item.id));
+        if (favItems.length === 0) return;
+
+        if (format === "md") {
+            const md = exportFavoritesMarkdown(favItems);
+            triggerFileDownload("favorites.md", md, "text/markdown");
+        } else if (format === "json") {
+            const json = exportFavoritesJson(favItems);
+            triggerFileDownload("favorites.json", json, "application/json");
+        } else if (format === "html") {
+            const html = exportFavoritesHtml(favItems);
+            triggerFileDownload("favorites.html", html, "text/html");
+        }
+        playSuccessSound();
+    };
+
+    const handleImportFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        try {
+            const text = await file.text();
+            const { ids } = parseFavoritesImport(text);
+            ids.forEach((id) => addFavorite(id));
+            playSuccessSound();
+            alert(`Successfully imported ${ids.length} tools into your favorites!`);
+        } catch (err: unknown) {
+            const msg = err instanceof Error ? err.message : "Failed to import JSON file.";
+            alert(msg);
+        } finally {
+            if (fileInputRef.current) fileInputRef.current.value = "";
+        }
+    };
+
+    const cycleTheme = () => {
+        const list: ThemeName[] = ["lime", "amber", "emerald", "cobalt"];
+        const currentIdx = list.indexOf(activeTheme);
+        const nextTheme = list[(currentIdx + 1) % list.length];
+        applyTheme(nextTheme);
+        setActiveTheme(nextTheme);
+        playClickSound();
+    };
     const resultSetKey = `${activeTab}-${activeTag}-${searchQuery.trim().toLowerCase()}`;
     const visibleItemCount = visibleItemsState.key === resultSetKey
         ? visibleItemsState.count
@@ -329,6 +452,47 @@ export default function MobileContentSection({ initialItems }: { initialItems: I
                             exit={{ opacity: 0, y: -8 }}
                             transition={{ duration: 0.2 }}
                         >
+                            {/* Curated Stacks Filter Bar */}
+                            <div className="mb-4 p-2 bg-[#111111] border border-white/10 flex flex-wrap items-center gap-1.5">
+                                <span className="text-[10px] font-mono uppercase text-neutral-400 flex items-center gap-1 mr-1">
+                                    <Boxes className="w-3 h-3 text-[var(--theme-accent)]" /> Stacks:
+                                </span>
+                                {CURATED_STACKS.map((stack) => {
+                                    const isSelected = activeStackId === stack.id;
+                                    return (
+                                        <button
+                                            key={stack.id}
+                                            type="button"
+                                            onClick={() => {
+                                                playTabSound();
+                                                setActiveStackId(isSelected ? null : stack.id);
+                                                setSharedStackIds(null);
+                                            }}
+                                            className={`text-[10px] font-mono px-2 py-0.5 border transition-all ${
+                                                isSelected
+                                                    ? "bg-[var(--theme-accent-bg)] border-[var(--theme-accent)] text-[var(--theme-accent)] font-bold"
+                                                    : "bg-white/5 border-white/10 text-neutral-300"
+                                            }`}
+                                        >
+                                            {stack.title.split(" ")[0]}
+                                        </button>
+                                    );
+                                })}
+                                {(activeStackId || sharedStackIds) && (
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            playClickSound();
+                                            setActiveStackId(null);
+                                            setSharedStackIds(null);
+                                        }}
+                                        className="text-[10px] font-mono px-1.5 py-0.5 bg-red-500/10 border border-red-500/30 text-red-400"
+                                    >
+                                        Clear
+                                    </button>
+                                )}
+                            </div>
+
                             <div className="flex items-center justify-between gap-3 mb-4 text-xs font-bold leading-tight tracking-[0.2em] uppercase">
                                 <h2 className="text-[#bef264]">
                                     {isSearchActive ? "Search results" : categoryLabel}
@@ -620,8 +784,80 @@ export default function MobileContentSection({ initialItems }: { initialItems: I
                             {/* Divider below header area */}
                             <div className="border-b border-white/10" />
 
-                            {/* Menu Links */}
+                            {/* Menu Links & Actions */}
                             <div className="flex flex-col p-4 gap-2">
+                                {/* Roll Random Button */}
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        setIsMenuOpen(false);
+                                        setShowRoulette(true);
+                                    }}
+                                    className="flex items-center gap-4 px-4 py-3.5 bg-[var(--theme-accent-bg)] border border-[var(--theme-accent-border)] text-left group"
+                                >
+                                    <Sparkles className="w-5 h-5 text-[var(--theme-accent)]" />
+                                    <div>
+                                        <p className="text-white font-bold text-sm">
+                                            Roll Random Tool
+                                        </p>
+                                        <p className="text-slate-400 text-[10px]">
+                                            Kinetic slot roulette
+                                        </p>
+                                    </div>
+                                </button>
+
+                                {/* Sound Toggle */}
+                                <button
+                                    type="button"
+                                    onClick={toggleSound}
+                                    className="flex items-center gap-4 px-4 py-3 bg-white/5 border border-white/10 text-left"
+                                >
+                                    {soundOn ? (
+                                        <Volume2 className="w-5 h-5 text-[var(--theme-accent)]" />
+                                    ) : (
+                                        <VolumeX className="w-5 h-5 text-neutral-500" />
+                                    )}
+                                    <div>
+                                        <p className="text-white font-bold text-sm">
+                                            Synthesizer Sound: {soundOn ? "ON" : "MUTED"}
+                                        </p>
+                                    </div>
+                                </button>
+
+                                {/* CRT Toggle */}
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        toggleCrt();
+                                        playClickSound();
+                                    }}
+                                    className="flex items-center gap-4 px-4 py-3 bg-white/5 border border-white/10 text-left"
+                                >
+                                    <Tv className="w-5 h-5 text-purple-400" />
+                                    <div>
+                                        <p className="text-white font-bold text-sm">
+                                            CRT Scanlines: {crtOn ? "ON" : "OFF"}
+                                        </p>
+                                    </div>
+                                </button>
+
+                                {/* Theme Cycle */}
+                                <button
+                                    type="button"
+                                    onClick={cycleTheme}
+                                    className="flex items-center gap-4 px-4 py-3 bg-white/5 border border-white/10 text-left"
+                                >
+                                    <Palette className="w-5 h-5 text-[var(--theme-accent)]" />
+                                    <div>
+                                        <p className="text-white font-bold text-sm">
+                                            Phosphor Theme: {activeTheme.toUpperCase()}
+                                        </p>
+                                        <p className="text-slate-500 text-[10px]">
+                                            Tap to cycle
+                                        </p>
+                                    </div>
+                                </button>
+
                                 <a
                                     href="https://github.com/NippaGG/random-stuff-site"
                                     target="_blank"
@@ -704,11 +940,39 @@ export default function MobileContentSection({ initialItems }: { initialItems: I
                             className="relative w-[280px] max-w-[80vw] h-full bg-[#0a0a0a] border-l border-white/10 flex flex-col z-10 pt-[72px]"
                         >
                             {/* Header */}
-                            <div className="flex items-center justify-between p-5 border-b border-white/10">
-                                <h2 className="text-xl font-bold text-[#bef264] flex items-center gap-2">
-                                    <Heart className="w-5 h-5 fill-[#bef264]" />
-                                    Favorites
-                                </h2>
+                            <div className="flex flex-col gap-2 p-4 border-b border-white/10">
+                                <div className="flex items-center justify-between">
+                                    <h2 className="text-xl font-bold text-[#bef264] flex items-center gap-2">
+                                        <Heart className="w-5 h-5 fill-[#bef264]" />
+                                        Favorites
+                                    </h2>
+                                </div>
+
+                                {/* Export / Import bar */}
+                                <div className="flex items-center gap-2 pt-2 border-t border-white/5">
+                                    <button
+                                        type="button"
+                                        onClick={() => handleExport("json")}
+                                        disabled={favoriteItems.length === 0}
+                                        className="text-[10px] font-mono px-2 py-1 bg-white/5 border border-white/10 text-white/80 hover:text-white flex items-center gap-1 disabled:opacity-40"
+                                    >
+                                        <Download className="w-3 h-3" /> Export
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => fileInputRef.current?.click()}
+                                        className="text-[10px] font-mono px-2 py-1 bg-white/5 border border-white/10 text-white/80 hover:text-white flex items-center gap-1"
+                                    >
+                                        <Upload className="w-3 h-3" /> Import
+                                    </button>
+                                    <input
+                                        ref={fileInputRef}
+                                        type="file"
+                                        accept=".json"
+                                        onChange={handleImportFile}
+                                        className="hidden"
+                                    />
+                                </div>
                             </div>
 
                             {/* Favorites List - Scrollable Area */}
@@ -949,6 +1213,15 @@ export default function MobileContentSection({ initialItems }: { initialItems: I
                     </motion.div>
                 )}
             </AnimatePresence>
+
+            {/* Random Roulette Modal */}
+            <RandomRouletteModal
+                isOpen={showRoulette}
+                onClose={() => setShowRoulette(false)}
+                items={items}
+                favorites={favorites}
+                onToggleFavorite={toggleFavorite}
+            />
         </>
     );
 }

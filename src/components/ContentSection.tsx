@@ -5,7 +5,7 @@ import React, { useEffect, useMemo, useRef, useState, useCallback } from "react"
 import { motion, AnimatePresence, useScroll, useMotionValueEvent } from "framer-motion";
 import { type Item, CATEGORY_COLORS } from "@/data/items";
 import CircularNav from "./CircularNav";
-import { Lock, Unlock, X, ArrowUpRight, Globe, Monitor, Terminal, Heart, Search, ListFilter, Share2, Check } from "lucide-react";
+import { Lock, Unlock, X, ArrowUpRight, Globe, Monitor, Terminal, Heart, Search, ListFilter, Share2, Check, Scale, Boxes, Tv, Volume2, VolumeX, Palette, Sparkles, Download, Upload } from "lucide-react";
 import { FolderHeartIcon, type FolderHeartIconHandle } from "./FolderHeartIcon";
 import DecryptedText from "./DecryptedText";
 import { useFavorites } from "@/hooks/useFavorites";
@@ -13,6 +13,14 @@ import { scrollToY } from "@/lib/lenis";
 import { getVisiblePlatformTags } from "@/lib/platform-tags";
 import { searchItems } from "@/lib/item-search";
 import ProgressiveLoadSentinel from "./ProgressiveLoadSentinel";
+import CommandPalette from "./CommandPalette";
+import CompareModal from "./CompareModal";
+import RandomRouletteModal from "./RandomRouletteModal";
+import GravitySandbox from "./GravitySandbox";
+import { CURATED_STACKS } from "@/data/stacks";
+import { exportFavoritesMarkdown, exportFavoritesJson, exportFavoritesHtml, triggerFileDownload, parseFavoritesImport } from "@/lib/export-favorites";
+import { applyTheme, getStoredTheme, toggleCrt, isCrtEnabled, type ThemeName } from "@/lib/theme-manager";
+import { playClickSound, playTabSound, playSuccessSound, toggleSound, isSoundEnabled } from "@/lib/sound-fx";
 
 import { twMerge } from "tailwind-merge";
 
@@ -265,6 +273,20 @@ export default function ContentSection({ initialItems }: { initialItems: Item[] 
     () => (typeof window !== "undefined" ? window.matchMedia("(max-width: 767px)").matches : false)
   );
 
+  // New power-user feature states
+  const [showCommandPalette, setShowCommandPalette] = useState(false);
+  const [showCompareModal, setShowCompareModal] = useState(false);
+  const [showGravitySandbox, setShowGravitySandbox] = useState(false);
+  const [showRoulette, setShowRoulette] = useState(false);
+  const [activeTheme, setActiveTheme] = useState<ThemeName>("lime");
+  const [crtOn, setCrtOn] = useState(false);
+  const [soundOn, setSoundOn] = useState(false);
+  const [activeStackId, setActiveStackId] = useState<string | null>(null);
+  const [sharedStackIds, setSharedStackIds] = useState<string[] | null>(null);
+  const [stackCopied, setStackCopied] = useState(false);
+  const [isExportMenuOpen, setIsExportMenuOpen] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
   const searchInputRef = useRef<HTMLInputElement>(null);
   const prevIsStraightRef = useRef(isStraight);
   const hintTimeoutRef = useRef<number | null>(null);
@@ -273,7 +295,60 @@ export default function ContentSection({ initialItems }: { initialItems: Item[] 
   const isResettingScrollRef = useRef(false);
   const folderHeartRef = useRef<FolderHeartIconHandle>(null);
 
-  const { isFavorite, toggleFavorite, clearFavorites, removeFavorites } = useFavorites();
+  const { favorites, isFavorite, toggleFavorite, clearFavorites, removeFavorites, addFavorite } = useFavorites();
+
+  // Sync theme, crt, and sound states
+  useEffect(() => {
+    setActiveTheme(getStoredTheme());
+    setCrtOn(isCrtEnabled());
+    setSoundOn(isSoundEnabled());
+
+    const onThemeChange = (e: Event) => {
+      const customEvent = e as CustomEvent<ThemeName>;
+      if (customEvent.detail) setActiveTheme(customEvent.detail);
+    };
+    const onCrtChange = (e: Event) => {
+      const customEvent = e as CustomEvent<boolean>;
+      setCrtOn(customEvent.detail);
+    };
+    const onSoundChange = (e: Event) => {
+      const customEvent = e as CustomEvent<boolean>;
+      setSoundOn(customEvent.detail);
+    };
+
+    window.addEventListener("theme-change", onThemeChange);
+    window.addEventListener("crt-change", onCrtChange);
+    window.addEventListener("sound-change", onSoundChange);
+
+    return () => {
+      window.removeEventListener("theme-change", onThemeChange);
+      window.removeEventListener("crt-change", onCrtChange);
+      window.removeEventListener("sound-change", onSoundChange);
+    };
+  }, []);
+
+  // Sync URL hash for #stack=id1,id2,...
+  useEffect(() => {
+    const handleHash = () => {
+      if (typeof window === "undefined") return;
+      const hash = window.location.hash;
+      if (hash.startsWith("#stack=")) {
+        const ids = hash
+          .replace("#stack=", "")
+          .split(",")
+          .map((s) => s.trim())
+          .filter(Boolean);
+        if (ids.length > 0) {
+          setSharedStackIds(ids);
+          setActiveStackId(null);
+        }
+      }
+    };
+
+    handleHash();
+    window.addEventListener("hashchange", handleHash);
+    return () => window.removeEventListener("hashchange", handleHash);
+  }, []);
 
   useEffect(() => {
     const mediaQuery = window.matchMedia("(max-width: 767px)");
@@ -298,9 +373,17 @@ export default function ContentSection({ initialItems }: { initialItems: Item[] 
 
   const handleRandomItem = useCallback(() => {
     if (items.length === 0) return;
-    const randomIndex = Math.floor(Math.random() * items.length);
-    setPreviewItem(items[randomIndex]);
+    setShowRoulette(true);
   }, [items]);
+
+  const cycleTheme = () => {
+    const list: ThemeName[] = ["lime", "amber", "emerald", "cobalt"];
+    const currentIdx = list.indexOf(activeTheme);
+    const nextTheme = list[(currentIdx + 1) % list.length];
+    applyTheme(nextTheme);
+    setActiveTheme(nextTheme);
+    playClickSound();
+  };
 
   const handleOpenSelected = () => {
     const selectedItems = items.filter(item => selectedFavs.includes(item.id));
@@ -341,11 +424,56 @@ export default function ContentSection({ initialItems }: { initialItems: Item[] 
     }
   };
 
+  const handleExport = (format: "md" | "json" | "html") => {
+    playClickSound();
+    const favItems = items.filter((item) => isFavorite(item.id));
+    if (favItems.length === 0) return;
+
+    if (format === "md") {
+      const md = exportFavoritesMarkdown(favItems);
+      triggerFileDownload("favorites.md", md, "text/markdown");
+    } else if (format === "json") {
+      const json = exportFavoritesJson(favItems);
+      triggerFileDownload("favorites.json", json, "application/json");
+    } else if (format === "html") {
+      const html = exportFavoritesHtml(favItems);
+      triggerFileDownload("favorites.html", html, "text/html");
+    }
+    setIsExportMenuOpen(false);
+    playSuccessSound();
+  };
+
+  const handleImportFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    try {
+      const text = await file.text();
+      const { ids } = parseFavoritesImport(text);
+      ids.forEach((id) => addFavorite(id));
+      playSuccessSound();
+      alert(`Successfully imported ${ids.length} tools into your favorites!`);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Failed to import JSON file.";
+      alert(msg);
+    } finally {
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    }
+  };
+
   const isSearchActive = searchQuery.trim().length > 0;
-  const filteredItems = useMemo(
-    () => searchItems(items, searchQuery, { platformTag: activeTag, browseCategory: activeTab }),
-    [items, searchQuery, activeTag, activeTab],
-  );
+  const filteredItems = useMemo(() => {
+    let pool = items;
+    if (activeStackId) {
+      const stack = CURATED_STACKS.find((s) => s.id === activeStackId);
+      if (stack) {
+        pool = pool.filter((i) => stack.itemIds.includes(i.id));
+      }
+    } else if (sharedStackIds && sharedStackIds.length > 0) {
+      pool = pool.filter((i) => sharedStackIds.includes(i.id));
+    }
+    return searchItems(pool, searchQuery, { platformTag: activeTag, browseCategory: activeTab });
+  }, [items, searchQuery, activeTag, activeTab, activeStackId, sharedStackIds]);
   const resultSetKey = `${activeTab}-${activeTag}-${searchQuery.trim().toLowerCase()}`;
   const visibleItemCount = visibleItemsState.key === resultSetKey
     ? visibleItemsState.count
@@ -441,25 +569,41 @@ export default function ContentSection({ initialItems }: { initialItems: Item[] 
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
-      // Cmd+K or Ctrl+K opens/focuses search from anywhere
+      // Cmd+K or Ctrl+K opens Command Palette superdock
       if ((event.metaKey || event.ctrlKey) && (event.key === "k" || event.key === "K")) {
         event.preventDefault();
-        searchInputRef.current?.focus();
+        setShowCommandPalette((prev) => !prev);
         return;
       }
 
       const target = event.target as HTMLElement | null;
       const isInput = target && ["INPUT", "TEXTAREA", "SELECT"].includes(target.tagName);
 
-      // Slash focuses search when not typing in an input
+      // Slash opens command palette when not typing in an input
       if (event.key === "/" && !isInput && !event.metaKey && !event.ctrlKey && !event.altKey) {
         event.preventDefault();
-        searchInputRef.current?.focus();
+        setShowCommandPalette(true);
         return;
       }
 
       // Escape handles modals, search input clearing, and blurring
       if (event.key === "Escape") {
+        if (showCommandPalette) {
+          setShowCommandPalette(false);
+          return;
+        }
+        if (showCompareModal) {
+          setShowCompareModal(false);
+          return;
+        }
+        if (showRoulette) {
+          setShowRoulette(false);
+          return;
+        }
+        if (showGravitySandbox) {
+          setShowGravitySandbox(false);
+          return;
+        }
         if (previewItem) {
           setPreviewItem(null);
           return;
@@ -491,13 +635,26 @@ export default function ContentSection({ initialItems }: { initialItems: Item[] 
         setActiveTab(TABS[2]);
         setActiveTag("all");
       } else if ((event.key === "r" || event.key === "R") && !previewItem) {
-        handleRandomItem();
+        setShowRoulette(true);
+      } else if (event.key === "g" || event.key === "G") {
+        setShowGravitySandbox((prev) => !prev);
+      } else if (event.key === "c" || event.key === "C") {
+        setShowCompareModal((prev) => !prev);
       }
     };
 
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, [previewItem, showFavorites, searchQuery, handleRandomItem]);
+  }, [
+    previewItem,
+    showFavorites,
+    searchQuery,
+    handleRandomItem,
+    showCommandPalette,
+    showCompareModal,
+    showRoulette,
+    showGravitySandbox,
+  ]);
 
   useEffect(() => {
     if (!isLocked || isMobile) return;
@@ -668,6 +825,10 @@ export default function ContentSection({ initialItems }: { initialItems: Item[] 
 
   const tagOptions = [
     { id: "all", label: "All" },
+    { id: "open-source", label: "Open Source" },
+    { id: "cli", label: "CLI / Terminal" },
+    { id: "self-hosted", label: "Self-Hosted" },
+    { id: "free", label: "Free" },
     { id: "macos", label: "macOS" },
     { id: "windows", label: "Windows" },
     { id: "linux", label: "Linux" },
@@ -769,25 +930,118 @@ export default function ContentSection({ initialItems }: { initialItems: Item[] 
 
 
 
-          {/* --- RIGHT SIDE BUTTONS (Favorites + Lucky) --- */}
-          <div className="hidden md:flex absolute right-3 md:right-20 top-[20px] -translate-y-1/2 z-40 items-center gap-2 md:gap-3">
+          {/* --- RIGHT SIDE BUTTONS (Toolbar + Power Tools) --- */}
+          <div className="hidden md:flex absolute right-3 md:right-8 top-[20px] -translate-y-1/2 z-40 items-center gap-1.5 md:gap-2">
             <AnimatePresence>
               {isStraight && !isMobile && (
                 <>
+                  {/* Sound FX Toggle */}
+                  <motion.button
+                    key="sound-btn"
+                    type="button"
+                    initial={{ opacity: 0, scale: 0.5 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.5 }}
+                    onClick={toggleSound}
+                    aria-label="Toggle Sound Effects"
+                    className="flex items-center justify-center w-10 h-10 md:w-11 md:h-11 bg-white/5 rounded-none border border-white/10 backdrop-blur-md hover:bg-white/10 hover:border-[var(--theme-accent-border)] transition-all text-neutral-300 hover:text-white"
+                    title={`Synthesizer Audio: ${soundOn ? "ON" : "MUTED"}`}
+                  >
+                    {soundOn ? (
+                      <Volume2 className="w-4 h-4 text-[var(--theme-accent)]" />
+                    ) : (
+                      <VolumeX className="w-4 h-4 text-neutral-500" />
+                    )}
+                  </motion.button>
+
+                  {/* CRT Toggle */}
+                  <motion.button
+                    key="crt-btn"
+                    type="button"
+                    initial={{ opacity: 0, scale: 0.5 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.5 }}
+                    onClick={() => {
+                      toggleCrt();
+                      playClickSound();
+                    }}
+                    aria-label="Toggle CRT Scanlines"
+                    className={`flex items-center justify-center w-10 h-10 md:w-11 md:h-11 rounded-none border backdrop-blur-md transition-all ${
+                      crtOn
+                        ? "bg-[var(--theme-accent-bg)] border-[var(--theme-accent-border)] text-[var(--theme-accent)] shadow-[0_0_10px_var(--theme-accent-glow)]"
+                        : "bg-white/5 border-white/10 text-neutral-400 hover:text-white"
+                    }`}
+                    title={`CRT Scanlines: ${crtOn ? "ON" : "OFF"}`}
+                  >
+                    <Tv className="w-4 h-4" />
+                  </motion.button>
+
+                  {/* Theme Switcher */}
+                  <motion.button
+                    key="theme-btn"
+                    type="button"
+                    initial={{ opacity: 0, scale: 0.5 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.5 }}
+                    onClick={cycleTheme}
+                    aria-label="Cycle Color Theme"
+                    className="flex items-center justify-center w-10 h-10 md:w-11 md:h-11 bg-white/5 rounded-none border border-white/10 backdrop-blur-md hover:bg-white/10 hover:border-[var(--theme-accent-border)] transition-all"
+                    title={`Active Phosphor: ${activeTheme.toUpperCase()} (Click to cycle)`}
+                  >
+                    <Palette className="w-4 h-4 text-[var(--theme-accent)]" />
+                  </motion.button>
+
+                  {/* Physics Sandbox Toggle */}
+                  <motion.button
+                    key="sandbox-btn"
+                    type="button"
+                    initial={{ opacity: 0, scale: 0.5 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.5 }}
+                    onClick={() => {
+                      playClickSound();
+                      setShowGravitySandbox((prev) => !prev);
+                    }}
+                    aria-label="Launch 2D Physics Gravity Sandbox"
+                    className="flex items-center justify-center w-10 h-10 md:w-11 md:h-11 bg-white/5 rounded-none border border-white/10 backdrop-blur-md hover:bg-[var(--theme-accent-bg)] hover:border-[var(--theme-accent-border)] transition-all"
+                    title="2D Physics Sandbox ('G')"
+                  >
+                    <Boxes className="w-4 h-4 text-[var(--theme-accent)]" />
+                  </motion.button>
+
+                  {/* Tool Comparison Matrix */}
+                  <motion.button
+                    key="compare-btn"
+                    type="button"
+                    initial={{ opacity: 0, scale: 0.5 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.5 }}
+                    onClick={() => {
+                      playClickSound();
+                      setShowCompareModal(true);
+                    }}
+                    aria-label="Compare Tools"
+                    className="flex items-center justify-center w-10 h-10 md:w-11 md:h-11 bg-white/5 rounded-none border border-white/10 backdrop-blur-md hover:bg-[var(--theme-accent-bg)] hover:border-[var(--theme-accent-border)] transition-all"
+                    title="Compare Tools Side-by-Side ('C')"
+                  >
+                    <Scale className="w-4 h-4 text-[var(--theme-accent)]" />
+                  </motion.button>
+
+                  {/* Roulette Random */}
                   <motion.button
                     key="lucky-btn"
                     type="button"
                     initial={{ opacity: 0, scale: 0.5, x: 20 }}
                     animate={{ opacity: 1, scale: 1, x: 0 }}
                     exit={{ opacity: 0, scale: 0.5, x: 20 }}
-                    transition={{ duration: 0.3, delay: 0.1 }}
+                    transition={{ duration: 0.3, delay: 0.05 }}
                     onClick={handleRandomItem}
                     aria-label="Pick a random item"
-                    className="group relative flex items-center justify-center h-10 md:h-12 px-4 md:px-5 bg-[#a3e635] rounded-none border border-[#a3e635] hover:-translate-y-1 hover:-translate-x-1 hover:shadow-[4px_4px_0px_#a3e635] transition-all overflow-hidden"
-                    title="Random item (Press 'R')"
+                    className="group relative flex items-center justify-center h-10 md:h-11 px-3.5 md:px-4 bg-[var(--theme-accent)] rounded-none border border-[var(--theme-accent)] hover:-translate-y-0.5 hover:shadow-[0_0_15px_var(--theme-accent-glow)] transition-all overflow-hidden"
+                    title="Random item roulette (Press 'R')"
                   >
-
-                    <span className="text-black font-bold font-mono text-sm md:text-base uppercase tracking-wide">
+                    <span className="text-black font-bold font-mono text-xs md:text-sm uppercase tracking-wide flex items-center gap-1.5">
+                      <Sparkles className="w-3.5 h-3.5" />
                       <DecryptedText
                         text="Random"
                         speed={50}
@@ -797,6 +1051,8 @@ export default function ContentSection({ initialItems }: { initialItems: Item[] 
                       />
                     </span>
                   </motion.button>
+
+                  {/* Favorites Folder */}
                   <motion.div
                     key="favorites-btn"
                     initial={{ opacity: 0, scale: 0.5, x: 20 }}
@@ -806,15 +1062,17 @@ export default function ContentSection({ initialItems }: { initialItems: Item[] 
                   >
                     <button
                       type="button"
-                      onClick={() => setShowFavorites(true)}
+                      onClick={() => {
+                        playClickSound();
+                        setShowFavorites(true);
+                      }}
                       onMouseEnter={() => folderHeartRef.current?.startAnimation()}
                       onMouseLeave={() => folderHeartRef.current?.stopAnimation()}
                       aria-label="Open favorites"
-                      // LARGER MOBILE TOUCH BOX PADDING
-                      className="group/folder-heart flex items-center justify-center w-10 h-10 md:w-12 md:h-12 bg-[#a3e635]/10 rounded-none border border-[#a3e635]/20 backdrop-blur-md hover:bg-[#a3e635]/20 hover:-translate-y-1 hover:-translate-x-1 hover:shadow-[4px_4px_0px_#a3e635] transition-all"
+                      className="group/folder-heart flex items-center justify-center w-10 h-10 md:w-11 md:h-11 bg-[var(--theme-accent-bg)] rounded-none border border-[var(--theme-accent-border)] backdrop-blur-md hover:bg-[var(--theme-accent-bg)] hover:-translate-y-0.5 hover:shadow-[0_0_15px_var(--theme-accent-glow)] transition-all"
                       title="Favorites"
                     >
-                      <FolderHeartIcon ref={folderHeartRef} className="w-5 h-5 text-[#a3e635]" />
+                      <FolderHeartIcon ref={folderHeartRef} className="w-5 h-5 text-[var(--theme-accent)]" />
                     </button>
                   </motion.div>
                 </>
@@ -859,6 +1117,80 @@ export default function ContentSection({ initialItems }: { initialItems: Item[] 
         className="w-full max-w-6xl px-4 md:px-5 mx-auto relative z-10 -mt-36 md:-mt-52 pt-[100vh] md:pt-[125vh] flex flex-col min-h-screen"
       >
         <div className="flex-grow">
+          {/* Curated Stacks / Bundles Filter Bar */}
+          <div className="mb-5 p-3 rounded-none bg-[#111111]/85 border border-white/10 backdrop-blur-md flex flex-wrap items-center justify-between gap-3">
+            <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
+              <span className="text-xs font-mono uppercase text-neutral-400 flex items-center gap-1 mr-1">
+                <Boxes className="w-3.5 h-3.5 text-[var(--theme-accent)]" /> Stacks:
+              </span>
+              {CURATED_STACKS.map((stack) => {
+                const isSelected = activeStackId === stack.id;
+                return (
+                  <button
+                    key={stack.id}
+                    type="button"
+                    onClick={() => {
+                      playTabSound();
+                      setActiveStackId(isSelected ? null : stack.id);
+                      setSharedStackIds(null);
+                    }}
+                    className={`text-[11px] sm:text-xs font-mono px-2.5 py-1 border transition-all ${
+                      isSelected
+                        ? "bg-[var(--theme-accent-bg)] border-[var(--theme-accent)] text-[var(--theme-accent)] font-bold shadow-[0_0_10px_var(--theme-accent-glow)]"
+                        : "bg-white/5 border-white/10 text-neutral-300 hover:border-white/30 hover:text-white"
+                    }`}
+                  >
+                    {stack.title}
+                  </button>
+                );
+              })}
+              {sharedStackIds && (
+                <span className="text-[11px] font-mono px-2.5 py-1 bg-[var(--theme-accent-bg)] border border-[var(--theme-accent)] text-[var(--theme-accent)]">
+                  Custom Shared Stack ({sharedStackIds.length} tools)
+                </span>
+              )}
+              {(activeStackId || sharedStackIds) && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    playClickSound();
+                    setActiveStackId(null);
+                    setSharedStackIds(null);
+                    if (window.location.hash.startsWith("#stack=")) {
+                      window.history.replaceState(null, "", window.location.pathname + window.location.search);
+                    }
+                  }}
+                  className="text-[11px] font-mono px-2 py-1 bg-red-500/10 border border-red-500/30 text-red-400 hover:bg-red-500/20 transition-colors flex items-center gap-1"
+                >
+                  <X className="w-3 h-3" /> Clear
+                </button>
+              )}
+            </div>
+
+            {/* Share Stack Button */}
+            {(activeStackId || sharedStackIds) && (
+              <button
+                type="button"
+                onClick={async () => {
+                  playSuccessSound();
+                  const currentIds = activeStackId
+                    ? CURATED_STACKS.find((s) => s.id === activeStackId)?.itemIds
+                    : sharedStackIds;
+                  if (currentIds) {
+                    const shareUrl = `${window.location.origin}/#stack=${currentIds.join(",")}`;
+                    await navigator.clipboard.writeText(shareUrl);
+                    setStackCopied(true);
+                    setTimeout(() => setStackCopied(false), 2000);
+                  }
+                }}
+                className="text-[11px] sm:text-xs font-mono px-3 py-1 bg-[var(--theme-accent-bg)] border border-[var(--theme-accent-border)] text-[var(--theme-accent)] hover:opacity-90 transition-all flex items-center gap-1.5 shrink-0"
+              >
+                {stackCopied ? <Check className="w-3.5 h-3.5" /> : <Share2 className="w-3.5 h-3.5" />}
+                {stackCopied ? "Stack Link Copied!" : "Share Stack URL"}
+              </button>
+            )}
+          </div>
+
           {isSearchActive && (
             <div className="flex items-center justify-between gap-4 mb-4 text-xs font-mono uppercase tracking-widest">
               <span className="text-[#a3e635] flex items-center gap-2">
@@ -1219,6 +1551,60 @@ export default function ContentSection({ initialItems }: { initialItems: Item[] 
                       )}
                     </>
                   )}
+
+                  {/* Export Dropdown */}
+                  <div className="relative">
+                    <button
+                      type="button"
+                      onClick={() => setIsExportMenuOpen((prev) => !prev)}
+                      disabled={items.filter(item => isFavorite(item.id)).length === 0}
+                      className="px-2.5 md:px-3 py-1.5 rounded-none text-[11px] md:text-xs font-bold bg-white/5 hover:bg-white/10 text-white/80 border border-white/10 transition-colors flex items-center gap-1.5 disabled:opacity-40 disabled:cursor-not-allowed"
+                    >
+                      <Download className="w-3.5 h-3.5" /> Export
+                    </button>
+                    {isExportMenuOpen && (
+                      <div className="absolute right-0 top-full mt-1.5 w-36 bg-[#09090b] border border-white/10 shadow-xl z-50 p-1 flex flex-col font-mono text-xs">
+                        <button
+                          type="button"
+                          onClick={() => handleExport("md")}
+                          className="px-3 py-1.5 text-left text-neutral-300 hover:bg-white/10 hover:text-white"
+                        >
+                          Markdown (.md)
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleExport("json")}
+                          className="px-3 py-1.5 text-left text-neutral-300 hover:bg-white/10 hover:text-white"
+                        >
+                          JSON (.json)
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleExport("html")}
+                          className="px-3 py-1.5 text-left text-neutral-300 hover:bg-white/10 hover:text-white"
+                        >
+                          HTML (.html)
+                        </button>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Import Button */}
+                  <button
+                    type="button"
+                    onClick={() => fileInputRef.current?.click()}
+                    className="px-2.5 md:px-3 py-1.5 rounded-none text-[11px] md:text-xs font-bold bg-white/5 hover:bg-white/10 text-white/80 border border-white/10 transition-colors flex items-center gap-1.5"
+                  >
+                    <Upload className="w-3.5 h-3.5" /> Import
+                  </button>
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept=".json"
+                    onChange={handleImportFile}
+                    className="hidden"
+                  />
+
                   <button
                     type="button"
                     onClick={() => setShowFavorites(false)}
@@ -1269,6 +1655,47 @@ export default function ContentSection({ initialItems }: { initialItems: Item[] 
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Command Palette Superdock */}
+      <CommandPalette
+        isOpen={showCommandPalette}
+        onClose={() => setShowCommandPalette(false)}
+        items={items}
+        onSelectItem={(item) => setPreviewItem(item)}
+        onOpenRandom={() => setShowRoulette(true)}
+        onOpenFavorites={() => setShowFavorites(true)}
+        onOpenSandbox={() => setShowGravitySandbox(true)}
+        onOpenCompare={() => setShowCompareModal(true)}
+        onExportFavorites={() => setShowFavorites(true)}
+      />
+
+      {/* Compare Side-by-Side Modal */}
+      <CompareModal
+        isOpen={showCompareModal}
+        onClose={() => setShowCompareModal(false)}
+        allItems={items}
+        favorites={favorites}
+        onToggleFavorite={toggleFavorite}
+      />
+
+      {/* Random Roulette Slot Machine Modal */}
+      <RandomRouletteModal
+        isOpen={showRoulette}
+        onClose={() => setShowRoulette(false)}
+        items={items}
+        favorites={favorites}
+        onToggleFavorite={toggleFavorite}
+      />
+
+      {/* 2D Physics Gravity Sandbox */}
+      {showGravitySandbox && (
+        <GravitySandbox
+          isOpen={showGravitySandbox}
+          items={items}
+          onClose={() => setShowGravitySandbox(false)}
+          onSelectItem={(item) => setPreviewItem(item)}
+        />
+      )}
 
     </section >
   );
@@ -1540,6 +1967,17 @@ function PreviewContent({
             {metadata?.license && (
               <span className="flex items-center gap-1 px-2 py-1 rounded-none bg-white/5 border border-white/10 text-[10px] md:text-xs font-mono text-gray-400">
                 {metadata.license}
+              </span>
+            )}
+            {metadata?.isArchived && (
+              <span className="flex items-center gap-1 px-2 py-1 rounded-none bg-amber-500/10 border border-amber-500/30 text-[10px] md:text-xs font-mono text-amber-400">
+                Archived Repo
+              </span>
+            )}
+            {metadata?.isOnline && (
+              <span className="flex items-center gap-1.5 px-2 py-1 rounded-none bg-emerald-500/10 border border-emerald-500/30 text-[10px] md:text-xs font-mono text-emerald-400">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                Online
               </span>
             )}
           </motion.div>

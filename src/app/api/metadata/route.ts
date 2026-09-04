@@ -215,9 +215,24 @@ export async function GET(request: Request) {
       if (website) {
         metadata.website = toAbsoluteUrl(website, parsedUrl);
       }
+
+      // Detect if repo is archived
+      const isArchived =
+        $('div:contains("This repository has been archived")').length > 0 ||
+        $('span:contains("Public archive")').length > 0 ||
+        $('svg.octicon-archive').length > 0;
+      if (isArchived) {
+        metadata.isArchived = true;
+      }
     }
 
-    return NextResponse.json(metadata);
+    metadata.isOnline = true;
+
+    return NextResponse.json(metadata, {
+      headers: {
+        "Cache-Control": "public, s-maxage=3600, stale-while-revalidate=86400",
+      },
+    });
   } catch (error) {
     console.error("Error fetching metadata:", error);
     const message =

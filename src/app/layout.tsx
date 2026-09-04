@@ -17,6 +17,12 @@ const robotoFlex = Roboto_Flex({
 export const metadata: Metadata = {
   title: "Random Stuff",
   description: "Directory of useful websites, software, and scripts.",
+  manifest: "/manifest.webmanifest",
+  alternates: {
+    types: {
+      "application/rss+xml": "/feed.xml",
+    },
+  },
 };
 
 const shouldRenderVercelInsights =

@@ -4,6 +4,34 @@
   --background: #ffffff;
   --foreground: #171717;
   --cursor-color: #a3e635;
+  --theme-accent: #a3e635;
+  --theme-accent-bg: rgba(163, 230, 53, 0.12);
+  --theme-accent-border: rgba(163, 230, 53, 0.35);
+  --theme-accent-glow: rgba(163, 230, 53, 0.2);
+}
+
+[data-theme="amber"] {
+  --theme-accent: #f59e0b;
+  --theme-accent-bg: rgba(245, 158, 11, 0.12);
+  --theme-accent-border: rgba(245, 158, 11, 0.35);
+  --theme-accent-glow: rgba(245, 158, 11, 0.2);
+  --cursor-color: #f59e0b;
+}
+
+[data-theme="emerald"] {
+  --theme-accent: #10b981;
+  --theme-accent-bg: rgba(16, 185, 129, 0.12);
+  --theme-accent-border: rgba(16, 185, 129, 0.35);
+  --theme-accent-glow: rgba(16, 185, 129, 0.2);
+  --cursor-color: #10b981;
+}
+
+[data-theme="cobalt"] {
+  --theme-accent: #38bdf8;
+  --theme-accent-bg: rgba(56, 189, 248, 0.12);
+  --theme-accent-border: rgba(56, 189, 248, 0.35);
+  --theme-accent-glow: rgba(56, 189, 248, 0.2);
+  --cursor-color: #38bdf8;
 }
 
 @theme inline {
