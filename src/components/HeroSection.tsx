@@ -113,7 +113,7 @@ export default function HeroSection() {
         <div className="sticky top-0 h-screen flex flex-col items-center justify-center overflow-hidden w-full px-4 md:px-5">
 
           {/* GITHUB BUTTON - Top Left (Desktop) / Top Center (Mobile) */}
-          <div className="absolute top-8 left-1/2 -translate-x-1/2 md:left-8 md:translate-x-0 z-[150] pointer-events-auto">
+          <div className="absolute top-8 left-1/2 -translate-x-1/2 md:left-8 md:translate-x-0 z-[150] pointer-events-auto flex items-center gap-4">
             <motion.a
               href="https://github.com/NippaGG/random-stuff-site"
               target="_blank"
@@ -124,7 +124,26 @@ export default function HeroSection() {
             >
               <Github size={24} />
             </motion.a>
+            <motion.div
+              style={{ opacity: sideOpacity }}
+              className="hidden lg:flex flex-col text-[10px] font-mono tracking-widest uppercase select-none pointer-events-none"
+            >
+              <span className="text-[#a3e635]/70 flex items-center gap-1.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#a3e635] animate-pulse" />
+                SYS // DIRECTORY v2.4
+              </span>
+              <span className="text-white/30 text-[9px]">FEED: CURATED // STABLE</span>
+            </motion.div>
           </div>
+
+          {/* HUD COORDINATES - Bottom Left (Desktop Only) */}
+          <motion.div
+            style={{ opacity: sideOpacity }}
+            className="hidden md:flex flex-col gap-0.5 absolute bottom-8 left-8 z-[140] font-mono text-[10px] text-white/30 tracking-widest uppercase select-none pointer-events-none"
+          >
+            <span className="text-[#a3e635]/60">INDEX [001 — 350+]</span>
+            <span className="text-white/20">LOC: 0x7F // LATENCY [0.0ms]</span>
+          </motion.div>
 
           {/* PORTFOLIO TRIGGER - Top Right (Desktop Only) */}
           <div className="hidden md:block absolute top-8 right-8 z-[150] pointer-events-auto">
@@ -173,7 +192,12 @@ export default function HeroSection() {
           />
 
           {/* GRID LAYOUT */}
-          <div className="grid grid-cols-1 md:grid-cols-[1fr_auto_1fr] items-center w-full max-w-screen-xl mx-auto gap-2 md:gap-[2vw]">
+          <div className="relative grid grid-cols-1 md:grid-cols-[1fr_auto_1fr] items-center w-full max-w-screen-xl mx-auto gap-2 md:gap-[2vw]">
+            {/* Subtle corner crosshair markers */}
+            <motion.span style={{ opacity: sideOpacity }} className="pointer-events-none hidden md:block absolute -top-8 -left-4 text-[#a3e635]/30 font-mono text-xs select-none">+</motion.span>
+            <motion.span style={{ opacity: sideOpacity }} className="pointer-events-none hidden md:block absolute -top-8 -right-4 text-[#a3e635]/30 font-mono text-xs select-none">+</motion.span>
+            <motion.span style={{ opacity: sideOpacity }} className="pointer-events-none hidden md:block absolute -bottom-8 -left-4 text-[#a3e635]/30 font-mono text-xs select-none">+</motion.span>
+            <motion.span style={{ opacity: sideOpacity }} className="pointer-events-none hidden md:block absolute -bottom-8 -right-4 text-[#a3e635]/30 font-mono text-xs select-none">+</motion.span>
 
             {/* LEFT COLUMN */}
             <motion.div

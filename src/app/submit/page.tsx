@@ -70,7 +70,7 @@ export default function SubmitPage() {
                 <GridBackground />
             </div>
 
-            <div className="relative z-10 w-full max-w-7xl mx-auto flex items-start justify-start pl-4 md:pl-8 absolute top-8 left-0 right-0">
+            <div className="absolute top-8 left-0 right-0 z-10 w-full max-w-7xl mx-auto flex items-start justify-start pl-4 md:pl-8">
                 <Link
                     href="/"
                     className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors group p-2"

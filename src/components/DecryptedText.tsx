@@ -1,14 +1,12 @@
 "use client";
 
-import React, { useEffect, useState, useRef } from "react";
-import { motion } from "framer-motion";
+import React, { useEffect, useState, useRef, useCallback } from "react";
 
 interface DecryptedTextProps {
   text: string;
   speed?: number;
-  maxIterations?: number;
   className?: string;
-  parentTrigger?: any; // To trigger animation from parent
+  parentTrigger?: unknown; // To trigger animation from parent
   animateOnHover?: boolean;
   useScrambleOnHover?: boolean;
 }
@@ -18,14 +16,12 @@ const CHARACTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+";
 export default function DecryptedText({
   text,
   speed = 50,
-  maxIterations = 10,
   className = "",
   parentTrigger,
   animateOnHover = false,
   useScrambleOnHover = false,
 }: DecryptedTextProps) {
   const [displayText, setDisplayText] = useState(text);
-  const [isHovering, setIsHovering] = useState(false);
 
   // Ref to track if component is mounted
   const isMounted = useRef(false);
@@ -39,7 +35,7 @@ export default function DecryptedText({
     };
   }, []);
 
-  const animate = () => {
+  const animate = useCallback(() => {
     let iteration = 0;
 
     // Clear any existing animation before starting a new one
@@ -52,7 +48,7 @@ export default function DecryptedText({
         return;
       }
 
-      setDisplayText((prev) =>
+      setDisplayText(
         text
           .split("")
           .map((char, index) => {
@@ -70,9 +66,9 @@ export default function DecryptedText({
 
       iteration += 1 / 2; // Slower reveal for cooler effect
     }, speed);
-  };
+  }, [text, speed]);
 
-  const startScramble = () => {
+  const startScramble = useCallback(() => {
     if (intervalRef.current) clearInterval(intervalRef.current);
     intervalRef.current = setInterval(() => {
       if (!isMounted.current) {
@@ -83,35 +79,31 @@ export default function DecryptedText({
         text.split("").map(() => CHARACTERS[Math.floor(Math.random() * CHARACTERS.length)]).join("")
       );
     }, speed);
-  };
+  }, [text, speed]);
 
-  const stopScramble = () => {
+  const stopScramble = useCallback(() => {
     if (intervalRef.current) clearInterval(intervalRef.current);
-    // Animate back to original text or just set it? 
-    // Let's decrypt back to original text for smoothness
+    // Animate back to original text for smoothness
     animate();
-  };
+  }, [animate]);
 
   // Trigger animation when parentTrigger changes (e.g. active tab changes)
   useEffect(() => {
     if (!useScrambleOnHover) {
       animate();
     }
-  }, [parentTrigger]);
+  }, [parentTrigger, useScrambleOnHover, animate]);
 
   const handleMouseEnter = () => {
     if (useScrambleOnHover) {
-      setIsHovering(true);
       startScramble();
     } else if (animateOnHover) {
-      setIsHovering(true);
       animate();
     }
   };
 
   const handleMouseLeave = () => {
     if (useScrambleOnHover) {
-      setIsHovering(false);
       stopScramble();
     }
   };

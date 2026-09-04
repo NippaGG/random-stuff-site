@@ -6,9 +6,11 @@ export default function CustomCursor() {
     const dotRef = useRef<HTMLDivElement>(null);
     const ringRef = useRef<HTMLDivElement>(null);
     const [isHovering, setIsHovering] = useState(false);
+    const [isOverTextInput, setIsOverTextInput] = useState(false);
     const [isVisible, setIsVisible] = useState(false);
     const isVisibleRef = useRef(false);
     const isHoveringRef = useRef(false);
+    const isOverTextInputRef = useRef(false);
 
     useEffect(() => {
         const dot = dotRef.current;
@@ -92,16 +94,21 @@ export default function CustomCursor() {
             }
         };
 
-        // Check if hovering over interactive elements
+        // Check if hovering over interactive elements or text inputs
         const onMouseOver = (e: MouseEvent) => {
-            const target = e.target as HTMLElement;
-            const isInteractive = !!(
+            const target = e.target as HTMLElement | null;
+            if (!target) return;
+
+            const isTextInput = !!target.closest('input, textarea, [contenteditable="true"]');
+            if (isOverTextInputRef.current !== isTextInput) {
+                isOverTextInputRef.current = isTextInput;
+                setIsOverTextInput(isTextInput);
+            }
+
+            const isInteractive = !isTextInput && !!(
                 target.tagName === 'A' ||
                 target.tagName === 'BUTTON' ||
-                target.closest('a') ||
-                target.closest('button') ||
-                target.classList.contains('cursor-pointer') ||
-                getComputedStyle(target).cursor === 'pointer'
+                target.closest('a, button, [role="button"], .cursor-pointer, select, label')
             );
 
             if (isHoveringRef.current !== isInteractive) {
@@ -124,10 +131,7 @@ export default function CustomCursor() {
         };
     }, []);
 
-    // Don't render on touch devices
-    if (typeof window !== 'undefined' && 'ontouchstart' in window) {
-        return null;
-    }
+    const cursorOpacity = isVisible && !isOverTextInput ? 1 : 0;
 
     return (
         <>
@@ -136,8 +140,8 @@ export default function CustomCursor() {
                 ref={dotRef}
                 className="custom-cursor"
                 style={{
-                    opacity: isVisible ? 1 : 0,
-                    transition: 'opacity 0.3s ease'
+                    opacity: cursorOpacity,
+                    transition: 'opacity 0.2s ease'
                 }}
             >
                 {isHovering ? (
@@ -170,8 +174,8 @@ export default function CustomCursor() {
                 ref={ringRef}
                 className="custom-cursor custom-cursor-ring"
                 style={{
-                    opacity: isVisible ? 1 : 0,
-                    transition: 'opacity 0.3s ease'
+                    opacity: cursorOpacity,
+                    transition: 'opacity 0.2s ease'
                 }}
             />
         </>

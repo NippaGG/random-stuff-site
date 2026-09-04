@@ -3,7 +3,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import { ArrowDown } from "lucide-react";
-import { items as fallbackItems, type Item } from "@/data/items";
 import { scrollToY } from "@/lib/lenis";
 
 const SYMBOLS = ["!", "@", "#", "$", "%", "&", "*", "(", ")", "_", "[", "]", "{", "}", "|", "<", ">", "?", ":", ";"];
@@ -11,13 +10,14 @@ const FINAL_TEXT = "RANDOM \nSTUFF.";
 
 export default function MobileHeroSection({ initialItemCount }: { initialItemCount: number }) {
     const [lastUpdated, setLastUpdated] = useState<string>("...");
-    const [itemCount, setItemCount] = useState(initialItemCount);
+    const itemCount = initialItemCount;
     const [scrambledText, setScrambledText] = useState<string>("####### \n######*");
     const phaseRef = useRef(0);
 
     // Initial load text scramble effect
     useEffect(() => {
-        let loopTimeout: NodeJS.Timeout;
+        let isCancelled = false;
+        let loopTimeout: NodeJS.Timeout | null = null;
         const timeouts: NodeJS.Timeout[] = [];
 
         const loop = () => {
@@ -56,21 +56,29 @@ export default function MobileHeroSection({ initialItemCount }: { initialItemCou
                 return result;
             });
 
-            if (phaseRef.current < 2) {
+            if (phaseRef.current < 2 && !isCancelled) {
                 const randomDelay = Math.random() * 80 + 40;
                 loopTimeout = setTimeout(loop, randomDelay);
             }
         };
 
         // Start scrambling slightly after image loads
-        timeouts.push(setTimeout(() => {
+        const t1 = setTimeout(() => {
+            if (isCancelled) return;
             loop();
-            timeouts.push(setTimeout(() => { phaseRef.current = 1; }, 800));
-            timeouts.push(setTimeout(() => { phaseRef.current = 2; }, 1600));
-        }, 800));
+            const t2 = setTimeout(() => {
+                if (!isCancelled) phaseRef.current = 1;
+            }, 800);
+            const t3 = setTimeout(() => {
+                if (!isCancelled) phaseRef.current = 2;
+            }, 1600);
+            timeouts.push(t2, t3);
+        }, 800);
+        timeouts.push(t1);
 
         return () => {
-            clearTimeout(loopTimeout);
+            isCancelled = true;
+            if (loopTimeout) clearTimeout(loopTimeout);
             timeouts.forEach(clearTimeout);
         };
     }, []);

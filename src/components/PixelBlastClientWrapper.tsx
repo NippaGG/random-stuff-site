@@ -5,16 +5,32 @@ import PixelBlast from "@/components/PixelBlast";
 
 export default function PixelBlastClientWrapper() {
   const [isDirectoryActive, setIsDirectoryActive] = useState(false);
+  const [isMobile, setIsMobile] = useState<boolean | null>(null);
 
   useEffect(() => {
+    const mql = window.matchMedia("(max-width: 767px)");
+    setIsMobile(mql.matches);
+
+    const onMediaChange = (e: MediaQueryListEvent) => {
+      setIsMobile(e.matches);
+    };
+
     const onSiteLockChange = (event: Event) => {
       const lockEvent = event as CustomEvent<{ locked?: boolean }>;
       setIsDirectoryActive(Boolean(lockEvent.detail?.locked));
     };
 
+    mql.addEventListener("change", onMediaChange);
     window.addEventListener("site-lock-change", onSiteLockChange);
-    return () => window.removeEventListener("site-lock-change", onSiteLockChange);
+    return () => {
+      mql.removeEventListener("change", onMediaChange);
+      window.removeEventListener("site-lock-change", onSiteLockChange);
+    };
   }, []);
+
+  if (!isMobile) {
+    return null;
+  }
 
   return (
     <PixelBlast

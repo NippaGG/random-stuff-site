@@ -8,8 +8,20 @@ import LoadingScreen from "@/components/LoadingScreen";
 import CustomCursor from "@/components/CustomCursor";
 
 export default function PageClientWrapper({ children }: { children: React.ReactNode }) {
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
   const [isMobile, setIsMobile] = useState<boolean | null>(null);
+
+  // Check if intro has already been seen in this session
+  useEffect(() => {
+    try {
+      const seen = sessionStorage.getItem("random-stuff-seen-intro");
+      if (!seen) {
+        setIsLoading(true);
+      }
+    } catch {
+      // ignore storage access errors
+    }
+  }, []);
 
   // Detect mobile on mount for Lenis config (avoids SSR hydration mismatch for logic)
   useEffect(() => {
@@ -65,7 +77,16 @@ export default function PageClientWrapper({ children }: { children: React.ReactN
 
       <AnimatePresence mode="wait">
         {isLoading && (
-          <LoadingScreen onComplete={() => setIsLoading(false)} />
+          <LoadingScreen
+            onComplete={() => {
+              try {
+                sessionStorage.setItem("random-stuff-seen-intro", "true");
+              } catch {
+                // ignore
+              }
+              setIsLoading(false);
+            }}
+          />
         )}
       </AnimatePresence>
 

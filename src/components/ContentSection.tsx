@@ -1,11 +1,11 @@
 "use client";
 
 import Image from "next/image";
-import React, { useEffect, useMemo, useRef, useState } from "react";
-import { motion, AnimatePresence, useScroll, useMotionValueEvent, useTransform, useMotionTemplate } from "framer-motion";
-import { items as staticItems, type Item, CATEGORY_COLORS } from "@/data/items";
+import React, { useEffect, useMemo, useRef, useState, useCallback } from "react";
+import { motion, AnimatePresence, useScroll, useMotionValueEvent } from "framer-motion";
+import { type Item, CATEGORY_COLORS } from "@/data/items";
 import CircularNav from "./CircularNav";
-import { Lock, Unlock, X, ArrowUpRight, Globe, Monitor, Terminal, Heart, Search, ListFilter } from "lucide-react";
+import { Lock, Unlock, X, ArrowUpRight, Globe, Monitor, Terminal, Heart, Search, ListFilter, Share2, Check } from "lucide-react";
 import { FolderHeartIcon, type FolderHeartIconHandle } from "./FolderHeartIcon";
 import DecryptedText from "./DecryptedText";
 import { useFavorites } from "@/hooks/useFavorites";
@@ -17,7 +17,7 @@ import ProgressiveLoadSentinel from "./ProgressiveLoadSentinel";
 import { twMerge } from "tailwind-merge";
 
 // --- NEW COMPONENT: SCROLL BLUR CARD ---
-// Blurs itself as it scrolls up towards the header
+// --- UPGRADED COMPONENT: SCROLL BLUR CARD WITH SPOTLIGHT & CRAFT DETAILS ---
 const ScrollBlurCard = ({
   item,
   onClick,
@@ -43,32 +43,83 @@ const ScrollBlurCard = ({
 }) => {
   const colors = CATEGORY_COLORS[item.category] || CATEGORY_COLORS.Websites;
   const visibleTags = getVisiblePlatformTags(item);
+  const cardRef = useRef<HTMLAnchorElement>(null);
+
+  const domain = useMemo(() => {
+    try {
+      const rawUrl = item.website || item.github;
+      if (!rawUrl) return "";
+      const url = new URL(rawUrl);
+      return url.hostname.replace(/^www\./, "");
+    } catch {
+      return "";
+    }
+  }, [item.website, item.github]);
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    const card = cardRef.current;
+    if (!card) return;
+    const rect = card.getBoundingClientRect();
+    card.style.setProperty("--mouse-x", `${e.clientX - rect.left}px`);
+    card.style.setProperty("--mouse-y", `${e.clientY - rect.top}px`);
+  };
+
+  const handleMouseLeave = () => {
+    const card = cardRef.current;
+    if (!card) return;
+    card.style.setProperty("--mouse-x", "-1000px");
+    card.style.setProperty("--mouse-y", "-1000px");
+  };
 
   return (
     <motion.a
+      ref={cardRef}
       href={item.website || item.github}
       target="_blank"
       rel="noreferrer"
       onClick={(event) => onClick(event, item)}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
       variants={disableAnimations ? undefined : variants}
       className={twMerge(
-        "directory-card group relative flex justify-between items-start gap-3 md:gap-4 bg-[#111111]/95 border border-white/10 p-5 md:p-6 rounded-none hover:bg-[#181818] transition-colors overflow-hidden cursor-pointer h-full",
+        "directory-card group relative flex justify-between items-start gap-3 md:gap-4 bg-[#111111]/95 border border-white/10 p-5 md:p-6 rounded-none hover:border-[#a3e635]/40 transition-all overflow-hidden cursor-pointer h-full",
         className
       )}
     >
+      {/* Category accent left bar */}
+      <div
+        className="absolute left-0 top-0 bottom-0 w-[3px] opacity-40 group-hover:opacity-100 transition-opacity z-10"
+        style={{ backgroundColor: colors.accent }}
+      />
+
+      {/* Cyberpunk hairline corner brackets */}
+      <span className="pointer-events-none absolute top-0 left-0 w-2 h-2 border-t border-l border-white/20 group-hover:border-[#a3e635] transition-colors z-20" />
+      <span className="pointer-events-none absolute top-0 right-0 w-2 h-2 border-t border-r border-white/20 group-hover:border-[#a3e635] transition-colors z-20" />
+      <span className="pointer-events-none absolute bottom-0 left-0 w-2 h-2 border-b border-l border-white/20 group-hover:border-[#a3e635] transition-colors z-20" />
+      <span className="pointer-events-none absolute bottom-0 right-0 w-2 h-2 border-b border-r border-white/20 group-hover:border-[#a3e635] transition-colors z-20" />
+
+      {/* Radial flashlight spotlight glow */}
+      <div
+        className="pointer-events-none absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-0"
+        style={{
+          background: `radial-gradient(350px circle at var(--mouse-x, -1000px) var(--mouse-y, -1000px), ${colors.accentBg || 'rgba(163, 230, 53, 0.14)'}, transparent 80%)`,
+        }}
+      />
+
       {/* New badge */}
       {item.isNew && (
-        <div className="absolute top-2.5 left-3 z-10">
+        <div className="absolute top-2.5 left-4 z-10">
           <span className="px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider rounded-sm bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
             New
           </span>
         </div>
       )}
 
-      <div className="flex flex-col z-10 pr-12">
-        <div className={twMerge("flex flex-wrap items-center gap-2 mb-2", item.isNew && "mt-5")}>
-          <h3 className="text-lg md:text-xl font-bold text-white group-hover:text-[#a3e635] transition-colors font-mono">
-            {item.title}
+      <div className="flex flex-col z-10 pr-10 min-w-0">
+        <div className={twMerge("flex flex-wrap items-center gap-2 mb-1", item.isNew && "mt-5")}>
+          <h3 className="text-lg md:text-xl font-bold text-white group-hover:text-[#a3e635] transition-colors font-mono tracking-tight flex items-center gap-1.5">
+            <span>{item.title}</span>
+            <ArrowUpRight className="w-3.5 h-3.5 text-white/30 group-hover:text-[#a3e635] group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all" />
           </h3>
           {showCategory && (
             <span
@@ -79,6 +130,14 @@ const ScrollBlurCard = ({
             </span>
           )}
         </div>
+
+        {/* Domain name preview */}
+        {domain && (
+          <span className="text-[11px] font-mono text-white/40 group-hover:text-[#a3e635]/70 transition-colors mb-2 truncate block">
+            {domain}
+          </span>
+        )}
+
         <p className="line-clamp-3 text-gray-400 text-sm font-sans leading-relaxed mb-3">
           {item.description}
         </p>
@@ -86,10 +145,10 @@ const ScrollBlurCard = ({
         {/* Platform tag pills */}
         {visibleTags.length > 0 && (
           <div className="flex flex-wrap gap-1.5 mt-auto">
-            {visibleTags.map(tag => (
+            {visibleTags.map((tag) => (
               <span
                 key={tag}
-                className="px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider bg-white/5 border border-white/10 text-white/40 rounded-sm"
+                className="px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider bg-white/5 border border-white/10 text-white/40 rounded-sm group-hover:border-white/20 transition-colors"
               >
                 {tag}
               </span>
@@ -97,7 +156,6 @@ const ScrollBlurCard = ({
           </div>
         )}
       </div>
-
 
       <div className="flex flex-col gap-2 z-20 absolute bottom-2 md:bottom-3 right-2 md:right-3">
         {onSelect && (
@@ -124,8 +182,10 @@ const ScrollBlurCard = ({
           </button>
         )}
 
-        <button
+        <motion.button
           type="button"
+          whileTap={{ scale: 0.85 }}
+          whileHover={{ scale: 1.1 }}
           onClick={(e) => {
             e.preventDefault();
             e.stopPropagation();
@@ -135,40 +195,35 @@ const ScrollBlurCard = ({
           aria-pressed={isFavorite}
           className="p-1.5 md:p-2 rounded-full hover:bg-white/10 transition-colors group/btn"
         >
-          <Heart
-            className={`w-4 h-4 md:w-5 md:h-5 transition-colors ${isFavorite
-              ? "fill-[#a3e635] text-[#a3e635]"
-              : "text-white/40 group-hover/btn:text-white"
-              }`}
-          />
-        </button>
+          <motion.div
+            animate={isFavorite ? { scale: [1, 1.35, 1], rotate: [0, -10, 10, 0] } : { scale: 1 }}
+            transition={{ duration: 0.3 }}
+          >
+            <Heart
+              className={`w-4 h-4 md:w-5 md:h-5 transition-colors ${isFavorite
+                ? "fill-[#a3e635] text-[#a3e635]"
+                : "text-white/40 group-hover/btn:text-white"
+                }`}
+            />
+          </motion.div>
+        </motion.button>
       </div>
 
-      {
-        item.image && (
-          <div className="relative shrink-0 w-10 h-10 md:w-12 md:h-12 rounded-none bg-black/50 border border-white/10 overflow-hidden flex items-center justify-center group-hover:border-[#a3e635]/50 transition-colors">
-            {/* Letter avatar fallback (visible when img fails) */}
-            <span className="absolute inset-0 flex items-center justify-center text-white/30 text-sm font-bold font-mono select-none">
-              {item.title.charAt(0).toUpperCase()}
-            </span>
-            <Image
-              src={item.image}
-              alt={item.title}
-              fill
-              sizes="(max-width: 768px) 48px, 48px"
-              className="relative z-10 object-cover opacity-80 group-hover:opacity-100 transition-opacity"
-            />
-          </div>
-        )
-      }
-
-      {/* Hover shimmer effect */}
-      <div
-        className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 z-0"
-        style={{
-          background: `linear-gradient(to right, transparent, ${colors.accentBg}, transparent)`,
-        }}
-      />
+      {item.image && (
+        <div className="relative shrink-0 w-10 h-10 md:w-12 md:h-12 rounded-none bg-black/50 border border-white/10 overflow-hidden flex items-center justify-center group-hover:border-[#a3e635]/50 transition-colors">
+          {/* Letter avatar fallback */}
+          <span className="absolute inset-0 flex items-center justify-center text-white/30 text-sm font-bold font-mono select-none">
+            {item.title.charAt(0).toUpperCase()}
+          </span>
+          <Image
+            src={item.image}
+            alt={item.title}
+            fill
+            sizes="(max-width: 768px) 48px, 48px"
+            className="relative z-10 object-cover opacity-80 group-hover:opacity-100 transition-opacity"
+          />
+        </div>
+      )}
 
       {/* Category accent glow on hover */}
       <div
@@ -177,7 +232,7 @@ const ScrollBlurCard = ({
           boxShadow: `inset 0 0 30px ${colors.accentBg}`,
         }}
       />
-    </motion.a >
+    </motion.a>
   );
 };
 
@@ -189,14 +244,13 @@ export default function ContentSection({ initialItems }: { initialItems: Item[] 
   const sectionRef = useRef(null);
   const contentGridRef = useRef<HTMLDivElement>(null);
 
-  const [items, setItems] = useState<Item[]>(initialItems);
+  const [items] = useState<Item[]>(initialItems);
   const [activeTab, setActiveTab] = useState("Websites");
   const [isStraight, setIsStraight] = useState(false);
   const [isLocked, setIsLocked] = useState(false);
   const [showUnlockHint, setShowUnlockHint] = useState(false);
   const [activeTag, setActiveTag] = useState("all");
   const [previewItem, setPreviewItem] = useState<Item | null>(null);
-  const [isGridLoading, setIsGridLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [isSortMenuOpen, setIsSortMenuOpen] = useState(false);
   const [visibleItemsState, setVisibleItemsState] = useState({
@@ -211,13 +265,12 @@ export default function ContentSection({ initialItems }: { initialItems: Item[] 
     () => (typeof window !== "undefined" ? window.matchMedia("(max-width: 767px)").matches : false)
   );
 
+  const searchInputRef = useRef<HTMLInputElement>(null);
   const prevIsStraightRef = useRef(isStraight);
   const hintTimeoutRef = useRef<number | null>(null);
   const lastTouchYRef = useRef<number | null>(null);
   const lockedScrollYRef = useRef<number | null>(null);
   const isResettingScrollRef = useRef(false);
-  const clampRafRef = useRef<number | null>(null);
-  const gridLoadingTimeoutRef = useRef<number | null>(null);
   const folderHeartRef = useRef<FolderHeartIconHandle>(null);
 
   const { isFavorite, toggleFavorite, clearFavorites, removeFavorites } = useFavorites();
@@ -243,10 +296,11 @@ export default function ContentSection({ initialItems }: { initialItems: Item[] 
     );
   };
 
-  const handleRandomItem = () => {
+  const handleRandomItem = useCallback(() => {
+    if (items.length === 0) return;
     const randomIndex = Math.floor(Math.random() * items.length);
     setPreviewItem(items[randomIndex]);
-  };
+  }, [items]);
 
   const handleOpenSelected = () => {
     const selectedItems = items.filter(item => selectedFavs.includes(item.id));
@@ -345,21 +399,36 @@ export default function ContentSection({ initialItems }: { initialItems: Item[] 
     );
   }, [isLocked]);
 
+  // Deep-linking: sync URL hash with previewItem
   useEffect(() => {
-    setIsGridLoading(true);
-    if (gridLoadingTimeoutRef.current) {
-      window.clearTimeout(gridLoadingTimeoutRef.current);
-    }
-    gridLoadingTimeoutRef.current = window.setTimeout(() => {
-      setIsGridLoading(false);
-    }, 250);
-
-    return () => {
-      if (gridLoadingTimeoutRef.current) {
-        window.clearTimeout(gridLoadingTimeoutRef.current);
+    const handleHashSync = () => {
+      const hash = window.location.hash;
+      if (hash.startsWith("#item-")) {
+        const id = hash.replace("#item-", "");
+        const matched = items.find((i) => i.id === id);
+        if (matched) {
+          setPreviewItem(matched);
+        }
       }
     };
-  }, []);
+
+    handleHashSync();
+    window.addEventListener("hashchange", handleHashSync);
+    return () => window.removeEventListener("hashchange", handleHashSync);
+  }, [items]);
+
+  useEffect(() => {
+    if (previewItem) {
+      const targetHash = `#item-${previewItem.id}`;
+      if (window.location.hash !== targetHash) {
+        window.history.replaceState(null, "", targetHash);
+      }
+    } else {
+      if (window.location.hash.startsWith("#item-")) {
+        window.history.replaceState(null, "", window.location.pathname + window.location.search);
+      }
+    }
+  }, [previewItem]);
 
   useEffect(() => {
     if (!previewItem) return;
@@ -372,10 +441,44 @@ export default function ContentSection({ initialItems }: { initialItems: Item[] 
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
-      const target = event.target as HTMLElement | null;
-      if (target && ["INPUT", "TEXTAREA", "SELECT"].includes(target.tagName)) {
+      // Cmd+K or Ctrl+K opens/focuses search from anywhere
+      if ((event.metaKey || event.ctrlKey) && (event.key === "k" || event.key === "K")) {
+        event.preventDefault();
+        searchInputRef.current?.focus();
         return;
       }
+
+      const target = event.target as HTMLElement | null;
+      const isInput = target && ["INPUT", "TEXTAREA", "SELECT"].includes(target.tagName);
+
+      // Slash focuses search when not typing in an input
+      if (event.key === "/" && !isInput && !event.metaKey && !event.ctrlKey && !event.altKey) {
+        event.preventDefault();
+        searchInputRef.current?.focus();
+        return;
+      }
+
+      // Escape handles modals, search input clearing, and blurring
+      if (event.key === "Escape") {
+        if (previewItem) {
+          setPreviewItem(null);
+          return;
+        }
+        if (showFavorites) {
+          setShowFavorites(false);
+          return;
+        }
+        if (searchQuery) {
+          setSearchQuery("");
+          return;
+        }
+        if (document.activeElement === searchInputRef.current) {
+          searchInputRef.current?.blur();
+          return;
+        }
+      }
+
+      if (isInput) return;
       if (event.metaKey || event.ctrlKey || event.altKey) return;
 
       if (event.key === "1") {
@@ -387,8 +490,6 @@ export default function ContentSection({ initialItems }: { initialItems: Item[] 
       } else if (event.key === "3") {
         setActiveTab(TABS[2]);
         setActiveTag("all");
-      } else if (event.key === "Escape" && previewItem) {
-        setPreviewItem(null);
       } else if ((event.key === "r" || event.key === "R") && !previewItem) {
         handleRandomItem();
       }
@@ -396,7 +497,7 @@ export default function ContentSection({ initialItems }: { initialItems: Item[] 
 
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, [previewItem]);
+  }, [previewItem, showFavorites, searchQuery, handleRandomItem]);
 
   useEffect(() => {
     if (!isLocked || isMobile) return;
@@ -404,8 +505,6 @@ export default function ContentSection({ initialItems }: { initialItems: Item[] 
     const viewportHeight = window.innerHeight;
     const lockPosition = viewportHeight * (isMobile ? 1.6 : 1.9);
     lockedScrollYRef.current = lockPosition;
-    // Removed immediate scrollToY to prevent scroll jumping when lock engages
-    // Only lock to prevent scrolling up, don't snap backwards or halt momentum if scrolling down
 
     const showHint = () => {
       setShowUnlockHint(true);
@@ -418,9 +517,9 @@ export default function ContentSection({ initialItems }: { initialItems: Item[] 
     };
 
     const onWheel = (event: WheelEvent) => {
-      // Only block intentional upward scrolls, not tiny trackpad inertia movements
-      // Threshold of -3 allows small micro-movements while blocking real upward scrolls
-      if (event.deltaY < -3) {
+      const lockedY = lockedScrollYRef.current;
+      // Only block when at or above the lock boundary trying to scroll up into the hero
+      if (lockedY !== null && window.scrollY <= lockedY + 2 && event.deltaY < 0) {
         event.preventDefault();
         event.stopPropagation();
         showHint();
@@ -434,7 +533,14 @@ export default function ContentSection({ initialItems }: { initialItems: Item[] 
     const onTouchMove = (event: TouchEvent) => {
       const currentY = event.touches[0]?.clientY ?? null;
       const lastY = lastTouchYRef.current;
-      if (currentY !== null && lastY !== null && currentY > lastY) {
+      const lockedY = lockedScrollYRef.current;
+      if (
+        lockedY !== null &&
+        window.scrollY <= lockedY + 2 &&
+        currentY !== null &&
+        lastY !== null &&
+        currentY > lastY
+      ) {
         event.preventDefault();
         event.stopPropagation();
         showHint();
@@ -443,15 +549,52 @@ export default function ContentSection({ initialItems }: { initialItems: Item[] 
     };
 
     const onKeyDown = (event: KeyboardEvent) => {
-      const isScrollUpKey =
-        event.key === "ArrowUp" ||
-        event.key === "PageUp" ||
-        event.key === "Home" ||
-        (event.key === " " && event.shiftKey);
-      if (isScrollUpKey) {
+      const lockedY = lockedScrollYRef.current;
+      if (lockedY === null) return;
+
+      if (event.key === "Home") {
+        // Smoothly scroll to the top of the item list/directory, NOT the hero
         event.preventDefault();
         event.stopPropagation();
-        showHint();
+        scrollToY(lockedY);
+        return;
+      }
+
+      if (event.key === "PageUp") {
+        if (window.scrollY <= lockedY + 10) {
+          event.preventDefault();
+          event.stopPropagation();
+          scrollToY(lockedY);
+          showHint();
+        } else if (window.scrollY - window.innerHeight < lockedY) {
+          event.preventDefault();
+          event.stopPropagation();
+          scrollToY(lockedY);
+        }
+        return;
+      }
+
+      if (event.key === "ArrowUp") {
+        if (window.scrollY <= lockedY + 2) {
+          event.preventDefault();
+          event.stopPropagation();
+          showHint();
+        }
+        return;
+      }
+
+      if (event.key === " " && event.shiftKey) {
+        if (window.scrollY <= lockedY + 10) {
+          event.preventDefault();
+          event.stopPropagation();
+          scrollToY(lockedY);
+          showHint();
+        } else if (window.scrollY - window.innerHeight < lockedY) {
+          event.preventDefault();
+          event.stopPropagation();
+          scrollToY(lockedY);
+        }
+        return;
       }
     };
 
@@ -467,26 +610,22 @@ export default function ContentSection({ initialItems }: { initialItems: Item[] 
           });
         }
       }
-      clampRafRef.current = window.requestAnimationFrame(clampScroll);
     };
-    clampRafRef.current = window.requestAnimationFrame(clampScroll);
 
     window.addEventListener("wheel", onWheel, { passive: false });
     window.addEventListener("touchstart", onTouchStart, { passive: true });
     window.addEventListener("touchmove", onTouchMove, { passive: false });
     window.addEventListener("keydown", onKeyDown);
+    window.addEventListener("scroll", clampScroll, { passive: true });
 
     return () => {
       window.removeEventListener("wheel", onWheel);
       window.removeEventListener("touchstart", onTouchStart);
       window.removeEventListener("touchmove", onTouchMove);
       window.removeEventListener("keydown", onKeyDown);
+      window.removeEventListener("scroll", clampScroll);
       if (hintTimeoutRef.current) {
         window.clearTimeout(hintTimeoutRef.current);
-      }
-      if (clampRafRef.current !== null) {
-        window.cancelAnimationFrame(clampRafRef.current);
-        clampRafRef.current = null;
       }
     };
   }, [isLocked, isMobile]);
@@ -503,20 +642,28 @@ export default function ContentSection({ initialItems }: { initialItems: Item[] 
   };
 
   const gridVariants = {
-    hidden: { opacity: 0, y: 12 },
+    hidden: { opacity: 0 },
     show: {
       opacity: 1,
-      y: 0,
       transition: {
-        staggerChildren: 0.06,
-        delayChildren: 0.06,
+        staggerChildren: 0.03,
+        delayChildren: 0.02,
       },
     },
   };
 
   const cardVariants = {
-    hidden: { opacity: 0, y: 14, scale: 0.98 },
-    show: { opacity: 1, y: 0, scale: 1 },
+    hidden: { opacity: 0, y: 12, scale: 0.98 },
+    show: {
+      opacity: 1,
+      y: 0,
+      scale: 1,
+      transition: {
+        type: "spring",
+        stiffness: 350,
+        damping: 28,
+      },
+    },
   };
 
   const tagOptions = [
@@ -579,10 +726,6 @@ export default function ContentSection({ initialItems }: { initialItems: Item[] 
                     type="button"
                     onClick={() => {
                       if (isLocked) {
-                        if (clampRafRef.current !== null) {
-                          window.cancelAnimationFrame(clampRafRef.current);
-                          clampRafRef.current = null;
-                        }
                         lockedScrollYRef.current = null;
                         setIsLocked(false);
                         window.requestAnimationFrame(() => {
@@ -716,99 +859,128 @@ export default function ContentSection({ initialItems }: { initialItems: Item[] 
         className="w-full max-w-6xl px-4 md:px-5 mx-auto relative z-10 -mt-36 md:-mt-52 pt-[100vh] md:pt-[125vh] flex flex-col min-h-screen"
       >
         <div className="flex-grow">
-          {isSearchActive && !isGridLoading && (
+          {isSearchActive && (
             <div className="flex items-center justify-between gap-4 mb-4 text-xs font-mono uppercase tracking-widest">
-              <span className="text-[#a3e635]">Search results</span>
+              <span className="text-[#a3e635] flex items-center gap-2">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#a3e635] animate-pulse" />
+                Search results
+              </span>
               <span className="text-white/40">
                 {filteredItems.length} {filteredItems.length === 1 ? "match" : "matches"}
               </span>
             </div>
           )}
-          <AnimatePresence mode="wait">
-            {isGridLoading ? (
-              <motion.div
-                key="grid-skeleton"
-                variants={gridVariants}
-                initial="hidden"
-                animate="show"
-                exit="hidden"
-                className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 w-full"
-              >
-                {Array.from({ length: 6 }).map((_, index) => (
-                  <motion.div
-                    key={`skeleton-${index}`}
-                    variants={cardVariants}
-                    className="relative flex justify-between items-start gap-3 md:gap-4 bg-white/5 border border-white/10 p-5 md:p-6 rounded-none overflow-hidden backdrop-blur-sm animate-pulse"
-                  >
-                    <div className="flex flex-col gap-3 w-full">
-                      <div className="h-4 w-2/3 bg-white/10 rounded-none" />
-                      <div className="h-3 w-full bg-white/5 rounded-none" />
-                      <div className="h-3 w-5/6 bg-white/5 rounded-none" />
-                    </div>
-                    <div className="w-10 h-10 md:w-12 md:h-12 rounded-none bg-white/10 border border-white/10" />
-                  </motion.div>
-                ))}
-              </motion.div>
-            ) : (
-              <motion.div
-                key={isSearchActive ? "global-search" : `${activeTab}-${activeTag}`}
-                variants={gridVariants}
-                initial="hidden"
-                animate="show"
-                exit="hidden"
-                className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 w-full"
-              >
-                {filteredItems.length === 0 ? (
-                  <div className="col-span-full flex flex-col items-center justify-center py-20 text-white/30 gap-4">
-                    <Search className="w-12 h-12" />
-                    <p className="text-lg font-mono">No results found.</p>
+          <motion.div
+            key={isSearchActive ? `search-${searchQuery}-${activeTag}` : `${activeTab}-${activeTag}`}
+            variants={gridVariants}
+            initial="hidden"
+            animate="show"
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 w-full"
+          >
+            {filteredItems.length === 0 ? (
+              <div className="col-span-full relative flex flex-col items-center justify-center py-16 md:py-20 px-6 text-center border border-white/10 bg-[#111111]/80 backdrop-blur-md overflow-hidden">
+                {/* Cyberpunk hairline corner brackets */}
+                <span className="pointer-events-none absolute top-0 left-0 w-3 h-3 border-t-2 border-l-2 border-[#a3e635]" />
+                <span className="pointer-events-none absolute top-0 right-0 w-3 h-3 border-t-2 border-r-2 border-[#a3e635]" />
+                <span className="pointer-events-none absolute bottom-0 left-0 w-3 h-3 border-b-2 border-l-2 border-[#a3e635]" />
+                <span className="pointer-events-none absolute bottom-0 right-0 w-3 h-3 border-b-2 border-r-2 border-[#a3e635]" />
+
+                <div className="flex items-center gap-2 text-xs font-mono text-[#a3e635] tracking-widest uppercase mb-3">
+                  <span className="w-2 h-2 rounded-full bg-[#a3e635] animate-ping" />
+                  <span>SYS_STATUS // NO_ITEMS_MATCHED</span>
+                </div>
+
+                <h3 className="text-xl md:text-2xl font-bold font-mono text-white mb-2">
+                  Zero matches for &quot;{searchQuery || activeTag}&quot;
+                </h3>
+                <p className="text-sm text-gray-400 font-sans max-w-md mb-6 leading-relaxed">
+                  No directory entries matched your search parameters. Try searching for a broader term or reset filters.
+                </p>
+
+                {/* Suggested Quick Filters */}
+                <div className="flex flex-wrap items-center justify-center gap-2 mb-6 max-w-lg">
+                  <span className="text-xs font-mono text-white/40">Try:</span>
+                  {["macOS", "CLI", "AI", "Icons", "DevTools"].map((suggestion) => (
                     <button
-                      onClick={() => { setSearchQuery(""); setActiveTag("all"); }}
-                      className="px-4 py-2 text-sm font-mono bg-white/5 hover:bg-white/10 border border-white/10 text-white/60 hover:text-white transition-colors"
+                      key={suggestion}
+                      type="button"
+                      onClick={() => {
+                        setSearchQuery(suggestion);
+                        setActiveTag("all");
+                      }}
+                      className="px-2 py-1 text-xs font-mono bg-white/5 border border-white/10 text-white/70 hover:text-[#a3e635] hover:border-[#a3e635]/40 transition-colors"
                     >
-                      Clear filters
+                      #{suggestion}
                     </button>
-                  </div>
-                ) : (
-                  visibleItems.map((item) => (
-                    <ScrollBlurCard
-                      key={item.id}
-                      item={item}
-                      onClick={handleItemClick}
-                      variants={cardVariants}
-                      isFavorite={isFavorite(item.id)}
-                      onToggle={toggleFavorite}
-                      showCategory={isSearchActive}
-                      disableAnimations={isSearchActive}
-                    />
-                  ))
-                )}
-                {visibleItemCount < filteredItems.length && (
-                  <ProgressiveLoadSentinel
-                    onVisible={loadMoreItems}
-                    rootMargin="800px 0px"
-                    triggerKey={`${resultSetKey}-${visibleItemCount}`}
-                    className="col-span-full h-px w-full"
-                  />
-                )}
-              </motion.div>
+                  ))}
+                </div>
+
+                <div className="flex items-center gap-3">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSearchQuery("");
+                      setActiveTag("all");
+                    }}
+                    className="px-4 py-2 text-xs font-mono uppercase tracking-wider bg-[#a3e635] text-black font-bold hover:bg-[#bef264] transition-colors"
+                  >
+                    Reset Filters
+                  </button>
+                  <a
+                    href="https://github.com/NippaGG/random-stuff-site/issues/new"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="px-4 py-2 text-xs font-mono uppercase tracking-wider bg-white/5 border border-white/10 text-white/70 hover:text-white transition-colors flex items-center gap-1.5"
+                  >
+                    Suggest Item <ArrowUpRight className="w-3.5 h-3.5" />
+                  </a>
+                </div>
+              </div>
+            ) : (
+              visibleItems.map((item) => (
+                <ScrollBlurCard
+                  key={item.id}
+                  item={item}
+                  onClick={handleItemClick}
+                  variants={cardVariants}
+                  isFavorite={isFavorite(item.id)}
+                  onToggle={toggleFavorite}
+                  showCategory={isSearchActive}
+                  disableAnimations={isSearchActive}
+                />
+              ))
             )}
-          </AnimatePresence>
+            {visibleItemCount < filteredItems.length && (
+              <ProgressiveLoadSentinel
+                onVisible={loadMoreItems}
+                rootMargin="800px 0px"
+                triggerKey={`${resultSetKey}-${visibleItemCount}`}
+                className="col-span-full h-px w-full"
+              />
+            )}
+          </motion.div>
         </div>
       </div>
 
-      {/* --- FLOATING BOTTOM SEARCH & SORT BAR --- */}
+      {/* --- FLOATING BOTTOM SEARCH & SORT DOCK --- */}
       <motion.div
         initial={{ y: 100, opacity: 0 }}
         animate={{ y: isStraight ? 0 : 100, opacity: isStraight ? 1 : 0 }}
         transition={{ type: "spring", stiffness: 300, damping: 30 }}
-        className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[190] w-[calc(100%-32px)] max-w-[400px]"
+        className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[190] w-[calc(100%-32px)] max-w-[440px]"
       >
-        <div className="relative flex items-center gap-2 p-1.5 md:p-2 bg-black/50 backdrop-blur-xl border border-[#a3e635]/20 shadow-[0_8px_32px_rgba(163,230,53,0.15),0_0_20px_rgba(163,230,53,0.1)]">
+        <div className="relative flex items-center gap-2 p-1.5 md:p-2 bg-black/60 backdrop-blur-xl border border-[#a3e635]/30 shadow-[0_8px_32px_rgba(163,230,53,0.15),0_0_20px_rgba(163,230,53,0.1)]">
+          {/* Cyberpunk hairline corner brackets on floating dock */}
+          <span className="pointer-events-none absolute top-0 left-0 w-2 h-2 border-t border-l border-[#a3e635]/60 z-10" />
+          <span className="pointer-events-none absolute top-0 right-0 w-2 h-2 border-t border-r border-[#a3e635]/60 z-10" />
+          <span className="pointer-events-none absolute bottom-0 left-0 w-2 h-2 border-b border-l border-[#a3e635]/60 z-10" />
+          <span className="pointer-events-none absolute bottom-0 right-0 w-2 h-2 border-b border-r border-[#a3e635]/60 z-10" />
+
           {/* Search Input */}
           <div className="relative flex-1 flex items-center bg-white/5 border border-white/10 overflow-hidden focus-within:border-[#a3e635]/50 transition-colors">
-            <Search className="absolute left-3 w-4 h-4 text-white/40" />
+            <Search className="absolute left-3 w-4 h-4 text-white/40 shrink-0" />
             <input
+              ref={searchInputRef}
               type="text"
               placeholder="Search directory..."
               value={searchQuery}
@@ -821,12 +993,46 @@ export default function ContentSection({ initialItems }: { initialItems: Item[] 
                   scrollToY(lockPosition);
                 }
               }}
-              className="w-full bg-transparent text-sm text-white placeholder-white/40 pl-9 pr-4 py-2.5 outline-none font-sans"
+              className="w-full bg-transparent text-sm text-white placeholder-white/40 pl-9 pr-8 py-2.5 outline-none font-sans"
             />
+            {/* Quick clear button or Cmd+K indicator */}
+            <div className="absolute right-2 flex items-center">
+              {searchQuery ? (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSearchQuery("");
+                    searchInputRef.current?.focus();
+                  }}
+                  aria-label="Clear search"
+                  className="p-1 text-white/40 hover:text-white transition-colors"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              ) : (
+                <kbd className="hidden sm:inline-flex items-center px-1.5 py-0.5 text-[10px] font-mono text-white/40 bg-white/5 border border-white/10 rounded pointer-events-none select-none">
+                  ⌘K
+                </kbd>
+              )}
+            </div>
           </div>
 
+          {/* Active filter badge if selected */}
+          {activeTag !== "all" && (
+            <button
+              type="button"
+              onClick={() => setActiveTag("all")}
+              aria-label={`Clear ${activeTag} filter`}
+              className="flex items-center gap-1 px-2 py-2 bg-[#a3e635]/20 border border-[#a3e635]/40 text-[#d9f99d] text-xs font-mono hover:bg-[#a3e635]/30 transition-colors shrink-0"
+              title="Click to clear filter"
+            >
+              <span>{tagOptions.find(t => t.id === activeTag)?.label || activeTag}</span>
+              <X className="w-3 h-3" />
+            </button>
+          )}
+
           {/* Sort Button */}
-          <div className="relative">
+          <div className="relative shrink-0">
             <button
               type="button"
               onClick={() => setIsSortMenuOpen(!isSortMenuOpen)}
@@ -918,6 +1124,8 @@ export default function ContentSection({ initialItems }: { initialItems: Item[] 
                 onClose={() => setPreviewItem(null)}
                 isFavorite={isFavorite(previewItem.id)}
                 onToggleFavorite={() => toggleFavorite(previewItem.id)}
+                allItems={items}
+                onSelectRelated={(item) => setPreviewItem(item)}
               />
             </motion.div>
           </motion.div>
@@ -1075,14 +1283,38 @@ function PreviewContent({
   onClose,
   isFavorite,
   onToggleFavorite,
+  allItems = [],
+  onSelectRelated,
 }: {
   item: Item;
   onClose: () => void;
   isFavorite: boolean;
   onToggleFavorite: () => void;
+  allItems?: Item[];
+  onSelectRelated?: (item: Item) => void;
 }) {
   const [metadata, setMetadata] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [copied, setCopied] = useState(false);
+
+  const handleCopyLink = async () => {
+    try {
+      const url = new URL(window.location.href);
+      url.hash = `item-${item.id}`;
+      await navigator.clipboard.writeText(url.toString());
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      setCopied(false);
+    }
+  };
+
+  const relatedItems = useMemo(() => {
+    if (!allItems || allItems.length === 0) return [];
+    return allItems
+      .filter((i) => i.id !== item.id && i.category === item.category)
+      .slice(0, 3);
+  }, [allItems, item.id, item.category]);
 
   useEffect(() => {
     let isMounted = true;
@@ -1140,8 +1372,33 @@ function PreviewContent({
 
   return (
     <>
-      {/* Close Button & Fav Button (Added padding for bigger hit targets on mobile) */}
-      <div className="absolute top-4 md:top-4 right-4 md:right-4 z-30 flex items-center gap-3 pointer-events-auto">
+      {/* Top Action Bar: Copy Link, Fav Button, Close Button */}
+      <div className="absolute top-4 md:top-4 right-4 md:right-4 z-30 flex items-center gap-2 pointer-events-auto">
+        <button
+          type="button"
+          onClick={handleCopyLink}
+          aria-label="Copy direct share link"
+          className="relative p-2.5 md:p-2 bg-black/50 hover:bg-black/70 rounded-none transition-colors backdrop-blur-md border border-white/5 text-white/70 hover:text-white group/share"
+          title="Copy direct share link"
+        >
+          {copied ? (
+            <Check className="w-5 h-5 text-[#a3e635]" />
+          ) : (
+            <Share2 className="w-5 h-5 group-hover/share:text-[#a3e635] transition-colors" />
+          )}
+          <AnimatePresence>
+            {copied && (
+              <motion.div
+                initial={{ opacity: 0, y: -6, scale: 0.9 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: -6, scale: 0.9 }}
+                className="absolute right-0 top-full mt-2 px-2.5 py-1 bg-[#111111] border border-[#a3e635]/40 text-[#a3e635] text-[10px] font-mono whitespace-nowrap shadow-lg pointer-events-none z-50"
+              >
+                Link Copied!
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </button>
         <button
           type="button"
           onClick={(e) => {
@@ -1150,7 +1407,6 @@ function PreviewContent({
           }}
           aria-label={isFavorite ? `Remove ${item.title} from favorites` : `Add ${item.title} to favorites`}
           aria-pressed={isFavorite}
-          // INCREASED PADDING
           className="p-2.5 md:p-2 bg-black/50 hover:bg-black/70 rounded-none transition-colors backdrop-blur-md border border-white/5 group/fav"
         >
           <Heart
@@ -1164,7 +1420,6 @@ function PreviewContent({
           type="button"
           onClick={onClose}
           aria-label="Close preview"
-          // INCREASED PADDING
           className="p-2.5 md:p-2 bg-black/50 hover:bg-black/70 text-white/70 hover:text-white rounded-none transition-colors backdrop-blur-md border border-white/5"
         >
           <X className="w-5 h-5" />
@@ -1191,14 +1446,20 @@ function PreviewContent({
         {/* Background Image (Blurred) */}
         <div className="absolute inset-0 z-0">
           {metadata?.image || item.image ? (
-            <motion.img
+            <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 0.3 }}
               transition={{ duration: 1 }}
-              src={metadata?.image || item.image}
-              alt=""
-              className="w-full h-full object-cover blur-3xl scale-110"
-            />
+              className="relative w-full h-full"
+            >
+              <Image
+                src={metadata?.image || item.image}
+                alt=""
+                fill
+                unoptimized
+                className="object-cover blur-3xl scale-110"
+              />
+            </motion.div>
           ) : (
             <div className="w-full h-full bg-gradient-to-br from-[#1a1a1a] to-black" />
           )}
@@ -1227,12 +1488,14 @@ function PreviewContent({
                 className="relative w-full h-full rounded-none overflow-hidden shadow-2xl border border-white/10 bg-black/50 backdrop-blur-sm"
               >
                 {metadata?.image || item.image ? (
-                  <img
+                  <Image
                     src={metadata?.image || item.image}
                     alt={item.title}
-                    className="w-full h-full object-contain p-2"
+                    fill
+                    unoptimized
+                    className="object-contain p-2"
                     onError={(e) => {
-                      (e.target as HTMLImageElement).style.display = 'none';
+                      (e.target as HTMLElement).style.display = 'none';
                     }}
                   />
                 ) : (
@@ -1342,6 +1605,33 @@ function PreviewContent({
                 </motion.span>
               ))}
             </div>
+
+            {/* Related Tools in same category */}
+            {relatedItems.length > 0 && (
+              <div className="mt-6 pt-4 border-t border-white/5">
+                <p className="text-[10px] font-mono text-white/40 uppercase tracking-wider mb-2.5 flex items-center justify-between">
+                  <span>Related in {item.category}</span>
+                  <span className="text-[9px] text-[#a3e635]/60">Quick jump</span>
+                </p>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                  {relatedItems.map((rel) => (
+                    <button
+                      key={rel.id}
+                      type="button"
+                      onClick={() => onSelectRelated?.(rel)}
+                      className="text-left p-2.5 bg-white/5 hover:bg-white/10 border border-white/10 hover:border-[#a3e635]/40 transition-colors group/rel"
+                    >
+                      <p className="text-xs font-mono font-bold text-white group-hover/rel:text-[#a3e635] truncate">
+                        {rel.title}
+                      </p>
+                      <p className="text-[10px] text-gray-400 line-clamp-1">
+                        {rel.description}
+                      </p>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
           </motion.div>
         </div>
 

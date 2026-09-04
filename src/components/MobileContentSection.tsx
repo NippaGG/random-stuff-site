@@ -2,8 +2,8 @@
 
 import React, { useState, useEffect, useRef, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { items as staticItems, type Item } from "@/data/items";
-import { Terminal, Globe, FileCode, Search, X, ArrowUpRight, Heart, Monitor, Github, ListFilter } from "lucide-react";
+import { type Item } from "@/data/items";
+import { Terminal, Globe, FileCode, Search, X, ArrowUpRight, Heart, Monitor, Github, ListFilter, Lock, Share2, Check } from "lucide-react";
 import { useFavorites } from "@/hooks/useFavorites";
 import Image from "next/image";
 import { scrollToY } from "@/lib/lenis";
@@ -23,7 +23,7 @@ const TAB_ICONS: Record<TabType, React.ElementType> = {
 };
 
 export default function MobileContentSection({ initialItems }: { initialItems: Item[] }) {
-    const [items, setItems] = useState<Item[]>(initialItems);
+    const [items] = useState<Item[]>(initialItems);
     const [activeTab, setActiveTab] = useState<TabType>("Softwares");
     const [searchQuery, setSearchQuery] = useState("");
     const [previewItem, setPreviewItem] = useState<Item | null>(null);
@@ -32,6 +32,7 @@ export default function MobileContentSection({ initialItems }: { initialItems: I
     const [isLocked, setIsLocked] = useState(false);
     const [activeTag, setActiveTag] = useState("all");
     const [isSortMenuOpen, setIsSortMenuOpen] = useState(false);
+    const [copied, setCopied] = useState(false);
     const [visibleItemsState, setVisibleItemsState] = useState({
         key: "Softwares-all-",
         count: INITIAL_VISIBLE_ITEMS,
@@ -50,6 +51,37 @@ export default function MobileContentSection({ initialItems }: { initialItems: I
     const sectionRef = useRef<HTMLDivElement>(null);
     const contentTopRef = useRef<HTMLDivElement>(null);
     const lockPointRef = useRef<number>(0);
+
+    // Deep-linking: sync URL hash with previewItem
+    useEffect(() => {
+        const handleHashSync = () => {
+            const hash = window.location.hash;
+            if (hash.startsWith("#item-")) {
+                const id = hash.replace("#item-", "");
+                const matched = items.find((i) => i.id === id);
+                if (matched) {
+                    setPreviewItem(matched);
+                }
+            }
+        };
+
+        handleHashSync();
+        window.addEventListener("hashchange", handleHashSync);
+        return () => window.removeEventListener("hashchange", handleHashSync);
+    }, [items]);
+
+    useEffect(() => {
+        if (previewItem) {
+            const targetHash = `#item-${previewItem.id}`;
+            if (window.location.hash !== targetHash) {
+                window.history.replaceState(null, "", targetHash);
+            }
+        } else {
+            if (window.location.hash.startsWith("#item-")) {
+                window.history.replaceState(null, "", window.location.pathname + window.location.search);
+            }
+        }
+    }, [previewItem]);
 
     // Lock body scroll when preview/menu/favorites is open
     useEffect(() => {
@@ -244,11 +276,12 @@ export default function MobileContentSection({ initialItems }: { initialItems: I
                     <button
                         type="button"
                         onClick={handleUnlock}
-                        aria-label={isLocked ? "Unlock the section" : "Scroll to the top"}
-                        className={`text-lg font-bold leading-tight tracking-tight flex-1 text-center uppercase transition-colors ${isLocked ? "text-[#bef264]" : "text-slate-100 active:text-[#bef264]"
+                        aria-label={isLocked ? "Unlock section to return to hero" : "Scroll to top"}
+                        className={`inline-flex items-center justify-center gap-1.5 text-lg font-bold leading-tight tracking-tight flex-1 text-center uppercase transition-colors ${isLocked ? "text-[#bef264]" : "text-slate-100 active:text-[#bef264]"
                             }`}
                     >
-                        Random Stuff
+                        <span>Random Stuff</span>
+                        {isLocked && <Lock className="w-3.5 h-3.5 text-[#bef264]/80 shrink-0" />}
                     </button>
 
                     {/* Right: Cross-fading Favorites / Close */}
@@ -316,13 +349,23 @@ export default function MobileContentSection({ initialItems }: { initialItems: I
                                 ) : (
                                     visibleItems.map((item) => {
                                         const visibleTags = getVisiblePlatformTags(item);
+                                        const domain = (() => {
+                                            try {
+                                                const rawUrl = item.website || item.github;
+                                                if (!rawUrl) return "";
+                                                const url = new URL(rawUrl);
+                                                return url.hostname.replace(/^www\./, "");
+                                            } catch {
+                                                return "";
+                                            }
+                                        })();
                                         return (
                                         <motion.div
                                             key={item.id}
                                             onClick={() => setPreviewItem(item)}
                                             initial={{ opacity: 0, y: 10 }}
                                             animate={{ opacity: 1, y: 0 }}
-                                            className="mobile-directory-card bg-black/90 border border-white/10 p-2 flex gap-3 items-center hover:border-[#bef264]/50 group text-left w-full cursor-pointer relative overflow-hidden"
+                                            className="mobile-directory-card bg-black/90 border border-white/10 p-2.5 flex gap-3 items-center hover:border-[#bef264]/50 group text-left w-full cursor-pointer relative overflow-hidden"
                                         >
                                             {/* Image Thumbnail */}
                                             <div className="size-10 shrink-0 bg-slate-800 relative overflow-hidden border border-white/10">
@@ -365,6 +408,11 @@ export default function MobileContentSection({ initialItems }: { initialItems: I
                                                         </span>
                                                     )}
                                                 </div>
+                                                {domain && (
+                                                    <span className="text-[10px] font-mono text-white/40 truncate block mb-1">
+                                                        {domain}
+                                                    </span>
+                                                )}
                                                 <p className="text-slate-400 text-[10px] font-normal truncate">
                                                     {item.description}
                                                 </p>
@@ -383,8 +431,9 @@ export default function MobileContentSection({ initialItems }: { initialItems: I
                                             </div>
 
                                             {/* Heart/Favorite Button */}
-                                            <button
+                                            <motion.button
                                                 type="button"
+                                                whileTap={{ scale: 0.85 }}
                                                 onClick={(e) => {
                                                     e.stopPropagation();
                                                     toggleFavorite(item.id);
@@ -399,7 +448,7 @@ export default function MobileContentSection({ initialItems }: { initialItems: I
                                                         : "text-white/30"
                                                         }`}
                                                 />
-                                            </button>
+                                            </motion.button>
                                         </motion.div>
                                     )})
                                 )}
@@ -692,11 +741,13 @@ export default function MobileContentSection({ initialItems }: { initialItems: I
                                             >
                                                 <div className="size-10 shrink-0 bg-slate-800 relative overflow-hidden border border-white/10 flex items-center justify-center">
                                                     {item.image ? (
-                                                        <img
+                                                        <Image
                                                             alt={item.title}
-                                                            className="w-full h-full object-cover opacity-60"
+                                                            fill
+                                                            sizes="40px"
+                                                            unoptimized
+                                                            className="object-cover opacity-60"
                                                             src={item.image}
-                                                            loading="lazy"
                                                         />
                                                     ) : (
                                                         <Terminal className="w-4 h-4 text-white/20" />
@@ -783,12 +834,15 @@ export default function MobileContentSection({ initialItems }: { initialItems: I
                                         }}
                                         transition={{ duration: 6, repeat: Infinity, ease: "linear" }}
                                     />
-                                    <img
+                                    <Image
                                         src={previewItem.image}
                                         alt={previewItem.title}
+                                        width={80}
+                                        height={80}
+                                        unoptimized
                                         className="relative z-10 w-20 h-20 object-contain"
                                         onError={(e) => {
-                                            (e.target as HTMLImageElement).style.display = "none";
+                                            (e.target as HTMLElement).style.display = "none";
                                         }}
                                     />
                                 </div>
@@ -823,13 +877,13 @@ export default function MobileContentSection({ initialItems }: { initialItems: I
                                 </div>
 
                                 {/* Action buttons */}
-                                <div className="flex gap-3 w-full">
+                                <div className="flex gap-2 w-full">
                                     {previewItem.website && (
                                         <a
                                             href={previewItem.website}
                                             target="_blank"
                                             rel="noreferrer"
-                                            className="flex-1 flex items-center justify-center gap-2 px-4 py-3.5 bg-[#bef264] text-black font-bold text-[13px] hover:bg-white transition-colors"
+                                            className="flex-1 flex items-center justify-center gap-1.5 px-3 py-3.5 bg-[#bef264] text-black font-bold text-[13px] hover:bg-white transition-colors"
                                         >
                                             Website
                                             <ArrowUpRight className="w-4 h-4" />
@@ -840,7 +894,7 @@ export default function MobileContentSection({ initialItems }: { initialItems: I
                                             href={previewItem.github}
                                             target="_blank"
                                             rel="noreferrer"
-                                            className={`max-w-[50%] flex-1 flex items-center justify-center gap-2 px-4 py-3.5 transition-colors border ${previewItem.website 
+                                            className={`max-w-[45%] flex-1 flex items-center justify-center gap-1.5 px-3 py-3.5 transition-colors border ${previewItem.website 
                                                 ? "bg-white/5 border-white/10 text-white hover:bg-white/10 text-[13px]" 
                                                 : "bg-[#bef264] border-[#bef264] text-black font-bold hover:bg-white text-[13px]"}`}
                                         >
@@ -850,13 +904,36 @@ export default function MobileContentSection({ initialItems }: { initialItems: I
                                     )}
                                     <button
                                         type="button"
+                                        onClick={async (e) => {
+                                            e.stopPropagation();
+                                            try {
+                                                const url = new URL(window.location.href);
+                                                url.hash = `item-${previewItem.id}`;
+                                                await navigator.clipboard.writeText(url.toString());
+                                                setCopied(true);
+                                                setTimeout(() => setCopied(false), 2000);
+                                            } catch {
+                                                setCopied(false);
+                                            }
+                                        }}
+                                        aria-label="Copy direct share link"
+                                        className={`px-3 py-3.5 border transition-colors relative ${copied
+                                            ? "bg-[#bef264]/20 border-[#bef264]/50 text-[#bef264]"
+                                            : "bg-white/5 border-white/10 text-white/70"
+                                            }`}
+                                        title="Share link"
+                                    >
+                                        {copied ? <Check className="w-5 h-5 text-[#bef264]" /> : <Share2 className="w-5 h-5" />}
+                                    </button>
+                                    <button
+                                        type="button"
                                         onClick={(e) => {
                                             e.stopPropagation();
                                             toggleFavorite(previewItem.id);
                                         }}
                                         aria-label={isFavorite(previewItem.id) ? `Remove ${previewItem.title} from favorites` : `Add ${previewItem.title} to favorites`}
                                         aria-pressed={isFavorite(previewItem.id)}
-                                        className={`px-4 py-3.5 border transition-colors ${isFavorite(previewItem.id)
+                                        className={`px-3 py-3.5 border transition-colors ${isFavorite(previewItem.id)
                                             ? "bg-[#bef264]/20 border-[#bef264]/50 text-[#bef264]"
                                             : "bg-white/5 border-white/10 text-white/70"
                                             }`}

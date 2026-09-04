@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useRef } from "react";
+import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Globe, Terminal, FileCode } from "lucide-react";
 import DecryptedText from "./DecryptedText";
@@ -17,13 +17,6 @@ type CircularNavProps = {
 type NavPosition = "left" | "center" | "right";
 
 export default function CircularNav({ activeTab, setActiveTab, tabs, isStraight = false, isMobile = false, itemCounts }: CircularNavProps) {
-
-  const prevIsStraightRef = useRef(isStraight);
-  const isLayoutChange = prevIsStraightRef.current !== isStraight;
-
-  useEffect(() => {
-    prevIsStraightRef.current = isStraight;
-  }, [isStraight]);
 
   // NEW FLOATING BOTTOM NAVBAR FOR MOBILE (iOS Pill Style)
   if (isMobile) {
@@ -121,7 +114,7 @@ export default function CircularNav({ activeTab, setActiveTab, tabs, isStraight 
         height: isStraight ? straightHeight : curvedHeight,
         marginBottom: isStraight ? "0px" : curvedMargin
       }}
-      transition={{ duration: 0.5, ease: "easeInOut" }}
+      transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
       className="relative w-full flex justify-center items-start z-30 pointer-events-none"
     >
 
@@ -130,7 +123,7 @@ export default function CircularNav({ activeTab, setActiveTab, tabs, isStraight 
           top: isStraight ? "0px" : isMobile ? "72px" : "100px",
           width: isStraight ? (isMobile ? "240px" : "300px") : (isMobile ? "80px" : "100px")
         }}
-        transition={{ duration: isLayoutChange ? 0.5 : 0 }}
+        transition={{ type: "spring", stiffness: 300, damping: 26 }}
         className="absolute left-1/2 -translate-x-1/2 h-[32px] md:h-[40px] bg-[#a3e635] blur-[40px] opacity-20 pointer-events-none"
       />
 
@@ -154,8 +147,9 @@ export default function CircularNav({ activeTab, setActiveTab, tabs, isStraight 
               textShadow: isActive ? "0px 0px 20px rgba(163, 230, 53, 0.8)" : "none",
             }}
             transition={{
-              duration: isLayoutChange ? 0.5 : 0,
-              ease: "easeInOut"
+              type: "spring",
+              stiffness: 300,
+              damping: 26,
             }}
             style={{ left: "50%" }}
             className="absolute top-0 font-bold text-sm md:text-xl tracking-wide px-4 md:px-6 py-1.5 md:py-2 rounded-full cursor-pointer pointer-events-auto whitespace-nowrap"

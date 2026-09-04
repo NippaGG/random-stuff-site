@@ -36,7 +36,7 @@ export default function LoadingScreen({ onComplete }: { onComplete: () => void }
       });
 
       if (phase.current < 4) {
-          const randomDelay = Math.random() * 100 + 100; 
+          const randomDelay = Math.random() * 50 + 40; 
           loopTimeout = setTimeout(loop, randomDelay);
       }
     };
@@ -49,14 +49,14 @@ export default function LoadingScreen({ onComplete }: { onComplete: () => void }
         timeouts.push(id);
     };
 
-    // TIMELINE
-    schedule(1000, () => { phase.current = 1; });
-    schedule(1200, () => { phase.current = 2; });
-    schedule(1400, () => { phase.current = 3; });
-    schedule(1500, () => { 
+    // PUNCHY SNAPPY TIMELINE
+    schedule(200, () => { phase.current = 1; });
+    schedule(350, () => { phase.current = 2; });
+    schedule(500, () => { phase.current = 3; });
+    schedule(650, () => { 
         phase.current = 4;
         setIsDone(true); 
-        schedule(800, onComplete);
+        schedule(450, onComplete);
     });
 
     // FIX: CLEANUP EVERYTHING

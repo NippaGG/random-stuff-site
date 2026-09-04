@@ -51,12 +51,27 @@ export default function ConstellationWords({
   const focusedRef = useRef<number | null>(null);
   const focusTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const userInteractedRef = useRef(false);
-  const autoTimers = useRef<ReturnType<typeof setTimeout>[]>([]);
+  const autoTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const explodeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const entranceRafRef = useRef<number>(0);
+  const isLoopingRef = useRef(false);
+  const tickRef = useRef<(() => void) | null>(null);
   const opacityRef = useRef(1);
   const centerBoxRef = useRef({ width: 0, height: 0, yOffset: 0 });
 
   // Center STUFF text reference for collision bounds
   const [isReady, setIsReady] = useState(false);
+
+  const clearAutoTimers = useCallback(() => {
+    if (autoTimerRef.current) {
+      clearTimeout(autoTimerRef.current);
+      autoTimerRef.current = null;
+    }
+    if (explodeTimerRef.current) {
+      clearTimeout(explodeTimerRef.current);
+      explodeTimerRef.current = null;
+    }
+  }, []);
 
   // Initialize particles in a beautiful cluster close to the center
   useEffect(() => {
@@ -99,49 +114,26 @@ export default function ConstellationWords({
     setIsReady(true);
 
     return () => {
-      autoTimers.current.forEach(clearTimeout);
-      autoTimers.current = [];
+      clearAutoTimers();
+      if (focusTimeoutRef.current) {
+        clearTimeout(focusTimeoutRef.current);
+        focusTimeoutRef.current = null;
+      }
     };
-  }, [compact]);
+  }, [compact, clearAutoTimers]);
 
   // Track framer-motion opacity value
   useEffect(() => {
     const unsubscribe = opacity.on("change", (v) => {
+      const wasHidden = opacityRef.current < 0.01;
       opacityRef.current = v;
+      if (wasHidden && v >= 0.01 && !isLoopingRef.current && tickRef.current) {
+        isLoopingRef.current = true;
+        rafRef.current = requestAnimationFrame(tickRef.current);
+      }
     });
     return unsubscribe;
   }, [opacity]);
-
-  // ── Entrance animation via simple tween ───────────
-  useEffect(() => {
-    if (!isReady) return;
-
-    const particles = particlesRef.current;
-    const start = performance.now();
-    const duration = 2000; // 2s entrance
-
-    const animateEntrance = (now: number) => {
-      const t = Math.min(1, (now - start) / duration);
-      const eased = 1 - Math.pow(1 - t, 3); // easeOutCubic
-
-      particles.forEach((p, i) => {
-        const staggerDelay = (i / particles.length) * 0.6;
-        const pProgress = Math.max(0, Math.min(1, (t - staggerDelay) / (1 - staggerDelay)));
-        const pEased = 1 - Math.pow(1 - pProgress, 3);
-        p.alpha = pEased;
-        p.lineProgress = pEased;
-      });
-
-      if (t < 1) {
-        requestAnimationFrame(animateEntrance);
-      } else {
-        // Start auto-animation after entrance completes
-        scheduleAutoFocus(2000);
-      }
-    };
-
-    requestAnimationFrame(animateEntrance);
-  }, [isReady]);
 
   // ── Explosion effect ──────────────────────────────
   const triggerExplosion = useCallback(() => {
@@ -173,7 +165,8 @@ export default function ConstellationWords({
   // ── Auto-focus (idle animation) ───────────────────
   const scheduleAutoFocus = useCallback((delay: number) => {
     if (userInteractedRef.current) return;
-    const t = setTimeout(() => {
+    clearAutoTimers();
+    autoTimerRef.current = setTimeout(() => {
       if (userInteractedRef.current) return;
       if (focusedRef.current !== null) {
         scheduleAutoFocus(5000);
@@ -191,14 +184,48 @@ export default function ConstellationWords({
       scheduleAutoFocus(6500);
 
       // After 1.5s, trigger explosion
-      const explodeTimer = setTimeout(() => {
+      explodeTimerRef.current = setTimeout(() => {
         if (focusedRef.current !== pick.id || userInteractedRef.current) return;
         triggerExplosion();
       }, 1500);
-      autoTimers.current.push(explodeTimer);
     }, delay);
-    autoTimers.current.push(t);
-  }, [triggerExplosion]);
+  }, [clearAutoTimers, triggerExplosion]);
+
+  // ── Entrance animation via simple tween ───────────
+  useEffect(() => {
+    if (!isReady) return;
+
+    const particles = particlesRef.current;
+    const start = performance.now();
+    const duration = 2000; // 2s entrance
+
+    const animateEntrance = (now: number) => {
+      const t = Math.min(1, (now - start) / duration);
+
+      particles.forEach((p, i) => {
+        const staggerDelay = (i / particles.length) * 0.6;
+        const pProgress = Math.max(0, Math.min(1, (t - staggerDelay) / (1 - staggerDelay)));
+        const pEased = 1 - Math.pow(1 - pProgress, 3);
+        p.alpha = pEased;
+        p.lineProgress = pEased;
+      });
+
+      if (t < 1) {
+        entranceRafRef.current = requestAnimationFrame(animateEntrance);
+      } else {
+        // Start auto-animation after entrance completes
+        scheduleAutoFocus(2000);
+      }
+    };
+
+    entranceRafRef.current = requestAnimationFrame(animateEntrance);
+
+    return () => {
+      if (entranceRafRef.current) {
+        cancelAnimationFrame(entranceRafRef.current);
+      }
+    };
+  }, [isReady, scheduleAutoFocus]);
 
   // ── Hover handlers ────────────────────────────────
   const handleWordEnter = useCallback((id: number) => {
@@ -266,7 +293,7 @@ export default function ConstellationWords({
       // Apply container-level opacity
       const containerOpacity = opacityRef.current;
       if (containerOpacity < 0.01) {
-        rafRef.current = requestAnimationFrame(tick);
+        isLoopingRef.current = false;
         return;
       }
 
@@ -516,13 +543,18 @@ export default function ConstellationWords({
         }
       }
 
+      isLoopingRef.current = true;
       rafRef.current = requestAnimationFrame(tick);
     };
 
+    tickRef.current = tick;
+    isLoopingRef.current = true;
     rafRef.current = requestAnimationFrame(tick);
 
     return () => {
       window.removeEventListener("resize", handleResize);
+      isLoopingRef.current = false;
+      tickRef.current = null;
       cancelAnimationFrame(rafRef.current);
     };
   }, [isReady, compact, paused]);

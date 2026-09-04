@@ -53,10 +53,13 @@ const TextPressure: React.FC<TextPressureProps> = ({
   const containerRef = useRef<HTMLDivElement>(null);
   const titleRef = useRef<HTMLHeadingElement>(null);
   const spansRef = useRef<(HTMLSpanElement | null)[]>([]);
+  const charOffsetsRef = useRef<{ x: number; y: number }[]>([]);
 
   const mouseRef = useRef({ x: 0, y: 0 });
   const cursorRef = useRef({ x: 0, y: 0 });
   const lastAppliedRef = useRef({ x: Number.NaN, y: Number.NaN });
+  const isLoopingRef = useRef(false);
+  const rafIdRef = useRef(0);
 
   const [fontSize, setFontSize] = useState(minFontSize);
   const [scaleY, setScaleY] = useState(1);
@@ -64,18 +67,28 @@ const TextPressure: React.FC<TextPressureProps> = ({
 
   const chars = text.split('');
 
+  const requestTick = useCallback(() => {
+    if (!isLoopingRef.current && !stopAnimation) {
+      isLoopingRef.current = true;
+      rafIdRef.current = requestAnimationFrame(animateRef.current);
+    }
+  }, [stopAnimation]);
+
+  const animateRef = useRef<() => void>(() => {});
+
   useEffect(() => {
-    // Stop event listeners if animation is frozen
     if (stopAnimation) return;
 
     const handleMouseMove = (e: MouseEvent) => {
       cursorRef.current.x = e.clientX;
       cursorRef.current.y = e.clientY;
+      requestTick();
     };
     const handleTouchMove = (e: TouchEvent) => {
       const t = e.touches[0];
       cursorRef.current.x = t.clientX;
       cursorRef.current.y = t.clientY;
+      requestTick();
     };
 
     window.addEventListener('mousemove', handleMouseMove);
@@ -93,7 +106,7 @@ const TextPressure: React.FC<TextPressureProps> = ({
       window.removeEventListener('mousemove', handleMouseMove);
       window.removeEventListener('touchmove', handleTouchMove);
     };
-  }, [stopAnimation]);
+  }, [stopAnimation, requestTick]);
 
   const setSize = useCallback(() => {
     if (!containerRef.current || !titleRef.current) return;
@@ -116,31 +129,41 @@ const TextPressure: React.FC<TextPressureProps> = ({
         setScaleY(yRatio);
         setLineHeight(yRatio);
       }
+
+      charOffsetsRef.current = spansRef.current.map((span) => {
+        if (!span) return { x: 0, y: 0 };
+        const rect = span.getBoundingClientRect();
+        return {
+          x: rect.x + rect.width / 2 - textRect.x,
+          y: rect.y + rect.height / 2 - textRect.y,
+        };
+      });
     });
   }, [chars.length, minFontSize, scale]);
 
   useEffect(() => {
-    let timeoutId: NodeJS.Timeout;
+    let timeoutId: NodeJS.Timeout | undefined;
     const handleResize = () => {
-        clearTimeout(timeoutId);
-        timeoutId = setTimeout(setSize, 100);
+      if (timeoutId) clearTimeout(timeoutId);
+      timeoutId = setTimeout(setSize, 100);
     };
-    setSize(); 
+    setSize();
     window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
+    return () => {
+      if (timeoutId) clearTimeout(timeoutId);
+      window.removeEventListener('resize', handleResize);
+    };
   }, [setSize]);
 
-  // THE MAIN LOOP
+  // THE MAIN ANIMATION LOOP
   useEffect(() => {
-    let rafId = 0;
-
-    // KILL SWITCH LOGIC
     if (stopAnimation) {
-        return; 
+      if (rafIdRef.current) cancelAnimationFrame(rafIdRef.current);
+      isLoopingRef.current = false;
+      return;
     }
 
     const animate = () => {
-
       mouseRef.current.x += (cursorRef.current.x - mouseRef.current.x) / 15;
       mouseRef.current.y += (cursorRef.current.y - mouseRef.current.y) / 15;
 
@@ -151,22 +174,23 @@ const TextPressure: React.FC<TextPressureProps> = ({
         Math.abs(lastAppliedRef.current.y - mouseRef.current.y) < 0.1;
 
       if (pointerSettled) {
-        rafId = requestAnimationFrame(animate);
-        return;
+        isLoopingRef.current = false;
+        return; // Halt RAF loop when pointer settles
       }
 
       if (titleRef.current) {
         const titleRect = titleRef.current.getBoundingClientRect();
         const maxDist = titleRect.width / 2;
+        const offsets = charOffsetsRef.current;
 
-        // BATCH READS: get all bounding rects first to prevent layout thrashing
-        const spanUpdates = spansRef.current.map((span) => {
+        // Use cached relative character offsets instead of querying 37+ DOM rects per frame
+        const spanUpdates = spansRef.current.map((span, index) => {
           if (!span) return null;
 
-          const rect = span.getBoundingClientRect();
+          const offset = offsets[index] || { x: 0, y: 0 };
           const charCenter = {
-            x: rect.x + rect.width / 2,
-            y: rect.y + rect.height / 2
+            x: titleRect.x + offset.x,
+            y: titleRect.y + offset.y,
           };
 
           const d = dist(mouseRef.current, charCenter);
@@ -181,10 +205,10 @@ const TextPressure: React.FC<TextPressureProps> = ({
           return { span, newFontVariationSettings, alphaVal };
         });
 
-        // BATCH WRITES: apply all styles after reading
+        // BATCH WRITES: apply all styles after computing
         spanUpdates.forEach((update) => {
           if (!update) return;
-          
+
           if (update.span.style.fontVariationSettings !== update.newFontVariationSettings) {
             update.span.style.fontVariationSettings = update.newFontVariationSettings;
           }
@@ -199,12 +223,18 @@ const TextPressure: React.FC<TextPressureProps> = ({
         };
       }
 
-      rafId = requestAnimationFrame(animate);
+      rafIdRef.current = requestAnimationFrame(animate);
     };
 
-    rafId = requestAnimationFrame(animate);
-    return () => cancelAnimationFrame(rafId);
-  }, [width, weight, italic, alpha, stopAnimation]); 
+    animateRef.current = animate;
+    isLoopingRef.current = true;
+    rafIdRef.current = requestAnimationFrame(animate);
+
+    return () => {
+      isLoopingRef.current = false;
+      if (rafIdRef.current) cancelAnimationFrame(rafIdRef.current);
+    };
+  }, [width, weight, italic, alpha, stopAnimation]);
 
   const styleElement = useMemo(() => {
     return (
@@ -231,7 +261,7 @@ const TextPressure: React.FC<TextPressureProps> = ({
         }
       `}</style>
     );
-  }, [fontFamily, fontUrl, stroke, textColor, strokeColor, strokeWidth]);
+  }, [fontFamily, fontUrl, textColor, strokeColor, strokeWidth]);
 
   return (
     <div ref={containerRef} className={`relative w-full h-full ${className}`}>
