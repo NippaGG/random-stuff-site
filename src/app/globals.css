@@ -1,65 +1,48 @@
 @import "tailwindcss";
 
+@theme {
+  --font-phudu: var(--font-phudu), cursive, sans-serif;
+  --font-sans: var(--font-inter), -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-inter: var(--font-inter), sans-serif;
+  --font-caveat: var(--font-caveat), cursive, sans-serif;
+  --font-mono: var(--font-mono), monospace;
+
+  --color-canvas: #F0F2F5;
+  --color-canvas-subtle: #E8ECEF;
+  --color-surface: #FFFFFF;
+  --color-surface-soft: #FAFCFD;
+  --color-border-subtle: #D6DCE1;
+  --color-studio-navy: #14334D;
+  --color-studio-slate: #304F67;
+  --color-studio-muted: #456176;
+  --color-studio-light-muted: #A0AFBB;
+  --color-studio-lime: #9DF71F;
+  --color-studio-green: #89E00F;
+  --color-studio-blue: #007BE5;
+  --color-studio-blue-soft: #82CCFF;
+}
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-  --cursor-color: #a3e635;
-  --theme-accent: #a3e635;
-  --theme-accent-bg: rgba(163, 230, 53, 0.12);
-  --theme-accent-border: rgba(163, 230, 53, 0.35);
-  --theme-accent-glow: rgba(163, 230, 53, 0.2);
-}
-
-[data-theme="amber"] {
-  --theme-accent: #f59e0b;
-  --theme-accent-bg: rgba(245, 158, 11, 0.12);
-  --theme-accent-border: rgba(245, 158, 11, 0.35);
-  --theme-accent-glow: rgba(245, 158, 11, 0.2);
-  --cursor-color: #f59e0b;
-}
-
-[data-theme="emerald"] {
-  --theme-accent: #10b981;
-  --theme-accent-bg: rgba(16, 185, 129, 0.12);
-  --theme-accent-border: rgba(16, 185, 129, 0.35);
-  --theme-accent-glow: rgba(16, 185, 129, 0.2);
-  --cursor-color: #10b981;
-}
-
-[data-theme="cobalt"] {
-  --theme-accent: #38bdf8;
-  --theme-accent-bg: rgba(56, 189, 248, 0.12);
-  --theme-accent-border: rgba(56, 189, 248, 0.35);
-  --theme-accent-glow: rgba(56, 189, 248, 0.2);
-  --cursor-color: #38bdf8;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --background: #F0F2F5;
+  --foreground: #14334D;
+  --canvas: #F0F2F5;
+  --surface: #FFFFFF;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: #F0F2F5;
+  color: #14334D;
+  font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   scrollbar-width: thin;
-  scrollbar-color: rgba(163, 230, 53, 0.2) transparent;
+  scrollbar-color: #CBD5E1 transparent;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 body::-webkit-scrollbar,
 html::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 7px;
+  height: 7px;
 }
 
 body::-webkit-scrollbar-track,
@@ -69,21 +52,77 @@ html::-webkit-scrollbar-track {
 
 body::-webkit-scrollbar-thumb,
 html::-webkit-scrollbar-thumb {
-  background: rgba(163, 230, 53, 0.2);
-  border-radius: 3px;
+  background: #CBD5E1;
+  border-radius: 4px;
 }
 
 body::-webkit-scrollbar-thumb:hover,
 html::-webkit-scrollbar-thumb:hover {
-  background: rgba(163, 230, 53, 0.45);
+  background: #94A3B8;
 }
 
-html {
-  position: relative;
-  scrollbar-width: thin;
-  scrollbar-color: rgba(163, 230, 53, 0.2) transparent;
+/* Custom studio layered elevation & clay shadows */
+.shadow-studio-button {
+  box-shadow: 
+    rgba(181, 186, 203, 0.31) 0px 1.67px 4.18px 0px,
+    rgba(181, 187, 203, 0.16) 0px 17.57px 10.87px 0px,
+    rgba(181, 187, 203, 0.05) 0px 31.79px 12.55px 0px,
+    rgba(181, 193, 203, 0.01) 0px 50.20px 14.22px 0px,
+    rgb(255, 255, 255) 0px 7px 32px 0px inset;
 }
 
+.shadow-studio-button-dark {
+  box-shadow: 
+    rgba(20, 51, 77, 0.25) 0px 2px 5px 0px,
+    rgba(20, 51, 77, 0.15) 0px 12px 14px 0px,
+    rgba(255, 255, 255, 0.15) 0px 1px 0px 0px inset;
+}
+
+.shadow-studio-card {
+  box-shadow: 
+    0px 2.61px 6.52px 0px rgba(181, 186, 203, 0.31),
+    0px 27.39px 16.96px 0px rgba(181, 187, 203, 0.16),
+    0px 49.56px 19.56px 0px rgba(181, 187, 203, 0.05),
+    0px 78.26px 22.17px 0px rgba(181, 193, 203, 0.01);
+}
+
+.shadow-studio-polaroid {
+  box-shadow: 
+    0px 1.1px 2.75px 0px rgba(181, 187, 203, 0.31),
+    0px 11.54px 7.15px 0px rgba(181, 187, 203, 0.16),
+    0px 20.89px 8.25px 0px rgba(181, 187, 203, 0.05),
+    0px 32.98px 9.34px 0px rgba(181, 193, 203, 0.01);
+}
+
+.shadow-studio-tilt {
+  box-shadow: 
+    inset 0 1px 1px 0 rgba(255, 255, 255, 0.43),
+    0 77px 27px 0 rgba(181, 186, 203, 0.31);
+}
+
+.shadow-studio-nav {
+  box-shadow: 
+    0px 2px 6px 0px rgba(181, 186, 203, 0.25),
+    0px 12px 24px 0px rgba(181, 187, 203, 0.12);
+}
+
+.shadow-studio-popover {
+  box-shadow: 
+    0px 4px 12px 0px rgba(181, 186, 203, 0.3),
+    0px 20px 32px 0px rgba(181, 187, 203, 0.18),
+    inset 0px 1px 2px rgba(255, 255, 255, 0.8);
+}
+
+/* Highlighter text styling */
+.studio-highlight {
+  background-color: #9DF71F;
+  padding: 0.1em 0.35em;
+  border-radius: 4px;
+  display: inline-block;
+  color: #14334D;
+  font-weight: 700;
+  line-height: 1.15;
+}
 
 /* Lenis smooth scroll essentials */
 html.lenis,
@@ -107,56 +146,7 @@ html.lenis body {
   pointer-events: none;
 }
 
-@media (pointer: fine) {
-  body {
-    cursor: none;
-  }
-
-  /* Hide default cursor on most elements for desktop pointer devices, but preserve text caret on form fields */
-  *:not(input):not(textarea):not([contenteditable="true"]) {
-    cursor: none !important;
-  }
-
-  input,
-  textarea,
-  [contenteditable="true"] {
-    cursor: text !important;
-  }
-}
-
-@media (pointer: coarse) {
-  .custom-cursor {
-    display: none !important;
-  }
-}
-
-/* Custom cursor styles */
-.custom-cursor {
-  pointer-events: none;
-  position: fixed;
-  left: 0;
-  top: 0;
-  z-index: 9999;
-  will-change: transform;
-}
-
-.custom-cursor-dot {
-  width: 8px;
-  height: 8px;
-  background: var(--cursor-color);
-  border-radius: 50%;
-  transform: translate(-50%, -50%);
-}
-
-.custom-cursor-ring {
-  width: 40px;
-  height: 40px;
-  border: 2px solid var(--cursor-color);
-  border-radius: 50%;
-  opacity: 0.6;
-}
-
-/* Skip painting off-screen directory entries while preserving their layout. */
+/* Skip painting off-screen directory entries while preserving their layout */
 .directory-card,
 .mobile-directory-card {
   content-visibility: auto;
@@ -164,9 +154,5 @@ html.lenis body {
 }
 
 .directory-card {
-  contain-intrinsic-size: auto 220px;
-}
-
-.mobile-directory-card {
-  contain-intrinsic-size: auto 76px;
+  contain-intrinsic-size: auto 240px;
 }

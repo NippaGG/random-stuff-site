@@ -1,9 +1,10 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
-import { Sparkles, ExternalLink, Github, RotateCw, X, Star } from "lucide-react";
+import { Sparkles, ExternalLink, Github, RotateCw, X, Heart } from "lucide-react";
 import type { Item } from "@/data/items";
-import { playRollSound, playSuccessSound, playFavoriteSound, playClickSound } from "@/lib/sound-fx";
+import { playRollSound, playSuccessSound, playClickSound } from "@/lib/sound-fx";
+import { MagneticButton } from "./studio/MagneticButton";
 
 interface RandomRouletteModalProps {
   isOpen: boolean;
@@ -43,7 +44,6 @@ export default function RandomRouletteModal({
       playRollSound();
 
       elapsed += speed;
-      // Ease out: slow down in the second half
       if (elapsed > 600) {
         speed += 25;
       }
@@ -51,7 +51,6 @@ export default function RandomRouletteModal({
       if (elapsed < totalDuration) {
         rollIntervalRef.current = setTimeout(tick, speed);
       } else {
-        // Land on target!
         setDisplayItem(target);
         setFinalItem(target);
         setIsRolling(false);
@@ -59,7 +58,7 @@ export default function RandomRouletteModal({
       }
     };
 
-    tick();
+    rollIntervalRef.current = setTimeout(tick, speed);
   }, [items]);
 
   useEffect(() => {
@@ -89,136 +88,113 @@ export default function RandomRouletteModal({
       role="dialog"
       aria-modal="true"
       aria-label="Random Tool Roulette"
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-200"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-md animate-in fade-in duration-200"
       onClick={onClose}
     >
       <div
-        className="w-full max-w-lg bg-[#09090b] border border-[var(--theme-accent-border)] rounded-2xl shadow-[0_0_50px_rgba(0,0,0,0.8),0_0_20px_var(--theme-accent-glow)] overflow-hidden flex flex-col"
+        className="w-full max-w-lg bg-white rounded-[32px] p-6 sm:p-8 shadow-studio-card border border-white/90 overflow-hidden flex flex-col relative select-none"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-5 py-4 border-b border-white/10 bg-neutral-950/60">
+        <div className="flex items-center justify-between pb-4 border-b border-slate-100">
           <div className="flex items-center gap-2">
-            <Sparkles className="w-5 h-5 text-[var(--theme-accent)] animate-pulse" />
-            <h3 className="font-mono text-sm font-bold tracking-wider text-white uppercase">
+            <Sparkles className="w-5 h-5 text-[#89E00F] animate-pulse" />
+            <h3 className="font-phudu text-lg font-bold text-[#14334D]">
               {isRolling ? "ROULETTE SCANNING..." : "DISCOVERED ITEM"}
             </h3>
           </div>
           <button
+            type="button"
             onClick={() => {
               playClickSound();
               onClose();
             }}
-            className="p-1 rounded text-neutral-400 hover:text-white hover:bg-neutral-800 transition-colors"
+            className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 hover:text-slate-800 hover:bg-slate-200 transition-colors cursor-pointer"
           >
-            <X className="w-5 h-5" />
+            <X className="w-4 h-4" />
           </button>
         </div>
 
-        {/* Content & Roll Area */}
-        <div className="p-6 sm:p-8 flex flex-col items-center text-center">
-          {/* Ticker / Visual frame */}
+        {/* Content & Roll Stage */}
+        <div className="py-6 flex flex-col items-center text-center">
           <div
-            className={`w-full py-8 px-6 rounded-xl border transition-all duration-200 relative overflow-hidden mb-6 ${
+            className={`w-full py-8 px-6 rounded-2xl border transition-all duration-300 relative overflow-hidden mb-6 ${
               isRolling
-                ? "border-[var(--theme-accent)] bg-black shadow-[inset_0_0_30px_var(--theme-accent-glow)]"
-                : "border-white/15 bg-neutral-900/50"
+                ? "border-[#82CCFF] bg-[#F0F7FF] shadow-inner"
+                : "border-slate-200 bg-[#FAFCFD] shadow-studio-button"
             }`}
           >
             {/* Category tag */}
             <div className="mb-3">
-              <span className="text-[11px] font-mono uppercase tracking-widest px-2.5 py-1 rounded bg-white/5 border border-white/10 text-[var(--theme-accent)]">
+              <span className="text-[11px] font-mono uppercase tracking-widest px-3 py-1 rounded-full bg-white border border-slate-200 text-[#007BE5] font-bold shadow-xs">
                 {current?.category || "Tool"}
               </span>
             </div>
 
             {/* Title */}
-            <h2
-              className={`text-2xl sm:text-3xl font-extrabold font-mono text-white mb-3 transition-transform ${
-                isRolling ? "scale-105 opacity-90 blur-[0.3px]" : "scale-100 opacity-100"
-              }`}
-            >
+            <h2 className="font-phudu text-2xl sm:text-3xl font-black text-[#14334D] tracking-tight mb-2">
               {current?.title}
             </h2>
 
             {/* Description */}
-            <p className="text-xs sm:text-sm text-neutral-300 font-mono leading-relaxed max-w-md mx-auto line-clamp-3">
+            <p className="text-sm text-[#456176] font-sans leading-relaxed line-clamp-3 max-w-sm mx-auto min-h-[4rem]">
               {current?.description}
             </p>
 
-            {/* Rolling indicator beam */}
-            {isRolling && (
-              <div className="absolute inset-x-0 bottom-0 h-1 bg-gradient-to-r from-transparent via-[var(--theme-accent)] to-transparent animate-pulse" />
+            {/* Tags */}
+            {current?.tags && current.tags.length > 0 && (
+              <div className="flex flex-wrap justify-center gap-1.5 mt-4">
+                {current.tags.slice(0, 4).map((tag) => (
+                  <span
+                    key={tag}
+                    className="text-[10px] font-mono font-semibold px-2 py-0.5 rounded-full bg-white border border-slate-200 text-slate-600 shadow-2xs"
+                  >
+                    #{tag}
+                  </span>
+                ))}
+              </div>
             )}
           </div>
 
-          {/* Tags */}
-          {!isRolling && current?.tags && current.tags.length > 0 && (
-            <div className="flex flex-wrap gap-1.5 justify-center mb-6 max-w-sm">
-              {current.tags.map((tag) => (
-                <span
-                  key={tag}
-                  className="text-[10px] font-mono px-2 py-0.5 rounded bg-black/60 border border-white/10 text-neutral-400"
-                >
-                  #{tag}
-                </span>
-              ))}
-            </div>
-          )}
-
-          {/* Actions */}
-          <div className="flex items-center gap-3 w-full max-w-md justify-center">
-            {current?.website && !isRolling && (
-              <a
-                href={current.website}
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={playClickSound}
-                className="flex-1 py-2.5 px-4 rounded-xl bg-[var(--theme-accent)] text-black font-bold font-mono text-sm text-center hover:opacity-90 transition-opacity flex items-center justify-center gap-2"
-              >
-                Visit Site <ExternalLink className="w-4 h-4" />
-              </a>
-            )}
-
-            {current?.github && !isRolling && (
-              <a
-                href={current.github}
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={playClickSound}
-                className="p-2.5 rounded-xl bg-neutral-800 text-neutral-200 hover:text-white hover:bg-neutral-700 transition-colors border border-white/10"
-                title="GitHub Repo"
-              >
-                <Github className="w-5 h-5" />
-              </a>
-            )}
-
-            {!isRolling && current && (
-              <button
-                onClick={() => {
-                  playFavoriteSound();
-                  onToggleFavorite(current.id);
-                }}
-                className={`p-2.5 rounded-xl border border-white/10 hover:bg-white/10 transition-colors ${
-                  isFav ? "text-yellow-400" : "text-neutral-400"
-                }`}
-                title="Favorite"
-              >
-                <Star className="w-5 h-5 fill-current" />
-              </button>
-            )}
-
-            <button
-              onClick={() => {
-                playClickSound();
-                startRoll();
-              }}
+          {/* Action Buttons */}
+          <div className="flex flex-wrap items-center justify-center gap-3 w-full">
+            <MagneticButton
+              variant="primary-light"
+              size="md"
+              icon={<RotateCw className={`w-4 h-4 ${isRolling ? "animate-spin" : ""}`} />}
               disabled={isRolling}
-              className="py-2.5 px-4 rounded-xl border border-white/20 bg-neutral-800 hover:bg-neutral-700 text-white font-mono text-sm transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
+              onClick={startRoll}
             >
-              <RotateCw className={`w-4 h-4 ${isRolling ? "animate-spin" : ""}`} />
-              {isRolling ? "Rolling..." : "Roll Again"}
-            </button>
+              Roll Again
+            </MagneticButton>
+
+            {current && (
+              <>
+                <MagneticButton
+                  variant="primary-light"
+                  size="md"
+                  icon={
+                    <Heart
+                      className={`w-4 h-4 ${isFav ? "fill-red-500 text-red-500" : "text-slate-400"}`}
+                    />
+                  }
+                  onClick={() => onToggleFavorite(current.id)}
+                >
+                  {isFav ? "Saved" : "Save"}
+                </MagneticButton>
+
+                <MagneticButton
+                  variant="accent-lime"
+                  size="md"
+                  icon={<ExternalLink className="w-4 h-4 text-[#14334D]" />}
+                  href={current.website || current.github}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  Open Tool →
+                </MagneticButton>
+              </>
+            )}
           </div>
         </div>
       </div>

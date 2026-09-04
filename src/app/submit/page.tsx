@@ -1,258 +1,282 @@
 "use client";
+
 import React, { useState, useRef } from "react";
-import { motion } from "framer-motion";
-import GridBackground from "@/components/GridBackground";
-import CustomCursor from "@/components/CustomCursor";
 import Link from "next/link";
-import { ArrowLeft, MessageSquare, ShieldCheck } from "lucide-react";
+import { ArrowLeft, CheckCircle2, AlertCircle, Sparkles, Send } from "lucide-react";
+import {
+  ChameleonLogo,
+  MagneticButton,
+  PolaroidCard,
+  TextHighlight,
+  InlineBadge,
+} from "@/components/studio";
 
 const TOOL_NAME_MAX_LENGTH = 80;
 const LINK_MAX_LENGTH = 500;
 const DESCRIPTION_MAX_LENGTH = 500;
 
 export default function SubmitPage() {
-    const [status, setStatus] = useState<"idle" | "submitting" | "success" | "error">("idle");
-    const [errorMessage, setErrorMessage] = useState("");
+  const [status, setStatus] = useState<"idle" | "submitting" | "success" | "error">("idle");
+  const [errorMessage, setErrorMessage] = useState("");
 
-    const nameRef = useRef<HTMLInputElement>(null);
-    const linkRef = useRef<HTMLInputElement>(null);
-    const categoryRef = useRef<HTMLSelectElement>(null);
-    const descriptionRef = useRef<HTMLTextAreaElement>(null);
+  const [toolName, setToolName] = useState("");
+  const [link, setLink] = useState("");
+  const [category, setCategory] = useState("Websites");
+  const [description, setDescription] = useState("");
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        setStatus("submitting");
-        setErrorMessage("");
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setStatus("submitting");
+    setErrorMessage("");
 
-        const body = {
-            toolName: nameRef.current?.value ?? "",
-            link: linkRef.current?.value ?? "",
-            category: categoryRef.current?.value ?? "",
-            description: descriptionRef.current?.value ?? "",
-        };
-
-        try {
-            const res = await fetch("/api/submit", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(body),
-            });
-
-            const data = await res.json();
-
-            if (!res.ok) {
-                setStatus("error");
-                setErrorMessage(data.error || "Something went wrong.");
-                return;
-            }
-
-            setStatus("success");
-        } catch {
-            setStatus("error");
-            setErrorMessage("Network error. Please try again.");
-        }
+    const body = {
+      toolName: toolName.trim(),
+      link: link.trim(),
+      category: category.trim(),
+      description: description.trim(),
     };
 
-    const resetForm = () => {
-        setStatus("idle");
-        setErrorMessage("");
-        if (nameRef.current) nameRef.current.value = "";
-        if (linkRef.current) linkRef.current.value = "";
-        if (categoryRef.current) categoryRef.current.value = "";
-        if (descriptionRef.current) descriptionRef.current.value = "";
-    };
+    try {
+      const res = await fetch("/api/submit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
 
-    return (
-        <main className="relative min-h-screen text-white flex flex-col items-center justify-center p-6 bg-black overflow-hidden">
-            <CustomCursor />
+      const data = await res.json();
 
-            <div className="fixed inset-0 z-0">
-                <GridBackground />
-            </div>
+      if (!res.ok) {
+        setStatus("error");
+        setErrorMessage(data.error || "Something went wrong.");
+        return;
+      }
 
-            <div className="absolute top-8 left-0 right-0 z-10 w-full max-w-7xl mx-auto flex items-start justify-start pl-4 md:pl-8">
-                <Link
-                    href="/"
-                    className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors group p-2"
-                >
-                    <ArrowLeft size={20} className="group-hover:-translate-x-1 transition-transform" />
-                    <span className="font-mono text-sm">Back to Home</span>
-                </Link>
-            </div>
+      setStatus("success");
+    } catch {
+      setStatus("error");
+      setErrorMessage("Network error. Please try again.");
+    }
+  };
 
-            <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, ease: "easeOut" }}
-                className="w-full max-w-md p-8 sm:p-10 rounded-none border border-white/10 bg-black/60 backdrop-blur-xl shadow-[0_0_40px_rgba(0,0,0,0.5)] relative overflow-hidden z-10 mt-12"
-            >
-                <div className="absolute inset-x-0 -top-px h-px w-1/2 mx-auto bg-gradient-to-r from-transparent via-[#a3e635] to-transparent opacity-50" />
+  const resetForm = () => {
+    setStatus("idle");
+    setErrorMessage("");
+    setToolName("");
+    setLink("");
+    setCategory("Websites");
+    setDescription("");
+  };
 
-                <h1 className="text-3xl font-bold mb-2 text-center tracking-tight">Submit a Tool</h1>
-                <p className="text-gray-400 text-sm text-center mb-5">
-                    Submit a website, software, or script to the directory.
-                </p>
+  return (
+    <div className="min-h-screen bg-[#F0F2F5] text-[#14334D] font-sans antialiased flex flex-col selection:bg-[#9DF71F] selection:text-[#14334D]">
+      {/* Top Header */}
+      <header className="sticky top-0 z-40 bg-[#F0F2F5]/85 backdrop-blur-md border-b border-[#D6DCE1] px-4 md:px-8 py-3 select-none">
+        <div className="max-w-[1400px] mx-auto flex items-center justify-between">
+          <Link href="/" className="flex items-center gap-2.5 group">
+            <ChameleonLogo size={32} />
+            <span className="font-phudu font-bold text-lg text-[#14334D] tracking-tight">
+              RANDOM STUFF
+            </span>
+          </Link>
 
-                {/* Submission status indicator */}
-                <motion.div
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5, delay: 0.2, ease: "easeOut" }}
-                    className="flex items-center justify-center gap-5 mb-8 py-3 px-4 border border-white/5 bg-white/[0.02] rounded-none"
-                >
-                    <div className="flex items-center gap-2">
-                        <MessageSquare size={14} className="text-[#a3e635]/70" />
-                        <span className="font-mono text-xs text-gray-400">
-                            Discord review queue
-                        </span>
+          <Link
+            href="/"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white shadow-studio-button border border-white/80 text-xs font-semibold text-[#14334D] hover:bg-slate-50 transition-colors"
+          >
+            <ArrowLeft className="w-3.5 h-3.5 text-[#007BE5]" />
+            <span>Back to Directory</span>
+          </Link>
+        </div>
+      </header>
+
+      {/* Main Studio Submit Workspace */}
+      <main className="flex-1 w-full max-w-[1200px] mx-auto p-4 sm:p-8 flex items-center justify-center">
+        <div className="w-full bg-white rounded-[32px] md:rounded-[40px] p-6 sm:p-10 md:p-12 shadow-studio-card border border-white/80 overflow-hidden">
+          {/* Tagline Eyebrow */}
+          <div className="mb-6 inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#F0F2F5] border border-[#D6DCE1] shadow-xs">
+            <span className="w-2 h-2 rounded-full bg-[#89E00F] animate-pulse" />
+            <span className="text-[11px] font-mono font-bold uppercase tracking-[0.14em] text-[#304F68]/70">
+              COMMUNITY CURATION // 100% FREE
+            </span>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
+            {/* Left Column: Form */}
+            <div className="lg:col-span-7">
+              <h1 className="font-sans text-3xl sm:text-4xl font-semibold text-[#304F67] leading-[1.2] tracking-[-0.035em] mb-2">
+                Submit a <InlineBadge type="chameleon" /> tool{" "}
+                <span className="text-[#A0AFBB] font-normal">to the</span> directory
+              </h1>
+
+              <p className="text-sm text-[#456176] font-medium mb-8">
+                Know a game-changing website, software, or CLI script?{" "}
+                <span className="font-caveat text-xl text-[#007BE5] font-bold">
+                  Reviewed by ShockaGG within 24h.
+                </span>
+              </p>
+
+              {status === "success" ? (
+                <div className="p-8 rounded-3xl bg-[#F0FDF4] border border-emerald-200 text-center flex flex-col items-center">
+                  <div className="w-14 h-14 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mb-4">
+                    <CheckCircle2 className="w-8 h-8" />
+                  </div>
+                  <h3 className="font-phudu text-2xl font-bold text-emerald-950 mb-2">
+                    Submission Received!
+                  </h3>
+                  <p className="text-sm text-emerald-800 max-w-md mb-6 leading-relaxed">
+                    Thank you for contributing to Random Stuff! We'll review your submission and add it to the directory shortly.
+                  </p>
+                  <div className="flex flex-wrap items-center justify-center gap-3">
+                    <MagneticButton variant="primary-light" size="md" onClick={resetForm}>
+                      Submit Another Tool
+                    </MagneticButton>
+                    <MagneticButton variant="accent-lime" size="md" href="/">
+                      Return to Directory →
+                    </MagneticButton>
+                  </div>
+                </div>
+              ) : (
+                <form onSubmit={handleSubmit} className="space-y-5">
+                  {status === "error" && (
+                    <div className="p-4 rounded-2xl bg-red-50 border border-red-200 text-red-700 text-xs font-medium flex items-center gap-2">
+                      <AlertCircle className="w-4 h-4 shrink-0" />
+                      <span>{errorMessage}</span>
                     </div>
-                    <div className="w-px h-4 bg-white/10" />
-                    <div className="flex items-center gap-2">
-                        <ShieldCheck size={14} className="text-[#a3e635]/70" />
-                        <span className="font-mono text-xs text-gray-400">
-                            Spam protected
-                        </span>
-                    </div>
-                    <div className="w-px h-4 bg-white/10" />
-                    <div className="flex items-center gap-1.5">
-                        <span className="relative flex h-2 w-2">
-                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#a3e635] opacity-75" />
-                            <span className="relative inline-flex rounded-full h-2 w-2 bg-[#a3e635]" />
-                        </span>
-                        <span className="font-mono text-xs text-gray-500">live</span>
-                    </div>
-                </motion.div>
+                  )}
 
-                {status === "success" ? (
-                    <motion.div
-                        initial={{ opacity: 0, scale: 0.9 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        className="flex flex-col items-center gap-4 py-8"
+                  {/* Tool Name */}
+                  <div className="space-y-1.5">
+                    <label className="block text-xs font-mono font-bold uppercase tracking-wider text-[#14334D]">
+                      Tool Name <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      maxLength={TOOL_NAME_MAX_LENGTH}
+                      placeholder="e.g. Raycast, Warp, Coolors"
+                      value={toolName}
+                      onChange={(e) => setToolName(e.target.value)}
+                      className="w-full px-4 py-3 rounded-2xl bg-[#F0F2F5] border border-[#D6DCE1] text-sm text-[#14334D] placeholder-slate-400 focus:outline-hidden focus:bg-white focus:border-[#007BE5] focus:ring-2 focus:ring-[#007BE5]/20 transition-all font-sans"
+                    />
+                  </div>
+
+                  {/* Tool Link */}
+                  <div className="space-y-1.5">
+                    <label className="block text-xs font-mono font-bold uppercase tracking-wider text-[#14334D]">
+                      Website or GitHub URL <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="url"
+                      required
+                      maxLength={LINK_MAX_LENGTH}
+                      placeholder="https://example.com or https://github.com/..."
+                      value={link}
+                      onChange={(e) => setLink(e.target.value)}
+                      className="w-full px-4 py-3 rounded-2xl bg-[#F0F2F5] border border-[#D6DCE1] text-sm text-[#14334D] placeholder-slate-400 focus:outline-hidden focus:bg-white focus:border-[#007BE5] focus:ring-2 focus:ring-[#007BE5]/20 transition-all font-sans"
+                    />
+                  </div>
+
+                  {/* Category */}
+                  <div className="space-y-1.5">
+                    <label className="block text-xs font-mono font-bold uppercase tracking-wider text-[#14334D]">
+                      Category <span className="text-red-500">*</span>
+                    </label>
+                    <select
+                      value={category}
+                      onChange={(e) => setCategory(e.target.value)}
+                      className="w-full px-4 py-3 rounded-2xl bg-[#F0F2F5] border border-[#D6DCE1] text-sm text-[#14334D] focus:outline-hidden focus:bg-white focus:border-[#007BE5] focus:ring-2 focus:ring-[#007BE5]/20 transition-all font-sans cursor-pointer"
                     >
-                        <div className="w-16 h-16 rounded-none bg-[#a3e635]/20 flex items-center justify-center text-[#a3e635] shadow-[0_0_20px_rgba(163,230,53,0.2)]">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-                                <polyline points="22 4 12 14.01 9 11.01"></polyline>
-                            </svg>
-                        </div>
-                        <p className="text-xl font-medium text-[#a3e635] mt-2">Submission Received!</p>
-                        <p className="text-gray-400 text-sm text-center max-w-xs">
-                            Thanks for sharing. We will review it shortly before adding it to the list.
-                        </p>
-                        <button
-                            onClick={resetForm}
-                            className="mt-6 px-6 py-2 rounded-none bg-white/5 hover:bg-white/10 border border-white/10 transition-colors text-sm font-mono"
-                        >
-                            Submit another
-                        </button>
-                    </motion.div>
-                ) : (
-                    <form onSubmit={handleSubmit} className="flex flex-col gap-5">
-                        {status === "error" && (
-                            <motion.div
-                                initial={{ opacity: 0, y: -10 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                aria-live="polite"
-                                className="py-2.5 px-4 border border-red-500/30 bg-red-500/10 text-red-400 text-sm font-mono rounded-none"
-                            >
-                                {errorMessage}
-                            </motion.div>
-                        )}
+                      <option value="Websites">Websites (Web App / Online Tool)</option>
+                      <option value="Softwares">Softwares (Desktop Application)</option>
+                      <option value="Scripts">Scripts (CLI / Terminal Script / Automation)</option>
+                    </select>
+                  </div>
 
-                        <div className="space-y-1.5">
-                            <label htmlFor="name" className="text-sm font-medium text-gray-300 ml-1">Tool Name</label>
-                            <input
-                                ref={nameRef}
-                                id="name"
-                                type="text"
-                                name="toolName"
-                                autoComplete="off"
-                                required
-                                maxLength={TOOL_NAME_MAX_LENGTH}
-                                placeholder="e.g. Raycast"
-                                className="w-full px-4 py-2.5 rounded-none bg-white/5 border border-white/10 focus:border-[#a3e635]/50 focus:ring-1 focus:ring-[#a3e635]/50 outline-none transition-all placeholder:text-gray-600 focus:bg-white/10 font-mono text-sm"
-                            />
-                        </div>
+                  {/* Description */}
+                  <div className="space-y-1.5">
+                    <div className="flex justify-between items-center">
+                      <label className="block text-xs font-mono font-bold uppercase tracking-wider text-[#14334D]">
+                        Brief Description <span className="text-red-500">*</span>
+                      </label>
+                      <span className="text-[11px] font-mono text-slate-400">
+                        {description.length}/{DESCRIPTION_MAX_LENGTH}
+                      </span>
+                    </div>
+                    <textarea
+                      required
+                      rows={4}
+                      maxLength={DESCRIPTION_MAX_LENGTH}
+                      placeholder="Explain in 1-2 concise sentences what makes this tool uniquely useful..."
+                      value={description}
+                      onChange={(e) => setDescription(e.target.value)}
+                      className="w-full px-4 py-3 rounded-2xl bg-[#F0F2F5] border border-[#D6DCE1] text-sm text-[#14334D] placeholder-slate-400 focus:outline-hidden focus:bg-white focus:border-[#007BE5] focus:ring-2 focus:ring-[#007BE5]/20 transition-all font-sans resize-none"
+                    />
+                  </div>
 
-                        <div className="space-y-1.5">
-                            <label htmlFor="link" className="text-sm font-medium text-gray-300 ml-1">Website / GitHub URL</label>
-                            <input
-                                ref={linkRef}
-                                id="link"
-                                type="url"
-                                name="link"
-                                autoComplete="url"
-                                spellCheck={false}
-                                required
-                                maxLength={LINK_MAX_LENGTH}
-                                placeholder="https://example.com..."
-                                className="w-full px-4 py-2.5 rounded-none bg-white/5 border border-white/10 focus:border-[#a3e635]/50 focus:ring-1 focus:ring-[#a3e635]/50 outline-none transition-all placeholder:text-gray-600 focus:bg-white/10 font-mono text-sm"
-                            />
-                        </div>
+                  {/* Submit Button */}
+                  <div className="pt-2">
+                    <MagneticButton
+                      variant="accent-lime"
+                      size="lg"
+                      type="submit"
+                      disabled={status === "submitting"}
+                      icon={<Send className="w-4 h-4 text-[#14334D]" />}
+                      className="w-full sm:w-auto"
+                    >
+                      {status === "submitting" ? "Sending to Review..." : "Submit Tool for Review"}
+                    </MagneticButton>
+                  </div>
+                </form>
+              )}
+            </div>
 
-                        <div className="space-y-1.5">
-                            <label htmlFor="category" className="text-sm font-medium text-gray-300 ml-1">Category</label>
-                            <div className="relative">
-                                <select
-                                    ref={categoryRef}
-                                    id="category"
-                                    name="category"
-                                    required
-                                    defaultValue=""
-                                    className="w-full px-4 py-2.5 rounded-none bg-white/5 border border-white/10 focus:border-[#a3e635]/50 focus:ring-1 focus:ring-[#a3e635]/50 outline-none transition-all text-white appearance-none cursor-pointer focus:bg-white/10 font-mono text-sm"
-                                >
-                                    <option value="" disabled className="bg-neutral-900">Select a category...</option>
-                                    <option value="Websites" className="bg-neutral-900">Websites</option>
-                                    <option value="Softwares" className="bg-neutral-900">Softwares</option>
-                                    <option value="Scripts" className="bg-neutral-900">Scripts</option>
-                                </select>
-                                <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                        <path d="m6 9 6 6 6-6" />
-                                    </svg>
-                                </div>
-                            </div>
-                        </div>
+            {/* Right Column: Live Polaroid Preview Card & Principles */}
+            <div className="lg:col-span-5 flex flex-col items-center justify-center pt-4 lg:pt-0">
+              <div className="w-full max-w-[320px]">
+                <div className="text-center mb-3">
+                  <span className="text-[10px] font-mono uppercase tracking-widest text-slate-400 font-bold">
+                    Live Desk Preview
+                  </span>
+                </div>
 
-                        <div className="space-y-1.5">
-                            <label htmlFor="description" className="text-sm font-medium text-gray-300 ml-1">Short Description</label>
-                            <textarea
-                                ref={descriptionRef}
-                                id="description"
-                                name="description"
-                                autoComplete="off"
-                                required
-                                rows={3}
-                                maxLength={DESCRIPTION_MAX_LENGTH}
-                                placeholder="What does it do and why is it useful?"
-                                className="w-full px-4 py-3 rounded-none bg-white/5 border border-white/10 focus:border-[#a3e635]/50 focus:ring-1 focus:ring-[#a3e635]/50 outline-none transition-all placeholder:text-gray-600 resize-none focus:bg-white/10 font-mono text-sm"
-                            />
-                        </div>
+                <PolaroidCard
+                  caption={toolName ? toolName : "Your Tool Here..."}
+                  pinType="red-pin"
+                  rotation={-3}
+                  className="w-full"
+                >
+                  <div className="w-full h-full bg-gradient-to-br from-sky-100 via-[#F0F7FF] to-emerald-100 p-5 flex flex-col justify-between items-center text-center">
+                    <span className="text-[10px] font-mono uppercase tracking-widest px-2.5 py-0.5 rounded-full bg-white text-[#007BE5] font-bold shadow-xs">
+                      {category}
+                    </span>
+                    <div className="my-auto">
+                      <span className="font-phudu text-xl font-black text-[#14334D] block truncate max-w-[200px]">
+                        {toolName || "Tool Title"}
+                      </span>
+                      <span className="text-xs text-[#456176] line-clamp-2 mt-1">
+                        {description || "A high-taste utility for modern builders."}
+                      </span>
+                    </div>
+                    <span className="text-[10px] font-mono text-[#89E00F] font-bold bg-white/80 px-2 py-0.5 rounded-full">
+                      ★ Community Curated
+                    </span>
+                  </div>
+                </PolaroidCard>
 
-                        <button
-                            type="submit"
-                            disabled={status === "submitting"}
-                            className="mt-6 w-full py-3 rounded-none bg-white text-black font-semibold tracking-wide hover:bg-gray-200 focus:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 group shadow-[0_0_20px_rgba(255,255,255,0.1)] hover:shadow-[0_0_25px_rgba(255,255,255,0.2)]"
-                        >
-                            {status === "submitting" ? (
-                                <motion.div
-                                    animate={{ rotate: 360 }}
-                                    transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-                                    className="w-5 h-5 border-2 border-black border-t-transparent rounded-full"
-                                />
-                            ) : (
-                                <>
-                                    <span>Submit to Directory</span>
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="group-hover:translate-x-1 transition-transform">
-                                        <line x1="5" y1="12" x2="19" y2="12"></line>
-                                        <polyline points="12 5 19 12 12 19"></polyline>
-                                    </svg>
-                                </>
-                            )}
-                        </button>
-                    </form>
-                )}
-            </motion.div>
-        </main>
-    );
+                {/* Submission Principles */}
+                <div className="mt-8 p-5 rounded-2xl bg-[#F0F2F5] border border-slate-200/80 space-y-2 text-xs text-[#456176]">
+                  <div className="font-mono text-[10px] uppercase tracking-widest text-[#14334D] font-bold mb-1">
+                    Curation Principles
+                  </div>
+                  <p>✦ We prioritize clean utilities, developer tools, and design gems.</p>
+                  <p>✦ No affiliate link farming or sponsored SEO traps.</p>
+                  <p>✦ Tools with generous free tiers or open source licenses are featured first.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  );
 }

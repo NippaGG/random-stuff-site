@@ -1,60 +1,98 @@
 "use client";
 
 import React from "react";
-
-import DecryptedText from "./DecryptedText";
-import { motion } from "framer-motion";
-import { Heart, Instagram, Plus } from "lucide-react";
+import { ChameleonLogo, MagneticButton } from "./studio";
+import { Heart, Plus, Github, ExternalLink, Instagram } from "lucide-react";
 import Link from "next/link";
 
 export default function Footer() {
   return (
-    <footer className="w-full py-8 relative z-50 flex flex-col md:flex-row items-center justify-center gap-6 border-t border-white/10 bg-black/80 backdrop-blur-md">
-      <div className="flex items-center gap-2 text-gray-400 font-mono text-sm">
-        <span>Made with</span>
-        <motion.span
-          animate={{ scale: [1, 1.2, 1] }}
-          transition={{ duration: 0.8, repeat: Infinity, repeatDelay: 1 }}
-          className="text-red-500"
-        >
-          <Heart className="w-4 h-4 fill-current" aria-hidden="true" />
-        </motion.span>
-        <span>by</span>
-
-        <a
-          href="https://shocka.site/"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="group relative text-[#a3e635] font-bold cursor-pointer"
-        >
-          <span className="relative z-10 group-hover:text-white transition-colors">
-            <DecryptedText text="ShockaGG" speed={50} />
+    <footer className="w-full mt-12 mb-6 px-3 sm:px-6 select-none">
+      <div className="w-full max-w-[1600px] mx-auto bg-white/90 backdrop-blur-md rounded-[32px] md:rounded-[40px] p-8 md:p-12 shadow-studio-card border border-white/90 flex flex-col items-center text-center">
+        {/* Top Chameleon Brand Badge */}
+        <div className="flex items-center gap-2.5 mb-4">
+          <ChameleonLogo size={36} />
+          <span className="font-phudu text-2xl font-black text-[#14334D] tracking-tight">
+            RANDOM STUFF
           </span>
-          <span className="absolute inset-0 bg-[#a3e635] blur-[20px] opacity-0 group-hover:opacity-50 transition-opacity" />
-        </a>
+        </div>
+
+        {/* Narrative & Two-Tone Subtitle */}
+        <p className="font-sans text-base sm:text-lg text-[#304F67] font-medium max-w-lg leading-relaxed mb-1">
+          A high-taste directory <span className="text-[#A0AFBB] font-normal">for builders</span>{" "}
+          <br className="hidden sm:inline" />
+          <span className="text-[#A0AFBB] font-normal">who want the</span> very best software & web tools.
+        </p>
+
+        <p className="font-caveat text-xl sm:text-2xl text-[#007BE5] font-bold mb-8">
+          Free forever. No sponsored bias. Pure utility.
+        </p>
+
+        {/* Action Magnetic Buttons */}
+        <div className="flex flex-wrap items-center justify-center gap-3 mb-10">
+          <MagneticButton
+            variant="accent-lime"
+            size="md"
+            icon={<Plus className="w-4 h-4 text-[#14334D]" />}
+            href="/submit"
+          >
+            Submit a Tool
+          </MagneticButton>
+
+          <MagneticButton
+            variant="primary-light"
+            size="md"
+            icon={<Github className="w-4 h-4 text-[#14334D]" />}
+            href="https://github.com/nipunyatawara-dev/random-stuff-site"
+            target="_blank"
+            rel="noreferrer"
+          >
+            Star on GitHub
+          </MagneticButton>
+
+          <MagneticButton
+            variant="primary-light"
+            size="md"
+            icon={<ExternalLink className="w-4 h-4 text-[#007BE5]" />}
+            href="https://shocka.site/"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            ShockaGG Portfolio
+          </MagneticButton>
+        </div>
+
+        {/* Bottom Hairline & Credits */}
+        <div className="w-full pt-6 border-t border-slate-200/80 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs font-mono text-[#456176]">
+          <div className="flex items-center gap-1.5">
+            <span>Crafted with</span>
+            <span className="text-red-500 animate-pulse">❤️</span>
+            <span>by</span>
+            <a
+              href="https://shocka.site/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-bold text-[#14334D] hover:text-[#007BE5] transition-colors underline"
+            >
+              ShockaGG
+            </a>
+          </div>
+
+          <div className="flex items-center gap-4">
+            <a
+              href="https://www.instagram.com/nipun.is.existing/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-[#14334D] transition-colors flex items-center gap-1"
+            >
+              <Instagram className="w-3.5 h-3.5" />
+              <span>Instagram</span>
+            </a>
+            <span>•</span>
+            <span className="text-slate-400">Next.js 16</span>
+          </div>
+        </div>
       </div>
-
-      <div className="hidden md:block w-1 h-1 bg-white/20 rounded-full" />
-
-      <Link
-        href="/submit"
-        className="px-4 py-2 rounded-none bg-white/5 hover:bg-white/10 border border-white/10 text-gray-300 hover:text-white transition-all font-mono text-sm flex items-center gap-2 shadow-[0_0_15px_rgba(255,255,255,0.05)] hover:shadow-[0_0_20px_rgba(255,255,255,0.15)]"
-      >
-        <Plus className="w-4 h-4" aria-hidden="true" />
-        <span>Submit a Tool</span>
-      </Link>
-
-      <div className="hidden md:block w-1 h-1 bg-white/20 rounded-full" />
-
-      <a
-        href="https://www.instagram.com/nipun.is.existing/"
-        target="_blank"
-        rel="noopener noreferrer"
-        className="text-gray-400 hover:text-white transition-colors font-mono text-sm flex items-center gap-2"
-      >
-        <Instagram className="w-4 h-4 opacity-70" aria-hidden="true" />
-        <span>Instagram</span>
-      </a>
     </footer>
   );
 }

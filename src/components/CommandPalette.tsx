@@ -4,21 +4,15 @@ import React, { useState, useEffect, useRef, useMemo } from "react";
 import {
   Search,
   Sparkles,
-  Star,
-  Volume2,
-  VolumeX,
-  Tv,
-  Boxes,
-  Palette,
-  CornerDownLeft,
-  X,
   ExternalLink,
   Scale,
   Download,
+  X,
+  Compass,
+  CornerDownLeft,
 } from "lucide-react";
 import type { Item } from "@/data/items";
-import { applyTheme, toggleCrt, isCrtEnabled } from "@/lib/theme-manager";
-import { playClickSound, playTabSound, toggleSound, isSoundEnabled } from "@/lib/sound-fx";
+import { playClickSound } from "@/lib/sound-fx";
 
 interface CommandPaletteProps {
   isOpen: boolean;
@@ -39,7 +33,7 @@ interface ActionItem {
   subtitle: string;
   icon: React.ReactNode;
   handler: () => void;
-  category: "Actions" | "Themes";
+  category: "Actions";
 }
 
 export default function CommandPalette({
@@ -58,7 +52,90 @@ export default function CommandPalette({
   const inputRef = useRef<HTMLInputElement>(null);
   const listRef = useRef<HTMLDivElement>(null);
 
-  // Focus input when opened
+  const actions: ActionItem[] = useMemo(
+    () => [
+      {
+        id: "action-random",
+        type: "action",
+        title: "Random Roulette",
+        subtitle: "Let destiny pick a random tool for you",
+        icon: <Sparkles className="w-4 h-4 text-amber-500" />,
+        handler: () => {
+          onClose();
+          onOpenRandom();
+        },
+        category: "Actions",
+      },
+      {
+        id: "action-favorites",
+        type: "action",
+        title: "View Favorites",
+        subtitle: "Browse your saved bookmarks and tools",
+        icon: <Compass className="w-4 h-4 text-[#007BE5]" />,
+        handler: () => {
+          onClose();
+          onOpenFavorites();
+        },
+        category: "Actions",
+      },
+      {
+        id: "action-compare",
+        type: "action",
+        title: "Compare Tools",
+        subtitle: "Side-by-side comparison of tools",
+        icon: <Scale className="w-4 h-4 text-emerald-500" />,
+        handler: () => {
+          onClose();
+          onOpenCompare();
+        },
+        category: "Actions",
+      },
+      {
+        id: "action-export",
+        type: "action",
+        title: "Export Favorites",
+        subtitle: "Download favorites as Markdown, JSON or HTML",
+        icon: <Download className="w-4 h-4 text-[#304F67]" />,
+        handler: () => {
+          onClose();
+          onExportFavorites();
+        },
+        category: "Actions",
+      },
+    ],
+    [onClose, onOpenRandom, onOpenFavorites, onOpenCompare, onExportFavorites]
+  );
+
+  const filteredItems = useMemo(() => {
+    if (!query.trim()) return [];
+    const q = query.toLowerCase().trim();
+    return items
+      .filter((item) => {
+        return (
+          item.title.toLowerCase().includes(q) ||
+          item.description.toLowerCase().includes(q) ||
+          item.category.toLowerCase().includes(q) ||
+          item.tags?.some((t) => t.toLowerCase().includes(q))
+        );
+      })
+      .slice(0, 8);
+  }, [items, query]);
+
+  const filteredActions = useMemo(() => {
+    if (!query.trim()) return actions;
+    const q = query.toLowerCase().trim();
+    return actions.filter(
+      (a) =>
+        a.title.toLowerCase().includes(q) || a.subtitle.toLowerCase().includes(q)
+    );
+  }, [actions, query]);
+
+  const totalResults = [...filteredActions, ...filteredItems];
+
+  useEffect(() => {
+    setSelectedIndex(0);
+  }, [query]);
+
   useEffect(() => {
     if (isOpen) {
       setQuery("");
@@ -67,252 +144,39 @@ export default function CommandPalette({
     }
   }, [isOpen]);
 
-  const actions: ActionItem[] = useMemo(
-    () => [
-      {
-        id: "action-random",
-        type: "action",
-        title: "Roll Random Tool",
-        subtitle: "Pick an unexpected gem from the catalog",
-        icon: <Sparkles className="w-4 h-4 text-[var(--theme-accent)]" />,
-        category: "Actions",
-        handler: () => {
-          onClose();
-          onOpenRandom();
-        },
-      },
-      {
-        id: "action-favorites",
-        type: "action",
-        title: "View Favorites",
-        subtitle: "Browse saved tools and bookmarks",
-        icon: <Star className="w-4 h-4 text-yellow-400" />,
-        category: "Actions",
-        handler: () => {
-          onClose();
-          onOpenFavorites();
-        },
-      },
-      {
-        id: "action-sandbox",
-        type: "action",
-        title: "Launch 2D Physics Gravity Sandbox",
-        subtitle: "Drop and fling catalog cards with Matter.js physics",
-        icon: <Boxes className="w-4 h-4 text-[var(--theme-accent)]" />,
-        category: "Actions",
-        handler: () => {
-          onClose();
-          onOpenSandbox();
-        },
-      },
-      {
-        id: "action-compare",
-        type: "action",
-        title: "Compare Tools Side-by-Side",
-        subtitle: "Compare features, stars, and licenses",
-        icon: <Scale className="w-4 h-4 text-cyan-400" />,
-        category: "Actions",
-        handler: () => {
-          onClose();
-          onOpenCompare();
-        },
-      },
-      {
-        id: "action-export",
-        type: "action",
-        title: "Export Saved Bookmarks",
-        subtitle: "Download as Markdown, JSON, or HTML bookmarks",
-        icon: <Download className="w-4 h-4 text-emerald-400" />,
-        category: "Actions",
-        handler: () => {
-          onClose();
-          onExportFavorites();
-        },
-      },
-      {
-        id: "action-crt",
-        type: "action",
-        title: "Toggle CRT Scanlines",
-        subtitle: `Currently ${isCrtEnabled() ? "ON" : "OFF"}`,
-        icon: <Tv className="w-4 h-4 text-purple-400" />,
-        category: "Actions",
-        handler: () => {
-          toggleCrt();
-          playClickSound();
-        },
-      },
-      {
-        id: "action-sound",
-        type: "action",
-        title: "Toggle Audio Synthesizer FX",
-        subtitle: `Currently ${isSoundEnabled() ? "ENABLED" : "MUTED"}`,
-        icon: isSoundEnabled() ? (
-          <Volume2 className="w-4 h-4 text-[var(--theme-accent)]" />
-        ) : (
-          <VolumeX className="w-4 h-4 text-neutral-500" />
-        ),
-        category: "Actions",
-        handler: () => {
-          toggleSound();
-        },
-      },
-      // Themes
-      {
-        id: "theme-lime",
-        type: "action",
-        title: "Phosphor Lime Theme",
-        subtitle: "High-contrast cyber green (#a3e635)",
-        icon: <Palette className="w-4 h-4 text-lime-400" />,
-        category: "Themes",
-        handler: () => {
-          applyTheme("lime");
-          playClickSound();
-        },
-      },
-      {
-        id: "theme-amber",
-        type: "action",
-        title: "Cyber Amber Theme",
-        subtitle: "Warm retro monochrome amber (#f59e0b)",
-        icon: <Palette className="w-4 h-4 text-amber-500" />,
-        category: "Themes",
-        handler: () => {
-          applyTheme("amber");
-          playClickSound();
-        },
-      },
-      {
-        id: "theme-emerald",
-        type: "action",
-        title: "Matrix Emerald Theme",
-        subtitle: "Deep terminal phosphorescent green (#10b981)",
-        icon: <Palette className="w-4 h-4 text-emerald-500" />,
-        category: "Themes",
-        handler: () => {
-          applyTheme("emerald");
-          playClickSound();
-        },
-      },
-      {
-        id: "theme-cobalt",
-        type: "action",
-        title: "Neon Cobalt Theme",
-        subtitle: "Electric cyan-blue interface (#38bdf8)",
-        icon: <Palette className="w-4 h-4 text-sky-400" />,
-        category: "Themes",
-        handler: () => {
-          applyTheme("cobalt");
-          playClickSound();
-        },
-      },
-    ],
-    [
-      onClose,
-      onOpenRandom,
-      onOpenFavorites,
-      onOpenSandbox,
-      onOpenCompare,
-      onExportFavorites,
-    ]
-  );
-
-  // Filter actions and items based on search query
-  const filteredResults = useMemo(() => {
-    const q = query.trim().toLowerCase();
-
-    const matchedActions = actions.filter(
-      (a) =>
-        q === "" ||
-        a.title.toLowerCase().includes(q) ||
-        a.subtitle.toLowerCase().includes(q) ||
-        a.category.toLowerCase().includes(q)
-    );
-
-    if (q === "") {
-      return { actions: matchedActions, items: [] };
-    }
-
-    const matchedItems = items
-      .filter((item) => {
-        return (
-          item.title.toLowerCase().includes(q) ||
-          item.description.toLowerCase().includes(q) ||
-          item.category.toLowerCase().includes(q) ||
-          (item.tags && item.tags.some((t) => t.toLowerCase().includes(q)))
-        );
-      })
-      .slice(0, 20);
-
-    return {
-      actions: matchedActions,
-      items: matchedItems,
-    };
-  }, [query, actions, items]);
-
-  const totalResults =
-    filteredResults.actions.length + filteredResults.items.length;
-
-  // Keyboard navigation
   useEffect(() => {
-    if (!isOpen) return;
-
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") {
-        e.preventDefault();
-        onClose();
-        return;
-      }
+      if (!isOpen) return;
 
       if (e.key === "ArrowDown") {
         e.preventDefault();
-        playTabSound();
-        setSelectedIndex((prev) => (prev + 1) % Math.max(1, totalResults));
-        return;
-      }
-
-      if (e.key === "ArrowUp") {
-        e.preventDefault();
-        playTabSound();
-        setSelectedIndex(
-          (prev) => (prev - 1 + totalResults) % Math.max(1, totalResults)
+        setSelectedIndex((prev) =>
+          prev < totalResults.length - 1 ? prev + 1 : 0
         );
-        return;
-      }
-
-      if (e.key === "Enter") {
+      } else if (e.key === "ArrowUp") {
         e.preventDefault();
-        playClickSound();
-
-        if (selectedIndex < filteredResults.actions.length) {
-          const action = filteredResults.actions[selectedIndex];
-          action.handler();
+        setSelectedIndex((prev) =>
+          prev > 0 ? prev - 1 : totalResults.length - 1
+        );
+      } else if (e.key === "Enter") {
+        e.preventDefault();
+        const selected = totalResults[selectedIndex];
+        if (!selected) return;
+        if ("handler" in selected) {
+          selected.handler();
         } else {
-          const itemIndex = selectedIndex - filteredResults.actions.length;
-          const item = filteredResults.items[itemIndex];
-          if (item) {
-            onClose();
-            onSelectItem(item);
-          }
+          onSelectItem(selected);
+          onClose();
         }
+      } else if (e.key === "Escape") {
+        e.preventDefault();
+        onClose();
       }
     };
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [
-    isOpen,
-    selectedIndex,
-    totalResults,
-    filteredResults,
-    onClose,
-    onSelectItem,
-  ]);
-
-  // Keep active item scrolled into view
-  useEffect(() => {
-    const el = listRef.current?.querySelector(`[data-index="${selectedIndex}"]`);
-    el?.scrollIntoView({ block: "nearest" });
-  }, [selectedIndex]);
+  }, [isOpen, selectedIndex, totalResults, onSelectItem, onClose]);
 
   if (!isOpen) return null;
 
@@ -321,169 +185,105 @@ export default function CommandPalette({
       role="dialog"
       aria-modal="true"
       aria-label="Command Palette"
-      className="fixed inset-0 z-50 flex items-start justify-center pt-16 sm:pt-24 px-4 bg-black/75 backdrop-blur-md animate-in fade-in duration-150"
+      className="fixed inset-0 z-50 flex items-start justify-center pt-16 sm:pt-24 p-4 bg-slate-900/40 backdrop-blur-md animate-in fade-in duration-200 select-none"
       onClick={onClose}
     >
       <div
-        className="w-full max-w-2xl bg-[#09090b] border border-[var(--theme-accent-border)] rounded-xl shadow-[0_0_40px_rgba(0,0,0,0.8),0_0_20px_var(--theme-accent-glow)] overflow-hidden flex flex-col max-h-[80vh]"
+        className="w-full max-w-xl bg-white rounded-[28px] shadow-studio-card border border-white/90 overflow-hidden flex flex-col"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Header Input */}
-        <div className="flex items-center px-4 py-3.5 border-b border-white/10 gap-3">
-          <Search className="w-5 h-5 text-[var(--theme-accent)] shrink-0" />
+        {/* Search Input Bar */}
+        <div className="flex items-center gap-3 px-5 py-3.5 border-b border-slate-100 bg-[#FAFCFD]">
+          <Search className="w-5 h-5 text-[#007BE5]" />
           <input
             ref={inputRef}
             type="text"
+            placeholder="Type a tool name, category (#macos, #cli), or command..."
             value={query}
-            onChange={(e) => {
-              setQuery(e.target.value);
-              setSelectedIndex(0);
-            }}
-            placeholder="Type a command, tool name, or filter tags..."
-            className="w-full bg-transparent text-white text-sm sm:text-base placeholder-neutral-500 focus:outline-none font-mono"
+            onChange={(e) => setQuery(e.target.value)}
+            className="flex-1 bg-transparent text-sm text-[#14334D] font-medium placeholder-slate-400 focus:outline-hidden"
           />
-          {query && (
-            <button
-              onClick={() => {
-                setQuery("");
-                setSelectedIndex(0);
-                inputRef.current?.focus();
-              }}
-              className="text-neutral-500 hover:text-white p-1"
-            >
-              <X className="w-4 h-4" />
-            </button>
-          )}
-          <kbd className="hidden sm:flex items-center gap-1 text-[10px] font-mono uppercase bg-neutral-800 text-neutral-400 px-2 py-0.5 rounded border border-neutral-700">
-            ESC
-          </kbd>
+          <button
+            type="button"
+            onClick={onClose}
+            className="p-1 rounded-full text-slate-400 hover:text-slate-600 hover:bg-slate-200 transition-colors"
+          >
+            <X className="w-4 h-4" />
+          </button>
         </div>
 
         {/* Results List */}
-        <div
-          ref={listRef}
-          className="flex-1 overflow-y-auto divide-y divide-white/5 p-2"
-        >
-          {totalResults === 0 ? (
-            <div className="py-12 text-center text-neutral-500 font-mono text-sm">
-              No matching tools or commands found.
+        <div ref={listRef} className="max-h-96 overflow-y-auto p-3 space-y-1">
+          {totalResults.length === 0 ? (
+            <div className="py-12 text-center text-xs text-slate-400 font-mono">
+              No matching tools or commands found
             </div>
           ) : (
-            <>
-              {/* Actions Section */}
-              {filteredResults.actions.length > 0 && (
-                <div className="pb-2">
-                  <div className="px-3 py-1.5 text-[10px] font-mono uppercase tracking-wider text-neutral-500">
-                    Commands & Settings
-                  </div>
-                  {filteredResults.actions.map((action, idx) => {
-                    const isSelected = selectedIndex === idx;
-                    return (
-                      <div
-                        key={action.id}
-                        data-index={idx}
-                        onClick={() => {
-                          playClickSound();
-                          action.handler();
-                        }}
-                        onMouseEnter={() => setSelectedIndex(idx)}
-                        className={`flex items-center justify-between px-3 py-2.5 rounded-lg cursor-pointer transition-colors text-xs sm:text-sm font-mono ${
-                          isSelected
-                            ? "bg-[var(--theme-accent-bg)] text-white border border-[var(--theme-accent-border)]"
-                            : "text-neutral-300 hover:bg-neutral-900/60"
-                        }`}
-                      >
-                        <div className="flex items-center gap-3 min-w-0">
-                          <span className="p-1 rounded bg-neutral-900 border border-white/10 shrink-0">
-                            {action.icon}
+            totalResults.map((entry, idx) => {
+              const isSelected = idx === selectedIndex;
+              const isAction = "handler" in entry;
+
+              return (
+                <div
+                  key={entry.id}
+                  onMouseEnter={() => setSelectedIndex(idx)}
+                  onClick={() => {
+                    playClickSound();
+                    if (isAction) {
+                      entry.handler();
+                    } else {
+                      onSelectItem(entry);
+                      onClose();
+                    }
+                  }}
+                  className={`w-full flex items-center justify-between p-3 rounded-2xl cursor-pointer transition-all ${
+                    isSelected
+                      ? "bg-[#F0F2F5] shadow-xs text-[#14334D]"
+                      : "text-[#456176] hover:bg-slate-50"
+                  }`}
+                >
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className="w-8 h-8 rounded-xl bg-white border border-slate-200/80 flex items-center justify-center shrink-0 shadow-xs">
+                      {isAction ? (
+                        entry.icon
+                      ) : (
+                        <span className="font-phudu font-bold text-xs text-[#007BE5]">
+                          {entry.title.charAt(0).toUpperCase()}
+                        </span>
+                      )}
+                    </div>
+                    <div className="min-w-0">
+                      <div className="text-sm font-bold text-[#14334D] truncate flex items-center gap-2">
+                        <span>{entry.title}</span>
+                        {!isAction && (
+                          <span className="text-[9px] font-mono uppercase px-2 py-0.5 rounded-full bg-slate-200 text-[#304F67]">
+                            {entry.category}
                           </span>
-                          <div className="truncate">
-                            <span className="font-medium">{action.title}</span>
-                            <span className="ml-2 text-xs text-neutral-500 hidden sm:inline">
-                              {action.subtitle}
-                            </span>
-                          </div>
-                        </div>
-                        {isSelected && (
-                          <CornerDownLeft className="w-3.5 h-3.5 text-[var(--theme-accent)] shrink-0" />
                         )}
                       </div>
-                    );
-                  })}
-                </div>
-              )}
-
-              {/* Tools Section */}
-              {filteredResults.items.length > 0 && (
-                <div className="pt-2">
-                  <div className="px-3 py-1.5 text-[10px] font-mono uppercase tracking-wider text-neutral-500 flex justify-between">
-                    <span>Tools & Resources</span>
-                    <span>{filteredResults.items.length} results</span>
-                  </div>
-                  {filteredResults.items.map((item, i) => {
-                    const idx = filteredResults.actions.length + i;
-                    const isSelected = selectedIndex === idx;
-                    return (
-                      <div
-                        key={item.id}
-                        data-index={idx}
-                        onClick={() => {
-                          playClickSound();
-                          onClose();
-                          onSelectItem(item);
-                        }}
-                        onMouseEnter={() => setSelectedIndex(idx)}
-                        className={`flex items-center justify-between px-3 py-2.5 rounded-lg cursor-pointer transition-colors text-xs sm:text-sm font-mono ${
-                          isSelected
-                            ? "bg-[var(--theme-accent-bg)] text-white border border-[var(--theme-accent-border)]"
-                            : "text-neutral-300 hover:bg-neutral-900/60"
-                        }`}
-                      >
-                        <div className="flex items-center gap-3 min-w-0">
-                          <span className="w-2 h-2 rounded-full bg-[var(--theme-accent)] shrink-0 opacity-70" />
-                          <div className="truncate">
-                            <span className="font-semibold text-white">
-                              {item.title}
-                            </span>
-                            <span className="ml-2 text-xs text-neutral-400 truncate">
-                              {item.description}
-                            </span>
-                          </div>
-                        </div>
-                        <div className="flex items-center gap-2 shrink-0 ml-2">
-                          <span className="text-[10px] px-1.5 py-0.5 rounded bg-neutral-900 border border-white/10 text-neutral-400">
-                            {item.category}
-                          </span>
-                          {isSelected && (
-                            <ExternalLink className="w-3.5 h-3.5 text-[var(--theme-accent)]" />
-                          )}
-                        </div>
+                      <div className="text-xs text-slate-400 truncate">
+                        {isAction ? entry.subtitle : entry.description}
                       </div>
-                    );
-                  })}
+                    </div>
+                  </div>
+
+                  {isSelected && (
+                    <CornerDownLeft className="w-4 h-4 text-[#007BE5] shrink-0 ml-2" />
+                  )}
                 </div>
-              )}
-            </>
+              );
+            })
           )}
         </div>
 
-        {/* Footer info */}
-        <div className="flex items-center justify-between px-4 py-2 bg-neutral-950/80 border-t border-white/10 text-[11px] font-mono text-neutral-500">
-          <div className="flex items-center gap-4">
-            <span className="flex items-center gap-1">
-              <kbd className="px-1 py-0.5 bg-neutral-800 rounded text-neutral-400">
-                &uarr;&darr;
-              </kbd>{" "}
-              Navigate
-            </span>
-            <span className="flex items-center gap-1">
-              <kbd className="px-1 py-0.5 bg-neutral-800 rounded text-neutral-400">
-                &crarr;
-              </kbd>{" "}
-              Select
-            </span>
+        {/* Footer shortcuts */}
+        <div className="px-5 py-2.5 border-t border-slate-100 bg-[#FAFCFD] flex items-center justify-between text-[11px] text-slate-400 font-mono">
+          <div className="flex items-center gap-3">
+            <span>↑↓ Navigate</span>
+            <span>↵ Select</span>
+            <span>ESC Close</span>
           </div>
-          <span className="text-[var(--theme-accent)]">RANDOM STUFF DOCK</span>
+          <span className="text-[#007BE5] font-bold">Random Stuff</span>
         </div>
       </div>
     </div>

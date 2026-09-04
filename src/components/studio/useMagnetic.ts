@@ -1,0 +1,102 @@
+import { useEffect, useRef } from 'react';
+import gsap from 'gsap';
+
+export interface UseMagneticOptions {
+  /** Proximity padding in px outside the button bounds to trigger magnetic attraction (default: 40) */
+  proximity?: number;
+  /** Maximum displacement of the outer button shell in px (default: 3) */
+  outerLimit?: number;
+  /** Maximum displacement of the inner icon and text in px (default: 5) */
+  innerLimit?: number;
+  /** Elastic animation duration for outer shell in seconds (default: 1.0) */
+  outerDuration?: number;
+  /** Elastic animation duration for inner content in seconds (default: 0.8) */
+  innerDuration?: number;
+  /** Whether the magnetic effect is active (default: true) */
+  enabled?: boolean;
+}
+
+export function useMagnetic({
+  proximity = 40,
+  outerLimit = 3,
+  innerLimit = 5,
+  outerDuration = 1.0,
+  innerDuration = 0.8,
+  enabled = true,
+}: UseMagneticOptions = {}) {
+  const containerRef = useRef<HTMLElement | null>(null);
+  const innerRef = useRef<HTMLElement | null>(null);
+
+  useEffect(() => {
+    if (!enabled) return;
+
+    // Check for reduced motion preference
+    if (typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      return;
+    }
+
+    const container = containerRef.current;
+    const inner = innerRef.current;
+    if (!container || !inner) return;
+
+    // Initialize optimized GSAP quickTo setters with elastic spring curves
+    const quickOuterX = gsap.quickTo(container, 'x', {
+      duration: outerDuration,
+      ease: 'elastic.out(1, 0.5)',
+    });
+    const quickOuterY = gsap.quickTo(container, 'y', {
+      duration: outerDuration,
+      ease: 'elastic.out(1, 0.5)',
+    });
+    const quickInnerX = gsap.quickTo(inner, 'x', {
+      duration: innerDuration,
+      ease: 'elastic.out(1, 0.55)',
+    });
+    const quickInnerY = gsap.quickTo(inner, 'y', {
+      duration: innerDuration,
+      ease: 'elastic.out(1, 0.55)',
+    });
+
+    const handleMouseMove = (e: MouseEvent) => {
+      const rect = container.getBoundingClientRect();
+      const centerX = rect.left + rect.width / 2;
+      const centerY = rect.top + rect.height / 2;
+      const deltaX = e.clientX - centerX;
+      const deltaY = e.clientY - centerY;
+
+      // Check if mouse is within proximity bounding box
+      const isInside =
+        e.clientX >= rect.left - proximity &&
+        e.clientX <= rect.right + proximity &&
+        e.clientY >= rect.top - proximity &&
+        e.clientY <= rect.bottom + proximity;
+
+      if (isInside) {
+        // Outer button shifts subtly (0.1 * delta, clamped to outerLimit)
+        quickOuterX(Math.max(-outerLimit, Math.min(outerLimit, 0.1 * deltaX)));
+        quickOuterY(Math.max(-outerLimit, Math.min(outerLimit, 0.1 * deltaY)));
+
+        // Inner content (icon & text) shifts further (0.2 * delta, clamped to innerLimit)
+        // Creating the signature parallax float inside the button
+        quickInnerX(Math.max(-innerLimit, Math.min(innerLimit, 0.2 * deltaX)));
+        quickInnerY(Math.max(-innerLimit, Math.min(innerLimit, 0.2 * deltaY)));
+      } else {
+        // Smoothly snap back to origin
+        quickOuterX(0);
+        quickOuterY(0);
+        quickInnerX(0);
+        quickInnerY(0);
+      }
+    };
+
+    window.addEventListener('mousemove', handleMouseMove);
+
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+      // Clean up inline transforms on unmount
+      gsap.set([container, inner], { x: 0, y: 0 });
+    };
+  }, [proximity, outerLimit, innerLimit, outerDuration, innerDuration, enabled]);
+
+  return { containerRef, innerRef };
+}

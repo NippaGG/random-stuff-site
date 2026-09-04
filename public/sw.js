@@ -1,5 +1,5 @@
 // Random Stuff - Lightweight Service Worker
-const CACHE_NAME = "random-stuff-v1";
+const CACHE_NAME = "random-stuff-v2";
 const PRECACHE_URLS = [
   "/",
   "/manifest.webmanifest",

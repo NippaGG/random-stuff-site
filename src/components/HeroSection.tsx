@@ -1,334 +1,186 @@
 "use client";
 
-import React, { useRef, useState, useEffect } from "react";
-// 1. Import useMotionValueEvent
-import { motion, useScroll, useTransform, useMotionValueEvent } from "framer-motion";
-import TextPressure from "./TextPressure";
-import ConstellationWords from "./ConstellationWords";
-import Image from "next/image";
-import { Github, ArrowDown } from "lucide-react";
-import { scrollToY } from "@/lib/lenis";
+import React from 'react';
+import {
+  MagneticButton,
+  PolaroidCard,
+  InlineBadge,
+  ProjectsFolderIcon,
+  ChameleonLogo,
+  TextHighlight,
+} from './studio';
+import { Sparkles, Plus, Compass, ArrowDown, ExternalLink } from 'lucide-react';
+import { motion } from 'framer-motion';
 
-export default function HeroSection() {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const [showScrollHint, setShowScrollHint] = useState(true);
-  const [isSiteLocked, setIsSiteLocked] = useState(false);
-  const [isMobile, setIsMobile] = useState(
-    () => (typeof window !== "undefined" ? window.matchMedia("(max-width: 767px)").matches : false)
-  );
+export interface HeroSectionProps {
+  totalItemsCount?: number;
+  onExploreClick?: () => void;
+  onRouletteClick?: () => void;
+  onSubmitClick?: () => void;
+}
 
-  // 2. New State: Should we freeze the animations?
-  const [freezeAnimations, setFreezeAnimations] = useState(false);
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setShowScrollHint(false);
-    }, 5000);
-    return () => clearTimeout(timer);
-  }, []);
-
-  useEffect(() => {
-    const setInitial = () => {
-      setIsSiteLocked(document.documentElement.dataset.siteLocked === "true");
-    };
-    setInitial();
-    const onLockChange = (event: Event) => {
-      const detail = (event as CustomEvent<{ locked: boolean }>).detail;
-      if (detail && typeof detail.locked === "boolean") {
-        setIsSiteLocked(detail.locked);
-      } else {
-        setInitial();
-      }
-    };
-    window.addEventListener("site-lock-change", onLockChange);
-    return () => window.removeEventListener("site-lock-change", onLockChange);
-  }, []);
-
-  useEffect(() => {
-    const mediaQuery = window.matchMedia("(max-width: 767px)");
-    const onChange = (event: MediaQueryListEvent) => {
-      setIsMobile(event.matches);
-    };
-
-    if (typeof mediaQuery.addEventListener === "function") {
-      mediaQuery.addEventListener("change", onChange);
-      return () => mediaQuery.removeEventListener("change", onChange);
+export default function HeroSection({
+  totalItemsCount = 350,
+  onExploreClick,
+  onRouletteClick,
+  onSubmitClick,
+}: HeroSectionProps) {
+  const scrollToCatalog = () => {
+    if (onExploreClick) {
+      onExploreClick();
+      return;
     }
-
-    mediaQuery.addListener(onChange);
-    return () => mediaQuery.removeListener(onChange);
-  }, []);
-
-  const { scrollYProgress } = useScroll({
-    target: containerRef,
-    offset: ["start start", "end start"],
-  });
-
-  // 3. THE TRIGGER
-  // When scroll > 0.65 (The exact point the Nav straightens), 
-  // we set freezeAnimations to true.
-  useMotionValueEvent(scrollYProgress, "change", (latest) => {
-    if (latest > 0.65 && !freezeAnimations) {
-      setFreezeAnimations(true);
-    } else if (latest <= 0.65 && freezeAnimations) {
-      setFreezeAnimations(false);
+    const catalogEl = document.getElementById('catalog-section');
+    if (catalogEl) {
+      catalogEl.scrollIntoView({ behavior: 'smooth' });
     }
-  });
-
-  // --- ANIMATIONS ---
-  const scrollTextOpacity = useTransform(scrollYProgress, [0, 0.1], [1, 0]);
-
-  const sideOpacity = useTransform(scrollYProgress, [0, 0.15], [1, 0]);
-  const constellationOpacity = useTransform(scrollYProgress, [0, 0.14], [1, 0]);
-  const sideBlur = useTransform(scrollYProgress, [0, 0.15], ["0px", "20px"]);
-  const yPos = useTransform(
-    scrollYProgress,
-    [0, 0.2, 0.45, 0.6],
-    isMobile
-      ? ["0vh", "-24vh", "-24vh", "-42vh"]
-      : ["0vh", "-35vh", "-35vh", "-60vh"]
-  );
-
-  // NEW: "STUFF" Center Column Fade for Mobile
-  // Fade out opacity completely between 0.15 and 0.3 only on mobile
-  const centerOpacity = useTransform(
-    scrollYProgress,
-    [0.15, 0.3],
-    isMobile ? [1, 0] : [1, 1]
-  );
-
-  const lineWidth = useTransform(scrollYProgress, [0.2, 0.45], ["0%", "100%"]);
-  const lineOpacity = useTransform(scrollYProgress, [0.18, 0.2], [0, 1]);
+  };
 
   return (
-    <>
-      <div
-        ref={containerRef}
-        className="h-[320vh] md:h-[400vh] relative z-[100] pointer-events-none transform-gpu"
-        style={{
-          opacity: isSiteLocked ? 0 : 1,
-          transition: "opacity 0.3s ease",
-        }}
-      >
-        <div className="sticky top-0 h-screen flex flex-col items-center justify-center overflow-hidden w-full px-4 md:px-5">
+    <section className="relative w-full pt-4 pb-12 md:pb-16 flex flex-col items-center select-none">
+      {/* Main Display Headline */}
+      <div className="max-w-[860px] mx-auto text-center px-4 mb-4">
+        <h1 className="font-sans text-3xl sm:text-4xl md:text-5xl lg:text-[58px] font-semibold text-[#304F67] leading-[1.16] tracking-[-0.035em]">
+          The <InlineBadge type="chameleon" /> directory{' '}
+          <span className="text-[#A0AFBB] font-normal">for builders</span>{' '}
+          <br className="hidden md:inline" />
+          <span className="text-[#A0AFBB] font-normal">who simply</span> can't afford to waste time
+        </h1>
 
-          {/* GITHUB BUTTON - Top Left (Desktop) / Top Center (Mobile) */}
-          <div className="absolute top-8 left-1/2 -translate-x-1/2 md:left-8 md:translate-x-0 z-[150] pointer-events-auto flex items-center gap-4">
-            <motion.a
-              href="https://github.com/NippaGG/random-stuff-site"
-              target="_blank"
-              rel="noreferrer"
-              whileTap={{ scale: 0.95 }}
-              aria-label="Open the Random Stuff GitHub repository"
-              className="flex items-center justify-center w-10 h-10 md:w-12 md:h-12 rounded-none bg-[#a3e635]/10 border border-[#a3e635]/20 backdrop-blur-md text-[#a3e635] hover:bg-[#a3e635]/20 hover:-translate-y-1 hover:-translate-x-1 hover:shadow-[4px_4px_0px_#a3e635] transition-all"
-            >
-              <Github size={24} />
-            </motion.a>
-            <motion.div
-              style={{ opacity: sideOpacity }}
-              className="hidden lg:flex flex-col text-[10px] font-mono tracking-widest uppercase select-none pointer-events-none"
-            >
-              <span className="text-[#a3e635]/70 flex items-center gap-1.5">
-                <span className="w-1.5 h-1.5 rounded-full bg-[#a3e635] animate-pulse" />
-                SYS // DIRECTORY v2.4
+        <p className="text-sm sm:text-base md:text-lg text-[#456176] font-medium max-w-xl mx-auto mt-4 leading-relaxed">
+          Every essential bookmark, desktop software, and script you need.{' '}
+          <span className="font-caveat text-2xl md:text-3xl font-bold text-[#007BE5] underline decoration-wavy decoration-[#82CCFF]">
+            Handpicked daily
+          </span>
+          . No sponsored noise, just craft.
+        </p>
+      </div>
+
+      {/* Hero Magnetic CTA Action Buttons */}
+      <div className="flex flex-wrap items-center justify-center gap-3.5 my-8 px-4">
+        <MagneticButton
+          variant="primary-light"
+          size="lg"
+          icon={<ProjectsFolderIcon size={22} />}
+          onClick={scrollToCatalog}
+        >
+          Explore {totalItemsCount}+ Tools
+        </MagneticButton>
+
+        {onRouletteClick && (
+          <MagneticButton
+            variant="accent-lime"
+            size="lg"
+            icon={<Sparkles className="w-5 h-5 text-[#14334D]" />}
+            onClick={onRouletteClick}
+          >
+            Surprise Roulette
+          </MagneticButton>
+        )}
+
+        <MagneticButton
+          variant="primary-dark"
+          size="lg"
+          icon={<Plus className="w-5 h-5 text-white" />}
+          href="/submit"
+          onClick={onSubmitClick}
+        >
+          Submit a Tool
+        </MagneticButton>
+      </div>
+
+      {/* Polaroid Scrapbook Stage */}
+      <div className="w-full max-w-[860px] mx-auto mt-6 mb-8 px-4">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 sm:gap-4 md:gap-6 items-center justify-items-center">
+          {/* Polaroid 1: Raycast */}
+          <PolaroidCard
+            caption="Feels fresh....."
+            pinType="red-pin"
+            rotation={-4}
+            className="w-full max-w-[240px]"
+            onClick={scrollToCatalog}
+          >
+            <div className="w-full h-full bg-gradient-to-br from-slate-900 via-[#14334D] to-slate-800 p-4 flex flex-col justify-between items-center text-center">
+              <div className="flex items-center gap-2 pt-1">
+                <span className="w-2.5 h-2.5 rounded-full bg-red-400" />
+                <span className="font-mono text-[10px] uppercase tracking-wider text-slate-300 font-bold">
+                  Top Software
+                </span>
+              </div>
+              <div className="my-auto">
+                <span className="font-phudu text-2xl font-black text-white block">Raycast</span>
+                <span className="text-[11px] text-[#82CCFF] font-medium mt-0.5 block">Launcher on steroids</span>
+              </div>
+              <span className="text-[10px] font-mono text-emerald-400 bg-emerald-950/60 px-2 py-0.5 rounded-full border border-emerald-500/30">
+                ★ 100% Free Tier
               </span>
-              <span className="text-white/30 text-[9px]">FEED: CURATED // STABLE</span>
-            </motion.div>
-          </div>
-
-          {/* HUD COORDINATES - Bottom Left (Desktop Only) */}
-          <motion.div
-            style={{ opacity: sideOpacity }}
-            className="hidden md:flex flex-col gap-0.5 absolute bottom-8 left-8 z-[140] font-mono text-[10px] text-white/30 tracking-widest uppercase select-none pointer-events-none"
-          >
-            <span className="text-[#a3e635]/60">INDEX [001 — 350+]</span>
-            <span className="text-white/20">LOC: 0x7F // LATENCY [0.0ms]</span>
-          </motion.div>
-
-          {/* PORTFOLIO TRIGGER - Top Right (Desktop Only) */}
-          <div className="hidden md:block absolute top-8 right-8 z-[150] pointer-events-auto">
-            <motion.a
-              href="https://shocka.site/"
-              target="_blank"
-              rel="noreferrer"
-              whileTap={{ scale: 0.95 }}
-              aria-label="Open ShockaGG portfolio"
-              className="block relative w-10 h-10 md:w-12 md:h-12 rounded-none overflow-hidden bg-[#a3e635]/10 border border-[#a3e635]/20 backdrop-blur-md hover:bg-[#a3e635]/20 hover:-translate-y-1 hover:-translate-x-1 hover:shadow-[4px_4px_0px_#a3e635] transition-all"
-            >
-              <Image
-                src="/icon.png"
-                alt="Portfolio"
-                fill
-                sizes="48px"
-                className="object-cover"
-              />
-            </motion.a>
-          </div>
-
-          {/* SCROLL DOWN BUTTON - Bottom Right */}
-          <div className="absolute bottom-8 right-8 z-[150] pointer-events-auto">
-            <motion.button
-              type="button"
-              onClick={() => {
-                const viewportHeight = window.innerHeight;
-                // Match the threshold from ContentSection.tsx
-                const targetScroll = viewportHeight * (isMobile ? 1.6 : 1.9);
-                scrollToY(targetScroll + 10); // Small buffer to ensure lock triggers
-              }}
-              whileTap={{ scale: 0.95 }}
-              aria-label="Scroll to the directory"
-              // INCREASED TOUCH TARGET PADDING
-              className="flex items-center justify-center p-3 w-12 h-12 md:w-12 md:h-12 rounded-none bg-[#a3e635]/10 border border-[#a3e635]/20 backdrop-blur-md text-[#a3e635] hover:bg-[#a3e635]/20 hover:-translate-y-1 hover:-translate-x-1 hover:shadow-[4px_4px_0px_#a3e635] transition-all"
-            >
-              <ArrowDown size={24} />
-            </motion.button>
-          </div>
-
-          {/* CONSTELLATION WORDS - radiating network lines */}
-          <ConstellationWords
-            opacity={constellationOpacity}
-            compact={isMobile}
-            paused={freezeAnimations || isSiteLocked}
-          />
-
-          {/* GRID LAYOUT */}
-          <div className="relative grid grid-cols-1 md:grid-cols-[1fr_auto_1fr] items-center w-full max-w-screen-xl mx-auto gap-2 md:gap-[2vw]">
-            {/* Subtle corner crosshair markers */}
-            <motion.span style={{ opacity: sideOpacity }} className="pointer-events-none hidden md:block absolute -top-8 -left-4 text-[#a3e635]/30 font-mono text-xs select-none">+</motion.span>
-            <motion.span style={{ opacity: sideOpacity }} className="pointer-events-none hidden md:block absolute -top-8 -right-4 text-[#a3e635]/30 font-mono text-xs select-none">+</motion.span>
-            <motion.span style={{ opacity: sideOpacity }} className="pointer-events-none hidden md:block absolute -bottom-8 -left-4 text-[#a3e635]/30 font-mono text-xs select-none">+</motion.span>
-            <motion.span style={{ opacity: sideOpacity }} className="pointer-events-none hidden md:block absolute -bottom-8 -right-4 text-[#a3e635]/30 font-mono text-xs select-none">+</motion.span>
-
-            {/* LEFT COLUMN */}
-            <motion.div
-              style={{ opacity: sideOpacity, filter: `blur(${sideBlur})` }}
-              className="hidden md:block w-full h-[100px] relative"
-            >
-              <div className="absolute right-0 top-0 w-full h-full flex justify-end items-center translate-y-0">
-                <div className="w-full h-full">
-                  <TextPressure
-                    text="Random (useful)"
-                    flex={true}
-                    alpha={false}
-                    stroke={false}
-                    width={true}
-                    weight={true}
-                    italic={true}
-                    textColor="#FFFFFF"
-                    minFontSize={24}
-                    // 4. Pass the Freeze Prop
-                    stopAnimation={freezeAnimations}
-                  />
-                </div>
-              </div>
-            </motion.div>
-
-            {/* CENTER COLUMN */}
-            <motion.div
-              style={{ y: yPos, opacity: centerOpacity }}
-              className="flex flex-col items-center justify-center z-[101] relative pointer-events-auto w-full md:w-[300px] h-[90px] md:h-[100px]"
-            >
-              <div className="relative w-full h-full flex items-center justify-center -translate-y-10 md:-translate-y-12">
-                {!isMobile ? (
-                  <TextPressure
-                    text="STUFF"
-                    flex={true}
-                    alpha={false}
-                    stroke={false}
-                    width={true}
-                    weight={true}
-                    italic={true}
-                    textColor="#a3e635"
-                    minFontSize={36}
-                    stopAnimation={freezeAnimations}
-                  />
-                ) : (
-                  // NEW MOBILE HERO EFFECT: Breathing Neon Text (No Mouse Required)
-                  <motion.div
-                    animate={{
-                      scale: [1, 1.05, 1],
-                      textShadow: [
-                        "0px 0px 20px rgba(163,230,53,0.3)",
-                        "0px 0px 40px rgba(163,230,53,0.8)",
-                        "0px 0px 20px rgba(163,230,53,0.3)"
-                      ]
-                    }}
-                    transition={{
-                      duration: 3,
-                      repeat: Infinity,
-                      ease: "easeInOut"
-                    }}
-                    className="font-black italic tracking-tighter text-[#a3e635] text-[15vw] leading-none"
-                  >
-                    STUFF
-                  </motion.div>
-                )}
-              </div>
-
-              {/* THE GROWING LINE - HIDE ON MOBILE */}
-              <motion.div
-                style={{
-                  opacity: lineOpacity,
-                  width: lineWidth
-                }}
-                className="hidden md:block absolute bottom-1 md:bottom-3 left-1/2 -translate-x-1/2 h-[4px] max-w-[90vw] overflow-hidden"
-              >
-                <motion.div
-                  className="w-full h-full bg-[#a3e635] shadow-[0_0_15px_#a3e635,0_0_5px_#a3e635] rounded-full"
-                />
-              </motion.div>
-
-            </motion.div>
-
-            {/* RIGHT COLUMN */}
-            <motion.div
-              style={{ opacity: sideOpacity, filter: `blur(${sideBlur})` }}
-              className="hidden md:block w-full h-[100px] relative"
-            >
-              <div className="absolute left-0 top-0 w-full h-full flex justify-start items-center translate-y-2">
-                <div className="w-full h-full">
-                  <TextPressure
-                    text="from the internet"
-                    flex={true}
-                    alpha={false}
-                    stroke={false}
-                    width={true}
-                    weight={true}
-                    italic={true}
-                    textColor="#FFFFFF"
-                    minFontSize={24}
-                    // 4. Pass the Freeze Prop
-                    stopAnimation={freezeAnimations}
-                  />
-                </div>
-              </div>
-            </motion.div>
-
-            {/* MOBILE FALLBACK - HIDDEN */}
-            <div className="hidden flex-col items-center gap-1.5">
-              <motion.span style={{ opacity: sideOpacity }} className="font-mono text-white/90 font-semibold drop-shadow-md text-lg">Random (useful)</motion.span>
-              <motion.span style={{ opacity: sideOpacity }} className="font-mono text-white/90 font-semibold drop-shadow-md text-lg">from the internet</motion.span>
             </div>
+          </PolaroidCard>
 
-          </div>
-
-          {/* WRAPPER FOR TIME-BASED FADE */}
-          <motion.div
-            animate={{ opacity: showScrollHint ? 1 : 0 }}
-            transition={{ duration: 0.5 }}
-            className="absolute bottom-8 md:bottom-10"
+          {/* Polaroid 2: Builder Stacks */}
+          <PolaroidCard
+            caption="Builder Stacks"
+            pinType="paperclip"
+            rotation={3}
+            className="w-full max-w-[240px]"
+            onClick={scrollToCatalog}
           >
-            {/* INNER DIV FOR SCROLL-BASED FADE */}
-            <motion.div
-              style={{ opacity: scrollTextOpacity }}
-              className="text-gray-500 text-xs animate-pulse tracking-widest uppercase"
-            >
-              Scroll down
-            </motion.div>
-          </motion.div>
+            <div className="w-full h-full bg-gradient-to-br from-[#8ED5FF] via-[#BFE5FF] to-[#73C800] p-4 flex flex-col justify-between items-center text-center">
+              <span className="font-mono text-[10px] uppercase tracking-wider text-[#14334D] font-bold">
+                Curated Kits
+              </span>
+              <div className="my-auto flex flex-col items-center">
+                <div className="w-12 h-12 rounded-2xl bg-white/80 shadow-studio-button flex items-center justify-center mb-1.5">
+                  <ChameleonLogo size={28} />
+                </div>
+                <span className="font-phudu text-lg font-black text-[#14334D]">
+                  Developer & Design
+                </span>
+              </div>
+              <span className="text-[10px] font-mono text-[#14334D] font-bold bg-white/60 px-2 py-0.5 rounded-full">
+                4 Power Stacks
+              </span>
+            </div>
+          </PolaroidCard>
 
+          {/* Polaroid 3: Studio Motto */}
+          <PolaroidCard
+            caption="Our Motto"
+            pinType="green-pin"
+            rotation={-2}
+            className="w-full max-w-[240px]"
+            onClick={scrollToCatalog}
+          >
+            <div className="w-full h-full bg-[#14334D] text-white p-4 flex flex-col justify-between items-center text-center">
+              <span className="font-phudu text-[11px] font-bold text-[#9DF71F] uppercase tracking-widest">
+                Principle
+              </span>
+              <div className="my-auto space-y-1">
+                <span className="font-sans font-black text-sm block tracking-tight">
+                  ZERO SPONSORED ADS
+                </span>
+                <span className="font-caveat text-xl text-[#82CCFF] block">
+                  Only tools that matter
+                </span>
+              </div>
+              <span className="text-[10px] font-mono text-slate-300">
+                Community Driven
+              </span>
+            </div>
+          </PolaroidCard>
         </div>
       </div>
-    </>
+
+      {/* Downward Scroll Guide */}
+      <button
+        type="button"
+        onClick={scrollToCatalog}
+        aria-label="Scroll to directory catalog"
+        className="mt-2 flex items-center gap-2 text-xs font-mono font-bold uppercase tracking-wider text-[#456176] hover:text-[#14334D] transition-colors cursor-pointer group"
+      >
+        <span>Browse All Tools Below</span>
+        <ArrowDown className="w-3.5 h-3.5 group-hover:translate-y-0.5 transition-transform" />
+      </button>
+    </section>
   );
 }

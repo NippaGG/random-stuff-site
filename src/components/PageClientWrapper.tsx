@@ -2,35 +2,15 @@
 
 import { useEffect, useState } from "react";
 import Lenis from "lenis";
-import { AnimatePresence } from "framer-motion";
 import { clearLenisInstance, setLenisInstance } from "@/lib/lenis";
-import LoadingScreen from "@/components/LoadingScreen";
-import CustomCursor from "@/components/CustomCursor";
-import CrtScanlines from "@/components/CrtScanlines";
-import { getStoredTheme, applyTheme } from "@/lib/theme-manager";
 
 export default function PageClientWrapper({ children }: { children: React.ReactNode }) {
-  const [isLoading, setIsLoading] = useState(false);
   const [isMobile, setIsMobile] = useState<boolean | null>(null);
 
-  // Initialize theme & register service worker
+  // Initialize service worker in production
   useEffect(() => {
-    applyTheme(getStoredTheme());
-
     if ("serviceWorker" in navigator && process.env.NODE_ENV === "production") {
       navigator.serviceWorker.register("/sw.js").catch(() => {});
-    }
-  }, []);
-
-  // Check if intro has already been seen in this session
-  useEffect(() => {
-    try {
-      const seen = sessionStorage.getItem("random-stuff-seen-intro");
-      if (!seen) {
-        setIsLoading(true);
-      }
-    } catch {
-      // ignore storage access errors
     }
   }, []);
 
@@ -43,29 +23,24 @@ export default function PageClientWrapper({ children }: { children: React.ReactN
     return () => mq.removeEventListener("change", onChange);
   }, []);
 
-  // Lenis smooth scrolling
+  // Lenis smooth scrolling for tactile flow
   useEffect(() => {
     if (isMobile === null) return;
 
     const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    const isFinePointer = window.matchMedia("(pointer: fine)").matches;
-
     if (prefersReducedMotion) {
       return;
     }
 
-    if (!isMobile && !isFinePointer) {
-      return;
-    }
-
     const lenis = new Lenis({
-      lerp: isMobile ? 0.08 : 0.08,
-      smoothWheel: !isMobile,
-      wheelMultiplier: isMobile ? 1 : 0.9,
-      touchMultiplier: 1,
+      lerp: isMobile ? 0.1 : 0.08,
+      smoothWheel: true,
+      wheelMultiplier: 0.95,
+      touchMultiplier: 1.2,
       syncTouch: false,
     });
     setLenisInstance(lenis);
+
     let rafId: number;
     function raf(time: number) {
       lenis.raf(time);
@@ -80,29 +55,5 @@ export default function PageClientWrapper({ children }: { children: React.ReactN
     };
   }, [isMobile]);
 
-  return (
-    <>
-      <div className="hidden md:block">
-        <CustomCursor />
-      </div>
-      <CrtScanlines />
-
-      <AnimatePresence mode="wait">
-        {isLoading && (
-          <LoadingScreen
-            onComplete={() => {
-              try {
-                sessionStorage.setItem("random-stuff-seen-intro", "true");
-              } catch {
-                // ignore
-              }
-              setIsLoading(false);
-            }}
-          />
-        )}
-      </AnimatePresence>
-
-      {children}
-    </>
-  );
+  return <>{children}</>;
 }
